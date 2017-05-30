@@ -11,6 +11,7 @@ class SimpleCGE:
 
     def __init__(self, dat):
         self.model_data(dat)
+        self.model_abstract()
         self.model_instance()
 
     def model_abstract(self):
@@ -30,7 +31,7 @@ class SimpleCGE:
 
         def X0_init(model, i):
             # is it necessary to use self.m?
-            return model[i, 'HOH']
+            return model.sam[i, 'HOH']
 
         self.m.X0 = Param(self.m.i,
                           initialize=X0_init,
@@ -54,7 +55,7 @@ class SimpleCGE:
             return model.sam['HOH', h]
         
         self.m.FF = Param(self.m.h,
-                          initilize=FF_init,
+                          initialize=FF_init,
                           doc = 'factor endowment of the h-th factor')
         
         # --------------------------------------------- #
@@ -112,8 +113,7 @@ class SimpleCGE:
                         initialize=p_init,
                         within=PositiveReals,
                         doc='supply price of the i-th good')
-        
-        #are these two (px and pz) supposed to be the exact same?
+
         
         self.m.pf = Var(self.m.h,
                         initialize=p_init,
@@ -132,10 +132,11 @@ class SimpleCGE:
                                 doc='household demand function')
         
         
-       def eqpz_rule(model, i):
-           return (model.Z[i] == model.b[i] * np.prod([model.F[h, i]**model.beta[h, i] for h in model.h]))
+        def eqpz_rule(model, i):
+            return (model.Z[i] == model.b[i] * np.prod([model.F[h, i]**model.beta[h, i] for h in model.h]))
  
-       self.m.eqpz = Constraint(self.m.i,
+    
+        self.m.eqpz = Constraint(self.m.i,
                                  rule=eqpz_rule,
                                  doc='production function')
        
@@ -159,7 +160,7 @@ class SimpleCGE:
         def eqpf_rule(model, h):
             return (sum(model.F[h, j] for j in model.i) == model.FF[h])
 
-        self.m.eqpf = Constraint(model.h,
+        self.m.eqpf = Constraint(self.m.h,
                                  rule=eqpf_rule,
                                  doc='factor market clearning condition')
 
@@ -212,16 +213,17 @@ class SimpleCGE:
         self.instance.obj.display()
         self.instance.X.display()
         self.instance.px.display()
+        self.instance.Z.display()
         
         #Do we want the outputs the same as the demo/does it matter?
 
-    def model_output(self):
+   # def model_output(self):
         # save results
 
 
 # Example calls:
 # Define model and instantiate:
-# test_cge = SimpleCGE("splcge.dat")
+#test_cge = SimpleCGE("splcge.dat")
 # Solve the model, using Minos solver on NEOS:
 # test_cge.model_solve("neos", "minos")
 # other solvers: "ipopt", "knitro"
