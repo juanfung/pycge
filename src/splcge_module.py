@@ -7,6 +7,7 @@ import numpy as np
 class SimpleCGE:
     """Pyomo port of splcge.gams from GAMS model library"""
     """Inputs: dat, solver """
+    """this is the first test change"""
 
     def __init__(self, dat):
         self.model_data(dat)
