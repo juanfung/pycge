@@ -246,18 +246,22 @@ if __name__ == '__main__':
     pyomo_postprocess(instance=instance)
     
     
-# code to export results as a text file    
+# code to export results as a text file
+# creates a file for each variable and one for the objetive    
     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
     directory = (r'./results/')
     if not os.path.exists(directory):
         os.makedirs(directory)
     filename = (r'./results/result_')
-    with open(filename + moment, 'w') as f:
-        f.write ('{} {}\n'.format("objective; ", value(instance.obj)))
-        for v in model.component_objects(Var, active=True):
+      
+    for v in model.component_objects(Var, active=True):
+        with open(filename + str(v) + "_" + moment, 'w') as f:
+        #f.write ('{} {}\n'.format("objective; ", value(instance.obj)))  
             varobject = getattr(instance, str(v))
             for index in varobject:
                 f.write ('{} {} {} \n'.format(v, index, varobject[index].value))
+    with open(filename + "_objective_" + moment, 'w') as o:
+        o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
 
 # ------------------------------------------- #
 # TODO:
