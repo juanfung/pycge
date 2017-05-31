@@ -252,11 +252,9 @@ if __name__ == '__main__':
     directory = (r'./results/')
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = (r'./results/result_')
-      
+    filename = (r'./results/result_')      
     for v in model.component_objects(Var, active=True):
-        with open(filename + str(v) + "_" + moment, 'w') as f:
-        #f.write ('{} {}\n'.format("objective; ", value(instance.obj)))  
+        with open(filename + str(v) + "_" + moment, 'w') as f:  
             varobject = getattr(instance, str(v))
             for index in varobject:
                 f.write ('{} {} {} \n'.format(v, index, varobject[index].value))
