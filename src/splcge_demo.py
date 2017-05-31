@@ -6,6 +6,8 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
+import time
+import os
 
 
 # ------------------------------------------- #
@@ -245,9 +247,13 @@ if __name__ == '__main__':
     
     
 # code to export results as a text file    
-    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())    
-    with open(r'C:\Users\cmb11\Desktop\Results\results'+moment, 'w') as f:
-        f.write ('{} {}\n'.format("; objective; ", value(instance.obj)))
+    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+    directory = (r'.\\results\\')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = (r'.\results\result_')
+    with open(filename + moment, 'w') as f:
+        f.write ('{} {}\n'.format("objective; ", value(instance.obj)))
         for v in model.component_objects(Var, active=True):
             varobject = getattr(instance, str(v))
             for index in varobject:
