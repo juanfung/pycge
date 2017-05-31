@@ -248,10 +248,10 @@ if __name__ == '__main__':
     
 # code to export results as a text file    
     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-    directory = (r'.\\results\\')
+    directory = (r'./results/')
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = (r'.\results\result_')
+    filename = (r'./results/result_')
     with open(filename + moment, 'w') as f:
         f.write ('{} {}\n'.format("objective; ", value(instance.obj)))
         for v in model.component_objects(Var, active=True):
