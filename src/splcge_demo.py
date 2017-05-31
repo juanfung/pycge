@@ -242,6 +242,16 @@ if __name__ == '__main__':
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         results.write()
     pyomo_postprocess(instance=instance)
+    
+    
+# code to export results as a text file    
+    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())    
+    with open(r'C:\Users\cmb11\Desktop\Results\results'+moment, 'w') as f:
+        f.write ('{} {}\n'.format("; objective; ", value(instance.obj)))
+        for v in model.component_objects(Var, active=True):
+            varobject = getattr(instance, str(v))
+            for index in varobject:
+                f.write ('{} {} {} \n'.format(v, index, varobject[index].value))
 
 # ------------------------------------------- #
 # TODO:
