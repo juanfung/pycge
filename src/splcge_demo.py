@@ -6,6 +6,8 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
+import time
+import os
 
 
 # ------------------------------------------- #
@@ -242,6 +244,23 @@ if __name__ == '__main__':
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         results.write()
     pyomo_postprocess(instance=instance)
+    
+    
+# code to export results as a text file
+# creates a file for each variable and one for the objetive    
+    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+    directory = (r'./results/')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = directory + 'results_'      
+    for v in instance.component_objects(Var, active=True):
+        with open(filename + str(v) + "_" + moment, 'w') as f:  
+            varobject = getattr(instance, str(v))
+            for index in varobject:
+                f.write ('{} {} \n'.format(index, varobject[index].value))
+    with open(filename + "_objective_" + moment, 'w') as o:
+        o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
+
 
 # ------------------------------------------- #
 # TODO:
