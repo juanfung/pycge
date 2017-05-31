@@ -11,10 +11,12 @@ TODO list
 - Extending the module
      - extend module to include `splcge.gms` and `stdcge.gms`
 
-- documentation
+- Documentation
      - initialize `doc/` directory in main project directory
-     - initialize documentation (in markdown?)
+     - initialize documentation (in markdown or rst?)
      - documentation is **for user**, should guide user through model
        model creation and model solution
 
-
+- From module to package
+     - reorganize project directory
+     - see [python-packaging.readthedocs.io/en/latest/evertyhing.html](python-packaging.readthedocs.io/en/latest/evertyhing.html)
