@@ -257,9 +257,10 @@ if __name__ == '__main__':
         with open(filename + str(v) + "_" + moment, 'w') as f:  
             varobject = getattr(instance, str(v))
             for index in varobject:
-                f.write ('{} {} {} \n'.format(v, index, varobject[index].value))
+                f.write ('{} {} \n'.format(index, varobject[index].value))
     with open(filename + "_objective_" + moment, 'w') as o:
         o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
+
 
 # ------------------------------------------- #
 # TODO:
