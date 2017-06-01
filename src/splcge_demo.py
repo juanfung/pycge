@@ -239,11 +239,14 @@ if __name__ == '__main__':
     #This replicates what the pyomo command-line tools does
     from pyomo.opt import SolverFactory
     import pyomo.environ
+    import pickle
     #opt = SolverFactory(solver)
     #opt.options['max_iter'] = 20
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         results.write()
+        
+
         
     pyomo_postprocess(instance=instance)
     
@@ -272,6 +275,12 @@ if __name__ == '__main__':
 # Create file for instance
     with open(filename + "_instance_" + moment, 'w') as instance_file:
         instance.display(ostream=instance_file)
+        
+# Create file to save results as a pickle    
+    instance.solutions.store_to(results)
+    with open(filename + '_pickle_' + moment, 'wb') as pickle_output:
+        pickle.dump(results, pickle_output)
+
 
 
 # ------------------------------------------- #
