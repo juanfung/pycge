@@ -20,3 +20,8 @@ TODO list
 - From module to package
      - reorganize project directory
      - see [python-packaging.readthedocs.io/en/latest/evertyhing.html](python-packaging.readthedocs.io/en/latest/evertyhing.html)
+
+- SURF requirements
+     - Symposium Abstract (Due July 11)
+     - SURF Symposium (August 1-3)
+
