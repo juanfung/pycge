@@ -22,6 +22,7 @@ TODO list
      - implement results export: should be able to load results back into
        python (e.g., through `pandas`)
           - decide on export format (e.g., row names, col names, separate files, etc.)
+               - for now, separate files for each variable
           - test in demo
           - implement in module
      - implement pretty output: displaying instance and results, other informative
@@ -31,6 +32,14 @@ TODO list
           - implement in module
      - is it worth saving solved instance? 
           - if so, how?
+               - not sure solving model or instance is possible, but setting up a 
+                 model is computationally cheap relative to solving
+               - saving `results` object **is possible
+                    - what do `instance.solutions.store()` and `instance.solutions.load_from()`
+                      do?
+                    - best option may be to `pickle` (serialize and deserialize) 
+                      `results` object
+               - see [this discussion](https://groups.google.com/d/msg/pyomo-forum/I6yuGnGl13c/lbr44a5HDAAJ)
      - implement data import via
           - `pyomo.DataPortal` 
           - `pandas`
@@ -42,6 +51,11 @@ TODO list
           - changing parameter values or definitions
           - adding/removing parameters
           - changing variables and constraints (adding, removing, modifying)
+     - **ERROR HANDLING**
+          - need to catch errors and provide useful messages to user
+          - Try/Except in python
+          - saving results, etc: depends on having a solution!
+               - use If/Else, depending on `SolverStatus`
 
 - Extending the module
      - extend module to include `splcge.gms` and `stdcge.gms`
