@@ -26,6 +26,7 @@ TODO list
           - implement in module
      - implement pretty output: displaying instance and results, other informative
        messages
+          - display output -> log file
           - test in demo
           - implement in module
      - is it worth saving solved instance? 
