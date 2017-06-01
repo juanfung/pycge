@@ -220,10 +220,7 @@ solver_io = 'nl'
 # ------------------------------------------- #
 # Display results
 def pyomo_postprocess(options=None, instance=None, results=None):
-    instance.X.display()
-    instance.px.display()
-    instance.Z.display()
-    instance.obj.display()
+    instance.display()
 
 
 # pyomo_postprocess(instance=instance)
