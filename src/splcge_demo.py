@@ -199,7 +199,7 @@ data.load(filename='./splcge-sam.csv', param='sam', format='array')
 
 instance = model.create_instance(data)
 instance.pf['LAB'].fixed = True
-instance.pprint()
+#instance.pprint()
 
 
 # ------------------------------------------- #
@@ -220,10 +220,13 @@ solver_io = 'nl'
 # ------------------------------------------- #
 # Display results
 def pyomo_postprocess(options=None, instance=None, results=None):
-    instance.display()
+    
+    print("instance saved to file")
+    
 
 
-# pyomo_postprocess(instance=instance)
+
+
 
 
 # ------------------------------------------- #
@@ -231,6 +234,7 @@ def pyomo_postprocess(options=None, instance=None, results=None):
 
 # This is an optional code path that allows the script to be run outside of
 # pyomo command-line.  For example:  python splcge_demo.py
+
 if __name__ == '__main__':
     #This replicates what the pyomo command-line tools does
     from pyomo.opt import SolverFactory
@@ -240,23 +244,34 @@ if __name__ == '__main__':
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         results.write()
+        
     pyomo_postprocess(instance=instance)
     
     
 # code to export results as a text file
-# creates a file for each variable and one for the objetive    
+# creates a file for each variable and one for the objetive 
+
+# Create directory   
     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
     directory = (r'./results/')
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = directory + 'results_'      
+    filename = directory + 'results_' 
+
+# Create files for variables     
     for v in instance.component_objects(Var, active=True):
         with open(filename + str(v) + "_" + moment, 'w') as f:  
             varobject = getattr(instance, str(v))
             for index in varobject:
                 f.write ('{} {} \n'.format(index, varobject[index].value))
+
+# Create file for objective
     with open(filename + "_objective_" + moment, 'w') as o:
         o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
+        
+# Create file for instance
+    with open(filename + "_instance_" + moment, 'w') as instance_file:
+        instance.display(ostream=instance_file)
 
 
 # ------------------------------------------- #
