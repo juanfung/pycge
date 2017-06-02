@@ -263,19 +263,19 @@ if __name__ == '__main__':
 
 # Create files for variables     
     for v in instance.component_objects(Var, active=True):
-        with open(filename + str(v) + "_" + moment, 'w') as f:  
+        with open(filename + str(v) + "_" + moment, 'w') as var_output:  
             varobject = getattr(instance, str(v))
-            f.write ('{} {} \n'.format('Names', varobject ))
+            var_output.write ('{} {} \n'.format('Names', varobject ))
             for index in varobject:
-                f.write ('{} {} \n'.format(index, varobject[index].value))
+                var_output.write ('{} {} \n'.format(index, varobject[index].value))
 
 # Create file for objective
-    with open(filename + "_objective_" + moment, 'w') as o:
-        o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
+    with open(filename + "_objective_" + moment, 'w') as obj_output:
+        obj_output.write ('{} {}\n'.format("objective; ", value(instance.obj)))
         
 # Create file for instance
-    with open(filename + "_instance_" + moment, 'w') as instance_file:
-        instance.display(ostream=instance_file)
+    with open(filename + "_instance_" + moment, 'w') as instance_output:
+        instance.display(ostream=instance_output)
         
 # Create file to save results as a pickle    
     instance.solutions.store_to(results)
