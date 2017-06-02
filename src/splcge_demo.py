@@ -238,6 +238,7 @@ def pyomo_postprocess(options=None, instance=None, results=None):
 if __name__ == '__main__':
     #This replicates what the pyomo command-line tools does
     from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
     import pyomo.environ
     import pickle
     #opt = SolverFactory(solver)
@@ -277,10 +278,11 @@ if __name__ == '__main__':
     with open(filename + "_instance_" + moment, 'w') as instance_output:
         instance.display(ostream=instance_output)
         
-# Create file to save results as a pickle    
-    instance.solutions.store_to(results)
+# Create file to save results as a pickle   
+    oldResults = SolverResults() 
+    instance.solutions.store_to(oldResults)
     with open(filename + '_pickle_' + moment, 'wb') as pickle_output:
-        pickle.dump(results, pickle_output)
+        pickle.dump(oldResults, pickle_output)
 
 
 
