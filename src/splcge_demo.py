@@ -265,6 +265,7 @@ if __name__ == '__main__':
     for v in instance.component_objects(Var, active=True):
         with open(filename + str(v) + "_" + moment, 'w') as f:  
             varobject = getattr(instance, str(v))
+            f.write ('{} {} \n'.format('Names', varobject ))
             for index in varobject:
                 f.write ('{} {} \n'.format(index, varobject[index].value))
 
