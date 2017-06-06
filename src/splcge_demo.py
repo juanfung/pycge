@@ -293,10 +293,12 @@ if __name__ == '__main__':
     
 # Load the pickle file
     #file must have 'read' and 'readline' attributes
-    pkl_file = open(r'C:\Users\cmb11\Desktop\examples\pycge\src\results\results__pickle_2017-Jun-06__16_01_59', 'rb')
+    pkl_filename = r'C:\Users\cmb11\Desktop\examples\pycge\src\results\results__pickle_2017-Jun-06__16_01_59'
+    pkl_file = open(pkl_filename, 'rb')
     test = pickle.load(pkl_file)
     print('\n  RESULTS HAS NOW BEEN PICKLED, SAVED TO A FILE, UN-PICKLED, AND WRITTEN AS:')
     test.write()
+    pkl_file.close()
     
 
 
