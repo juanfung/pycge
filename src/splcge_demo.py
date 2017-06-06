@@ -245,6 +245,15 @@ if __name__ == '__main__':
     #opt.options['max_iter'] = 20
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
+        
+        #"empty" results object
+        print('\n  THIS IS THE RESULTS WITHOUT SOLUTION')
+        results.write()
+        
+        
+        #result object now contains solution
+        print('\n  THIS IS THE RESULTS WITH SOLUTION')
+        instance.solutions.store_to(results)
         results.write()
         
 
@@ -279,10 +288,16 @@ if __name__ == '__main__':
         instance.display(ostream=instance_output)
         
 # Create file to save results as a pickle   
-    oldResults = SolverResults() 
-    instance.solutions.store_to(oldResults)
     with open(filename + '_pickle_' + moment, 'wb') as pickle_output:
-        pickle.dump(oldResults, pickle_output)
+        pickle.dump(results, pickle_output)
+    
+# Load the pickle file
+    #file must have 'read' and 'readline' attributes
+    pkl_file = open(r'C:\Users\cmb11\Desktop\examples\pycge\src\results\results__pickle_2017-Jun-06__16_01_59', 'rb')
+    test = pickle.load(pkl_file)
+    print('\n  RESULTS HAS NOW BEEN PICKLED, SAVED TO A FILE, UN-PICKLED, AND WRITTEN AS:')
+    test.write()
+    
 
 
 
