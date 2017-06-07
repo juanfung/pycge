@@ -199,7 +199,7 @@ data.load(filename='./splcge-sam.csv', param='sam', format='array')
 
 instance = model.create_instance(data)
 instance.pf['LAB'].fixed = True
-instance.pprint()
+#instance.pprint()
 
 
 # ------------------------------------------- #
@@ -220,13 +220,17 @@ solver_io = 'nl'
 # ------------------------------------------- #
 # Display results
 def pyomo_postprocess(options=None, instance=None, results=None):
-    instance.X.display()
-    instance.px.display()
-    instance.Z.display()
-    instance.obj.display()
+    
+    print("\n variables, objective, instance, and results object are all saved to files")
+    
+# Create directory   
+moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+directory = (r'./results/')
+if not os.path.exists(directory):
+    os.makedirs(directory)
+filename = directory + 'results_' 
 
 
-# pyomo_postprocess(instance=instance)
 
 
 # ------------------------------------------- #
@@ -234,32 +238,59 @@ def pyomo_postprocess(options=None, instance=None, results=None):
 
 # This is an optional code path that allows the script to be run outside of
 # pyomo command-line.  For example:  python splcge_demo.py
+
 if __name__ == '__main__':
     #This replicates what the pyomo command-line tools does
     from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
     import pyomo.environ
+    import pickle
     #opt = SolverFactory(solver)
     #opt.options['max_iter'] = 20
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
-        results.write()
+        
+
+    instance.solutions.store_to(results)
+    
     pyomo_postprocess(instance=instance)
     
+#-------------------------------------------------#
+#OUTPUTS
     
-# code to export results as a text file
-# creates a file for each variable and one for the objetive    
-    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-    directory = (r'./results/')
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    filename = directory + 'results_'      
-    for v in instance.component_objects(Var, active=True):
-        with open(filename + str(v) + "_" + moment, 'w') as f:  
-            varobject = getattr(instance, str(v))
-            for index in varobject:
-                f.write ('{} {} \n'.format(index, varobject[index].value))
-    with open(filename + "_objective_" + moment, 'w') as o:
-        o.write ('{} {}\n'.format("objective; ", value(instance.obj)))
+
+
+
+
+
+
+# Create files for variables     
+for v in instance.component_objects(Var, active=True):
+    with open(filename + str(v) + "_" + moment, 'w') as var_output:  
+        varobject = getattr(instance, str(v))
+        var_output.write ('{},{} \n'.format('Names', varobject ))
+        for index in varobject:
+            var_output.write ('{},{} \n'.format(index, varobject[index].value))
+
+# Create file for objective
+with open(filename + "_objective_" + moment, 'w') as obj_output:
+    obj_output.write ('{},{}\n'.format("objective; ", value(instance.obj)))
+        
+# Create file for instance
+with open(filename + "_instance_" + moment, 'w') as instance_output:
+    instance.display(ostream=instance_output)
+    
+# Create file to save results as a pickle   
+#Ask user what they would like to name their files (important to name export something specific for importing it back in)
+export_pkl_filename = input("What would you like to name your pickle file?")
+with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
+    pickle.dump(results, pickle_output)
+
+
+
+
+    
+
 
 
 # ------------------------------------------- #
