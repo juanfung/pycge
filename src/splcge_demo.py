@@ -227,8 +227,8 @@ def pyomo_postprocess(options=None, instance=None, results=None):
 
 
 
-
-
+export_pkl_filename = input("What would you like to name your pickle file?")
+import_pkl_filename = input("Which pickle file would you like to import?")
 # ------------------------------------------- #
 # To run as python script:
 
@@ -288,14 +288,14 @@ if __name__ == '__main__':
         instance.display(ostream=instance_output)
         
 # Create file to save results as a pickle   
-    export_pkl_filename = input("What would you like to name your pickle file?")
+
     with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
         pickle.dump(results, pickle_output)
 
     
 # Load the pickle file
     #file must have 'read' and 'readline' attributes
-    import_pkl_filename = input("Which pickle file would you like to import?")
+
     with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
         new_results = pickle.load(pkl_file)
         print('\n  RESULTS HAS NOW BEEN PICKLED, SAVED TO A FILE, UN-PICKLED, AND WRITTEN AS:')
