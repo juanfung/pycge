@@ -221,7 +221,7 @@ solver_io = 'nl'
 # Display results
 def pyomo_postprocess(options=None, instance=None, results=None):
     
-    print("instance saved to file")
+    print("\n variables, objective, instance, and results object are all saved to files")
     
 
 
@@ -247,14 +247,12 @@ if __name__ == '__main__':
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         
         #"empty" results object
-        print('\n  THIS IS THE RESULTS WITHOUT SOLUTION')
-        results.write()
+        #results.write()
         
         
         #result object now contains solution
-        print('\n  THIS IS THE RESULTS WITH SOLUTION')
         instance.solutions.store_to(results)
-        results.write()
+
         
 
         
@@ -298,8 +296,7 @@ if __name__ == '__main__':
 
     with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
         new_results = pickle.load(pkl_file)
-        print('\n  RESULTS HAS NOW BEEN PICKLED, SAVED TO A FILE, UN-PICKLED, AND WRITTEN AS:')
-        new_results.write()
+
 
     
 
