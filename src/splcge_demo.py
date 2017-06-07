@@ -288,15 +288,15 @@ if __name__ == '__main__':
         instance.display(ostream=instance_output)
         
 # Create file to save results as a pickle   
-    with open(filename + '_pickle_' + moment, 'wb') as pickle_output:
+    export_pkl_filename = input("What would you like to name your pickle file?")
+    with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
         pickle.dump(results, pickle_output)
-        
-    testtesttest = input("What would you like to name your file?")
+
     
 # Load the pickle file
     #file must have 'read' and 'readline' attributes
-    pkl_filename = r'C:\Users\cmb11\Desktop\examples\pycge\src\results\results__pickle_2017-Jun-07__08_41_33'
-    with open(pkl_filename, 'rb') as pkl_file:
+    import_pkl_filename = input("Which pickle file would you like to import?")
+    with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
         new_results = pickle.load(pkl_file)
         print('\n  RESULTS HAS NOW BEEN PICKLED, SAVED TO A FILE, UN-PICKLED, AND WRITTEN AS:')
         new_results.write()
