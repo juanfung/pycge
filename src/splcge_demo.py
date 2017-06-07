@@ -243,14 +243,36 @@ if __name__ == '__main__':
     #opt = SolverFactory(solver)
     #opt.options['max_iter'] = 20
     with SolverManagerFactory("neos") as solver_mgr:
-        results = solver_mgr.solve(instance, opt=solver, tee=True)
+        results = solver_mgr.solve(instance, opt=solver, tee=True, load_solutions=False)
         
-        #"empty" results object
-        #results.write()
+
         
-        
-        #result object now contains solution
+#==============================================================================
+# This section is simply to test
+# whether we can load results back into instance
+# and make sure we are not just accessing results
+# from a just-solved instance
+#==============================================================================
+       
+        #normally this would populate the result object with a solution
+        #however `load_=solutions=False` was passed when `results` was created
+        #so it did not automatically load solutions into the instance
         instance.solutions.store_to(results)
+        results.write() #so this  gives "number of solutions: 0"
+        
+        #this is where the user can choose an old results object (with solutions)             
+        import_pkl_filename = input("Which pickle file would you like to import?")
+        # Load the pickle file to a "new_results" object
+        #file must have 'read' and 'readline' attributes
+        with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
+            new_results = pickle.load(pkl_file)
+    
+        #we now load the instance with solutions from the `new_results` object
+        instance.solutions.load_from(new_results)
+        #now that the instance has solutions, we can populate the `results` object with them
+        instance.solutions.store_to(results)
+        results.write() #So this not gives "number of solutions: 1"
+
 
         
 
@@ -262,7 +284,7 @@ if __name__ == '__main__':
     
 #Ask user what they would like to name their files (important name export something specific for importing it back in)
 export_pkl_filename = input("What would you like to name your pickle file?")
-import_pkl_filename = input("Which pickle file would you like to import?")
+
 
 
 # Create directory   
@@ -293,10 +315,6 @@ with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
     pickle.dump(results, pickle_output)
 
 
-# Load the pickle file to a "new_results" object
-#file must have 'read' and 'readline' attributes
-with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
-    new_results = pickle.load(pkl_file)
 
 
     
