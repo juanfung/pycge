@@ -217,8 +217,13 @@ class SimpleCGE:
         
         #Do we want the outputs the same as the demo/does it matter?
 
-   # def model_output(self):
-        # save results
+    def model_output(self, filename):
+        for v in self.instance.component_objects(Var, active=True):
+            with open(filename + str(v), 'w') as var_output:  
+                varobject = getattr(self.instance, str(v))
+                var_output.write ('{},{} \n'.format('Names', varobject ))
+                for index in varobject:
+                    var_output.write ('{},{} \n'.format(index, varobject[index].value))
 
 
 # Example calls:
