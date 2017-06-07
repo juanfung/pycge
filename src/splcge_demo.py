@@ -227,8 +227,7 @@ def pyomo_postprocess(options=None, instance=None, results=None):
 
 
 
-export_pkl_filename = input("What would you like to name your pickle file?")
-import_pkl_filename = input("Which pickle file would you like to import?")
+
 # ------------------------------------------- #
 # To run as python script:
 
@@ -258,44 +257,46 @@ if __name__ == '__main__':
         
     pyomo_postprocess(instance=instance)
     
+#-------------------------------------------------#
+#OUTPUTS
     
-# code to export results as a text file
-# creates a file for each variable and one for the objetive 
+#Ask user what they would like to name their files (important name export something specific for importing it back in)
+export_pkl_filename = input("What would you like to name your pickle file?")
+import_pkl_filename = input("Which pickle file would you like to import?")
+
 
 # Create directory   
-    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-    directory = (r'./results/')
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    filename = directory + 'results_' 
+moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+directory = (r'./results/')
+if not os.path.exists(directory):
+    os.makedirs(directory)
+filename = directory + 'results_' 
 
 # Create files for variables     
-    for v in instance.component_objects(Var, active=True):
-        with open(filename + str(v) + "_" + moment, 'w') as var_output:  
-            varobject = getattr(instance, str(v))
-            var_output.write ('{},{} \n'.format('Names', varobject ))
-            for index in varobject:
-                var_output.write ('{},{} \n'.format(index, varobject[index].value))
+for v in instance.component_objects(Var, active=True):
+    with open(filename + str(v) + "_" + moment, 'w') as var_output:  
+        varobject = getattr(instance, str(v))
+        var_output.write ('{},{} \n'.format('Names', varobject ))
+        for index in varobject:
+            var_output.write ('{},{} \n'.format(index, varobject[index].value))
 
 # Create file for objective
-    with open(filename + "_objective_" + moment, 'w') as obj_output:
-        obj_output.write ('{},{}\n'.format("objective; ", value(instance.obj)))
+with open(filename + "_objective_" + moment, 'w') as obj_output:
+    obj_output.write ('{},{}\n'.format("objective; ", value(instance.obj)))
         
 # Create file for instance
-    with open(filename + "_instance_" + moment, 'w') as instance_output:
-        instance.display(ostream=instance_output)
-        
-# Create file to save results as a pickle   
-
-    with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
-        pickle.dump(results, pickle_output)
-
+with open(filename + "_instance_" + moment, 'w') as instance_output:
+    instance.display(ostream=instance_output)
     
-# Load the pickle file
-    #file must have 'read' and 'readline' attributes
+# Create file to save results as a pickle   
+with open(filename + '_pickle_' + export_pkl_filename, 'wb') as pickle_output:
+    pickle.dump(results, pickle_output)
 
-    with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
-        new_results = pickle.load(pkl_file)
+
+# Load the pickle file to a "new_results" object
+#file must have 'read' and 'readline' attributes
+with open(filename + '_pickle_' + import_pkl_filename, 'rb') as pkl_file:
+    new_results = pickle.load(pkl_file)
 
 
     
