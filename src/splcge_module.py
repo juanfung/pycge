@@ -218,13 +218,13 @@ class SimpleCGE:
 
     def model_output(self, pathname, save_obj=True):
         for v in self.instance.component_objects(Var, active=True):
-            with open(pathname + str(v), 'w') as var_output:  
+            with open(pathname + str(v) + '.csv', 'w') as var_output:  
                 varobject = getattr(self.instance, str(v))
                 var_output.write ('{},{} \n'.format('Names', varobject ))
                 for index in varobject:
                     var_output.write ('{},{} \n'.format(index, varobject[index].value))
         if save_obj==True:
-            with open(pathname + "_obj", 'w') as obj_output:
+            with open(pathname + "_obj.csv", 'w') as obj_output:
                 obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
             
             
