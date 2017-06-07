@@ -215,15 +215,19 @@ class SimpleCGE:
         self.instance.px.display()
         self.instance.Z.display()
         
-        #Do we want the outputs the same as the demo/does it matter?
 
-    def model_output(self, pathname):
+    def model_output(self, pathname, save_obj=True):
         for v in self.instance.component_objects(Var, active=True):
             with open(pathname + str(v), 'w') as var_output:  
                 varobject = getattr(self.instance, str(v))
                 var_output.write ('{},{} \n'.format('Names', varobject ))
                 for index in varobject:
                     var_output.write ('{},{} \n'.format(index, varobject[index].value))
+        if save_obj==True:
+            with open(pathname + "_obj", 'w') as obj_output:
+                obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+            
+            
 
 
 # Example calls:
