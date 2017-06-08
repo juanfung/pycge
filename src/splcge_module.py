@@ -211,7 +211,7 @@ class SimpleCGE:
         with SolverManagerFactory(mgr) as solver_mgr:
             results = solver_mgr.solve(self.instance, opt=solver)
             self.instance.solutions.store_to(results)
-            results.write()
+            # results.write() #Don't need this for now
 
     def model_postprocess(self, options):
         self.instance.obj.display()
@@ -234,18 +234,30 @@ class SimpleCGE:
     def model_save_results(self, pathname):
         myResults=SolverResults()
         self.instance.solutions.store_to(myResults)
-        myResults.write()
+        # myResults.write() #just a test to make sure myResults is populated with solution
         with open(pathname, 'wb') as pickle_output:
             pickle.dump(myResults, pickle_output)
+    
+    def model_load_results(self, pathname):
+        with open(pathname, 'rb') as pkl_file:
+            loadedResults = pickle.load(pkl_file)
+            # loadedResults.write() #another test to make sure nothing is changing
+            self.instance.solutions.load_from(loadedResults)
+            # self.instance.display()
+            
+    
+    
             
             
 
 
 # Example calls:
 # Define model and instantiate:
-#test_cge = SimpleCGE("splcge.dat")
+# test_cge = SimpleCGE("splcge.dat")
 # Solve the model, using Minos solver on NEOS:
 # test_cge.model_solve("neos", "minos")
+# save results
+# test_cge.model_save_results(r'./results/results_Results')
 # other solvers: "ipopt", "knitro"
 
 # TODO:
