@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import pickle
 from pyomo.opt import SolverResults
+import time
+import os
 
 
 
@@ -222,7 +224,13 @@ class SimpleCGE:
             print("Finished")
             
         else:
-            with open(verbose, 'w') as output_file:
+            
+            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+            directory = (verbose)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                
+            with open(verbose + "_log_" + moment, 'w') as output_file:
                 output_file.write("These are the solver results: \n")
                 results.write(ostream=output_file)
                 output_file.write("\n This is the instance.display(): \n" )
