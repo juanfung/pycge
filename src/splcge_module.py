@@ -278,10 +278,14 @@ class SimpleCGE:
                 obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
     
     def model_save_results(self, pathname):
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+        directory = (pathname)
+        if not os.path.exists(directory):
+                os.makedirs(directory)
         myResults=SolverResults()
         self.instance.solutions.store_to(myResults)
         # myResults.write() #just a test to make sure myResults is populated with solution
-        with open(pathname, 'wb') as pickle_output:
+        with open(pathname + 'saved_results_' + moment, 'wb') as pickle_output:
             pickle.dump(myResults, pickle_output)
     
     def model_load_results(self, pathname):
@@ -298,8 +302,10 @@ class SimpleCGE:
 
 
 # Example calls:
+    
 # Define model and instantiate:
 # test_cge = SimpleCGE("splcge.dat")
+
 # Solve the model, using Minos solver on NEOS:
 # test_cge.model_solve("neos", "minos")
 
@@ -309,6 +315,9 @@ class SimpleCGE:
 
 #output log file
 #test_cge.model_solve("neos","minos",verbose=r'./test_directory/')
+
+#create instance
+#test_cge.model_instance(verbose=r'./instance_folder/')
 
 # TODO:
 # 1. Testing
