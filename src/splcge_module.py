@@ -207,11 +207,30 @@ class SimpleCGE:
         self.instance.pf['LAB'].fixed = True
         self.instance.pprint()  # to view the model instance
 
-    def model_solve(self, mgr, solver):
+    def model_solve(self, mgr, solver, verbose=""):
+        
         with SolverManagerFactory(mgr) as solver_mgr:
             results = solver_mgr.solve(self.instance, opt=solver)
             self.instance.solutions.store_to(results)
-            # results.write() #Don't need this for now
+
+        if (verbose==""):
+            print("Finished")
+            
+        elif (verbose=="print"):
+            results.write()
+            self.instance.display()
+            print("Finished")
+            
+        else:
+            with open(verbose, 'w') as output_file:
+                results.write(ostream=output_file)
+                self.instance.display(ostream=output_file)
+            print("Finished")
+            
+            
+        
+        
+            
 
     def model_postprocess(self, options):
         self.instance.obj.display()
@@ -256,6 +275,7 @@ class SimpleCGE:
 # test_cge = SimpleCGE("splcge.dat")
 # Solve the model, using Minos solver on NEOS:
 # test_cge.model_solve("neos", "minos")
+
 # save results
 # test_cge.model_save_results(r'./results/results_Results')
 # other solvers: "ipopt", "knitro"
