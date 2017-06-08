@@ -219,7 +219,9 @@ class SimpleCGE:
             print("Finished")
             
         elif (verbose=="print"):
+            print("These are the solver results: \n")
             results.write()
+            print("\nThis is the instance display: \n")
             self.instance.display()
             print("Finished")
             
@@ -233,7 +235,7 @@ class SimpleCGE:
             with open(verbose + "_log_" + moment, 'w') as output_file:
                 output_file.write("These are the solver results: \n")
                 results.write(ostream=output_file)
-                output_file.write("\n This is the instance.display(): \n" )
+                output_file.write("\nThis is the instance.display(): \n" )
                 self.instance.display(ostream=output_file)
             print("Finished")
             
@@ -289,6 +291,9 @@ class SimpleCGE:
 # save results
 # test_cge.model_save_results(r'./results/results_Results')
 # other solvers: "ipopt", "knitro"
+
+#output log file
+#test_cge.model_solve("neos","minos",verbose=r'./test_directory/')
 
 # TODO:
 # 1. Testing
