@@ -223,7 +223,9 @@ class SimpleCGE:
             
         else:
             with open(verbose, 'w') as output_file:
+                output_file.write("These are the solver results: \n")
                 results.write(ostream=output_file)
+                output_file.write("\n This is the instance.display(): \n" )
                 self.instance.display(ostream=output_file)
             print("Finished")
             
