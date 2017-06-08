@@ -272,13 +272,13 @@ class SimpleCGE:
         if not os.path.exists(directory):
                 os.makedirs(directory)
         for v in self.instance.component_objects(Var, active=True):
-            with open(pathname + str(v) + '.csv', 'w') as var_output:  
+            with open(pathname + str(v) + moment + '.csv', 'w') as var_output:  
                 varobject = getattr(self.instance, str(v))
                 var_output.write ('{},{} \n'.format('Names', varobject ))
                 for index in varobject:
                     var_output.write ('{},{} \n'.format(index, varobject[index].value))
         if save_obj==True:
-            with open(pathname + "obj.csv", 'w') as obj_output:
+            with open(pathname + "obj" + moment + ".csv", 'w') as obj_output:
                 obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
     
     def model_save_results(self, pathname):
