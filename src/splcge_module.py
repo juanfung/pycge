@@ -2,6 +2,9 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
+import pickle
+from pyomo.opt import SolverResults
+
 
 
 class SimpleCGE:
@@ -207,6 +210,7 @@ class SimpleCGE:
     def model_solve(self, mgr, solver):
         with SolverManagerFactory(mgr) as solver_mgr:
             results = solver_mgr.solve(self.instance, opt=solver)
+            self.instance.solutions.store_to(results)
             results.write()
 
     def model_postprocess(self, options):
@@ -226,6 +230,13 @@ class SimpleCGE:
         if save_obj==True:
             with open(pathname + "_obj.csv", 'w') as obj_output:
                 obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+    
+    def model_save_results(self, pathname):
+        myResults=SolverResults()
+        self.instance.solutions.store_to(myResults)
+        myResults.write()
+        with open(pathname, 'wb') as pickle_output:
+            pickle.dump(myResults, pickle_output)
             
             
 
