@@ -208,28 +208,6 @@ class SimpleCGE:
         self.instance.pf['LAB'].fixed = True
                         
         self.print_function(verbose, output=self.instance.display, typename="instance")
-        
-#==============================================================================
-#         if (verbose==""):
-#             print("Finished")
-#             
-#         elif (verbose=="print"):
-#             print("\nThis is the instance display: \n")
-#             self.instance.display()
-#             print("Finished")
-#             
-#         else:
-#             
-#             moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-#             directory = (verbose)
-#             if not os.path.exists(directory):
-#                 os.makedirs(directory)
-#                 
-#             with open(verbose + "_instance_" + moment, 'w') as output_file:
-#                 output_file.write("\nThis is the instance.display(): \n" )
-#                 self.instance.display(ostream=output_file)
-#             print("Finished")
-#==============================================================================
 
 
     def model_solve(self, mgr, solver, verbose=""):
@@ -240,31 +218,6 @@ class SimpleCGE:
             
         self.print_function(verbose, output=results.write, typename = "results")
 
-#==============================================================================
-#         if (verbose==""):
-#             print("Finished")
-#             
-#         elif (verbose=="print"):
-#             print("These are the solver results: \n")
-#             results.write()
-#             print("Finished")
-#             
-#         else:
-#             
-#             moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-#             directory = (verbose)
-#             if not os.path.exists(directory):
-#                 os.makedirs(directory)
-#                 
-#             with open(verbose + "_results_" + moment, 'w') as output_file:
-#                 output_file.write("These are the solver results: \n")
-#                 results.write(ostream=output_file)
-#             print("Finished")
-#==============================================================================
-            
-            
-        
-        
             
 
     def model_postprocess(self, options):
@@ -310,15 +263,12 @@ class SimpleCGE:
     def print_function (self, verbose="", output = "", typename=""):
         
         if (verbose==""):
-            print("Finished")
-            
+            print("Finished")            
         elif (verbose=="print"):
             print("\nThis is the " + typename + "\n")
             output()
-            print("Finished")
-            
-        else:
-            
+            print("Finished")            
+        else:            
             moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
             directory = (verbose)
             if not os.path.exists(directory):
