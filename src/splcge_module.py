@@ -208,6 +208,19 @@ class SimpleCGE:
         self.instance.pf['LAB'].fixed = True
                         
         self.print_function(verbose, output=self.instance.display, typename="instance")
+        
+        
+        
+        
+    
+    def pyomo_modify_instance(self, options=None, model=None, instance=None, verbose=""):
+        self.instance.X['BRD'].value = 10.0
+        self.instance.X['BRD'].fixed = True
+    
+        self.print_function(verbose, output=self.instance.display, typename="instance")
+    
+    
+    
 
 
     def model_solve(self, mgr, solver, verbose=""):
