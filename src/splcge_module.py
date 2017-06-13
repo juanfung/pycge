@@ -207,7 +207,7 @@ class SimpleCGE:
         self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
                         
-        self.print_function(verbose, output=self.instance.display, typename="instance")
+        print_function(verbose, output=self.instance.display, typename="instance")
         
         
         
@@ -217,7 +217,7 @@ class SimpleCGE:
         self.instance.X['BRD'].value = 10.0
         self.instance.X['BRD'].fixed = True
     
-        self.print_function(verbose, output=self.instance.display, typename="instance")
+        print_function(verbose, output=self.instance.display, typename="instance")
     
     
     
@@ -229,7 +229,7 @@ class SimpleCGE:
             results = solver_mgr.solve(self.instance, opt=solver)
             self.instance.solutions.store_to(results)
             
-        self.print_function(verbose, output=results.write, typename = "results")
+        print_function(verbose, output=results.write, typename = "results")
 
             
 
@@ -273,24 +273,24 @@ class SimpleCGE:
             self.instance.solutions.load_from(loadedResults)
             # self.instance.display()
     
-    def print_function (self, verbose="", output = "", typename=""):
-        
-        if (verbose==""):
-            print("Finished")            
-        elif (verbose=="print"):
-            print("\nThis is the " + typename + "\n")
-            output()
-            print("Finished")            
-        else:            
-            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-            directory = (verbose)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-                
-            with open(verbose + typename + moment, 'w') as output_file:
-                output_file.write("\nThis is the " + typename + "\n" )
-                output(ostream=output_file)
-            print("Finished")
+def print_function (verbose="", output = "", typename=""):
+    
+    if (verbose==""):
+        print("Finished")            
+    elif (verbose=="print"):
+        print("\nThis is the " + typename + "\n")
+        output()
+        print("Finished")            
+    else:            
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+        directory = (verbose)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            
+        with open(verbose + typename + moment, 'w') as output_file:
+            output_file.write("\nThis is the " + typename + "\n" )
+            output(ostream=output_file)
+        print("Finished")
 
 
 
