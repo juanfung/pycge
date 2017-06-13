@@ -94,7 +94,7 @@ class SimpleCGE:
         self.m.X = Var(self.m.i,
                        initialize=X0_init,
                        within=PositiveReals,
-                       doc='household consumtion of the i-th good')
+                       doc='household consumption of the i-th good')
         
         self.m.F = Var(self.m.h, self.m.i,
                        initialize=F0_init,
@@ -291,6 +291,58 @@ class SimpleCGE:
                 output_file.write("\nThis is the " + typename + "\n" )
                 output(ostream=output_file)
             print("Finished")
+
+
+
+
+import unittest
+import filecmp
+import difflib
+import sys
+
+class Unit_tests_for_functions(unittest.TestCase):
+
+#unit test to confirm instance module == demo    
+    def test_for_model_instance(self, test_file, ref_file):
+
+
+#will display the differences between the two files        
+        with open (test_file, 'r') as test:
+            with open (ref_file, 'r') as ref:
+                diff = difflib.unified_diff(
+                test.readlines(),
+                ref.readlines(),
+                fromfile='test',
+                tofile='ref',
+            )            
+            for line in diff:
+                sys.stdout.write(line)
+            
+#will tell users whether they are the same or different                                                    
+        self.assertTrue(filecmp.cmp(test_file, ref_file, shallow=False),
+                        'these are not equal, please notice differences listed above.')
+        print("instance is the same")
+    
+    
+    
+    def test_for_model_solve(self, test_file, ref_file):
+        
+        #will display the differences between the two files        
+        with open (test_file, 'r') as test:
+            with open (ref_file, 'r') as ref:
+                diff = difflib.unified_diff(
+                test.readlines(),
+                ref.readlines(),
+                fromfile='test',
+                tofile='ref',
+            )            
+            for line in diff:
+                sys.stdout.write(line)
+        self.assertTrue(filecmp.cmp(test_file, ref_file, shallow=False),
+                        'these are not equal, please notice differences listed above.')
+        print("results are the same")
+
+        
         
             
     
