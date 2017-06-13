@@ -16,17 +16,17 @@ TODO list
           - preprocessing
           - postprocessing
           - other pyomo callbacks
-          - relationship between `model` of type `AbstractModel` and 
-            `instance` generated from `model`, given some data  
+          - ~~relationship between `model` of type `AbstractModel` and 
+            `instance` generated from `model`, given some data~~ 
                  - why are results accessible from `model`?
-     - implement results export: should be able to load results back into
-       python (e.g., through `pandas`)
+     - ~~implement results export: should be able to load results back into
+       python (e.g., through `pandas`)~~
           - decide on export format (e.g., row names, col names, separate files, etc.)
                - for now, separate files for each variable
           - test in demo
           - implement in module
-     - implement pretty output: displaying instance and results, other informative
-       messages
+     - ~~implement pretty output: displaying instance and results, other informative
+       messages~~
           - display output -> log file
           - test in demo
           - implement in module

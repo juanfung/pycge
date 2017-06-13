@@ -221,12 +221,6 @@ with open(filename + "_instance_" + moment, 'w') as instance_output:
 solver = 'minos'  # 'ipopt', 'knitro', 'minos'
 solver_io = 'nl'
 
-# Solve and write results to stdout
-# NB: for scripting in python interpreter
-# with SolverManagerFactory("neos") as solver_mgr:
-#    results = solver_mgr.solve(instance, opt=solver)
-#    results.write()
-
 
 # ------------------------------------------- #
 # Display results
@@ -297,18 +291,3 @@ with open(filename + "_results_" + moment, 'w') as results_output:
 print("Finished")
 
 
-
-    
-
-
-
-# ------------------------------------------- #
-# TODO:
-# 1. loading csv, etc.
-#    - using DataPortal()
-#    - using pandas, etc.
-# 2. displaying output, exporting results
-# 3. functions/classes: model creation separate from
-#    model solution (ie, model instance with data import)
-# 4. warap in module(s) -> package?
-# 5. unit testing
