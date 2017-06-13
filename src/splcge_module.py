@@ -2,6 +2,11 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
+import pickle
+from pyomo.opt import SolverResults
+import time
+import os
+
 
 
 class SimpleCGE:
@@ -12,7 +17,7 @@ class SimpleCGE:
     def __init__(self, dat):
         self.model_data(dat)
         self.model_abstract()
-        self.model_instance()
+        #self.model_instance()
 
     def model_abstract(self):
         self.m = AbstractModel()
@@ -89,7 +94,7 @@ class SimpleCGE:
         self.m.X = Var(self.m.i,
                        initialize=X0_init,
                        within=PositiveReals,
-                       doc='household consumtion of the i-th good')
+                       doc='household consumption of the i-th good')
         
         self.m.F = Var(self.m.h, self.m.i,
                        initialize=F0_init,
@@ -198,16 +203,35 @@ class SimpleCGE:
         self.data = dat
         # self.data = DataPortal()
 
-    def model_instance(self):
-        # TODO: unnecessary to self.instance?
+    def model_instance(self, verbose=""):
         self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
-        self.instance.pprint()  # to view the model instance
+                        
+        self.print_function(verbose, output=self.instance.display, typename="instance")
+        
+        
+        
+        
+    
+    def pyomo_modify_instance(self, options=None, model=None, instance=None, verbose=""):
+        self.instance.X['BRD'].value = 10.0
+        self.instance.X['BRD'].fixed = True
+    
+        self.print_function(verbose, output=self.instance.display, typename="instance")
+    
+    
+    
 
-    def model_solve(self, mgr, solver):
+
+    def model_solve(self, mgr, solver, verbose=""):
+        
         with SolverManagerFactory(mgr) as solver_mgr:
             results = solver_mgr.solve(self.instance, opt=solver)
-            results.write()
+            self.instance.solutions.store_to(results)
+            
+        self.print_function(verbose, output=results.write, typename = "results")
+
+            
 
     def model_postprocess(self, options):
         self.instance.obj.display()
@@ -215,18 +239,84 @@ class SimpleCGE:
         self.instance.px.display()
         self.instance.Z.display()
         
-        #Do we want the outputs the same as the demo/does it matter?
 
-   # def model_output(self):
-        # save results
+    def model_output(self, pathname, save_obj=True):
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+        directory = (pathname)
+        if not os.path.exists(directory):
+                os.makedirs(directory)
+        for v in self.instance.component_objects(Var, active=True):
+            with open(pathname + str(v) + moment + '.csv', 'w') as var_output:  
+                varobject = getattr(self.instance, str(v))
+                var_output.write ('{},{} \n'.format('Names', varobject ))
+                for index in varobject:
+                    var_output.write ('{},{} \n'.format(index, varobject[index].value))
+        if save_obj==True:
+            with open(pathname + "obj" + moment + ".csv", 'w') as obj_output:
+                obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+    
+    def model_save_results(self, pathname):
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+        directory = (pathname)
+        if not os.path.exists(directory):
+                os.makedirs(directory)
+        myResults=SolverResults()
+        self.instance.solutions.store_to(myResults)
+        # myResults.write() #just a test to make sure myResults is populated with solution
+        with open(pathname + 'saved_results_' + moment, 'wb') as pickle_output:
+            pickle.dump(myResults, pickle_output)
+    
+    def model_load_results(self, pathname):
+        with open(pathname, 'rb') as pkl_file:
+            loadedResults = pickle.load(pkl_file)
+            # loadedResults.write() #another test to make sure nothing is changing
+            self.instance.solutions.load_from(loadedResults)
+            # self.instance.display()
+    
+    def print_function (self, verbose="", output = "", typename=""):
+        
+        if (verbose==""):
+            print("Finished")            
+        elif (verbose=="print"):
+            print("\nThis is the " + typename + "\n")
+            output()
+            print("Finished")            
+        else:            
+            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+            directory = (verbose)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                
+            with open(verbose + typename + moment, 'w') as output_file:
+                output_file.write("\nThis is the " + typename + "\n" )
+                output(ostream=output_file)
+            print("Finished")
+
+
+
+
+    
+            
+            
 
 
 # Example calls:
+    
 # Define model and instantiate:
-#test_cge = SimpleCGE("splcge.dat")
+# test_cge = SimpleCGE("splcge.dat")
+
 # Solve the model, using Minos solver on NEOS:
 # test_cge.model_solve("neos", "minos")
+
+# save results
+# test_cge.model_save_results(r'./results/results_Results')
 # other solvers: "ipopt", "knitro"
+
+#output log file
+#test_cge.model_solve("neos","minos",verbose=r'./test_directory/')
+
+#create instance
+#test_cge.model_instance(verbose=r'./instance_folder/')
 
 # TODO:
 # 1. Testing
