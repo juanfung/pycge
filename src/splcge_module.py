@@ -203,41 +203,58 @@ class SimpleCGE:
         self.data = dat
         # self.data = DataPortal()
 
-    def model_instance(self, verbose=""):
+    def model_instance(self):
         self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
+        
+        print("Instance created. Call `model_postprocess` to output.")
                         
-        print_function(verbose, output=self.instance.display, typename="instance")
+
         
         
         
         
     
-    def pyomo_modify_instance(self, options=None, model=None, instance=None, verbose=""):
+    def pyomo_modify_instance(self, options=None, model=None, instance=None):
         self.instance.X['BRD'].value = 10.0
         self.instance.X['BRD'].fixed = True
     
-        print_function(verbose, output=self.instance.display, typename="instance")
+        print("Instance updated. Call `model_postprocess` to output.")
+    
+
     
     
     
 
 
-    def model_solve(self, mgr, solver, verbose=""):
+    def model_solve(self, mgr, solver):
         
         with SolverManagerFactory(mgr) as solver_mgr:
-            results = solver_mgr.solve(self.instance, opt=solver)
-            self.instance.solutions.store_to(results)
+            self.results = solver_mgr.solve(self.instance, opt=solver)
+            self.instance.solutions.store_to(self.results)
+        
+        print("Model solved. Call `model_postprocess` to output.")
             
-        print_function(verbose, output=results.write, typename = "results")
+
 
             
 
-    def model_postprocess(self, options):
-        self.instance.obj.display()
-        self.instance.X.display()
-        self.instance.px.display()
-        self.instance.Z.display()
+    def model_postprocess(self, object_name = "" , verbose=""):
+        
+        if (object_name==""):
+            print("please specify what you would like to output")
+        
+        elif (object_name=="instance"):
+            print_function(verbose, output=self.instance.display, typename="instance")
+        
+        elif (object_name=="results"):
+            print_function(verbose, output=self.results.write, typename = "results")
+        
+        else:
+            print("'" + object_name + "'" + " is not a valid request" )
+        
+        
+        
         
 
     def model_output(self, pathname, save_obj=True):
@@ -276,11 +293,11 @@ class SimpleCGE:
 def print_function (verbose="", output = "", typename=""):
     
     if (verbose==""):
-        print("Finished")            
+        print("Please specify how you would like to output")            
     elif (verbose=="print"):
         print("\nThis is the " + typename + "\n")
         output()
-        print("Finished")            
+        print("Output printed")            
     else:            
         moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
         directory = (verbose)
@@ -290,7 +307,7 @@ def print_function (verbose="", output = "", typename=""):
         with open(verbose + typename + moment, 'w') as output_file:
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
-        print("Finished")
+        print("Output saved to: " + str(verbose + typename + moment))
 
 
 
