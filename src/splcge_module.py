@@ -14,8 +14,8 @@ class SimpleCGE:
     """Inputs: dat, solver """
 
 
-    def __init__(self, dat):
-        self.model_data(dat)
+    def __init__(self):
+        #self.model_data(dat)
         self.model_abstract()
         #self.model_instance()
 
@@ -198,10 +198,24 @@ class SimpleCGE:
         # can then import function defs
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
-
-    def model_data(self, dat):
-        self.data = dat
-        # self.data = DataPortal()
+#==============================================================================
+# 
+#     def model_data(self, dat):
+#         self.data = dat
+#         # self.data = DataPortal()
+#==============================================================================
+    
+    def load_data(self):
+        
+        data = DataPortal()
+        data.load(filename='./splcge-set-i.csv', format='set', set='i')
+        data.load(filename='./splcge-set-h.csv', format='set', set='h')
+        data.load(filename='./splcge-set-u.csv', format='set', set='u')
+        data.load(filename='./splcge-sam.csv', param='sam', format='array')
+        
+        self.data = data
+            
+        
 
     def model_instance(self, verbose=""):
         self.instance = self.m.create_instance(self.data)
