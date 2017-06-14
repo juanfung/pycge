@@ -231,14 +231,7 @@ class SimpleCGE:
             
 
     def model_postprocess(self, object_name = "" , verbose=""):
-        
-        if (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
-            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-            if(verbose==""):
-                print("Please enter where to export to")
-            else: 
-                if not os.path.exists(verbose):
-                    os.makedirs(verbose)
+    
                         
         if (object_name==""):
             print("please specify what you would like to output")
@@ -249,30 +242,38 @@ class SimpleCGE:
         elif (object_name=="results"):
             print_function(verbose, output=self.results.write, typename = "results")
         
-        elif (object_name=="vars") and (verbose != ""):
-            print("Vars saved to: \n")
-            for v in self.instance.component_objects(Var, active=True):
-                with open(verbose + str(v) + "_"+  moment + '.csv', 'w') as var_output:
-                    print(str(verbose + str(v) + "_"+  moment + '.csv'))
-                    varobject = getattr(self.instance, str(v))
-                    var_output.write ('{},{} \n'.format('Names', varobject ))
-                    for index in varobject:
-                        var_output.write ('{},{} \n'.format(index, varobject[index].value))
-
+        elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+            if(verbose==""):
+                print("Please enter where to export to")
+            else: 
+                if not os.path.exists(verbose):
+                    os.makedirs(verbose)
         
-        elif(object_name=="obj") and (verbose != ""):
-            with open(verbose + "obj_" + moment + ".csv", 'w') as obj_output:
-                obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
-            print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
+                if (object_name=="vars"):
+                    print("Vars saved to: \n")
+                    for v in self.instance.component_objects(Var, active=True):
+                        with open(verbose + str(v) + "_"+  moment + '.csv', 'w') as var_output:
+                            print(str(verbose + str(v) + "_"+  moment + '.csv'))
+                            varobject = getattr(self.instance, str(v))
+                            var_output.write ('{},{} \n'.format('Names', varobject ))
+                            for index in varobject:
+                                var_output.write ('{},{} \n'.format(index, varobject[index].value))
+    
+            
+                if(object_name=="obj"): 
+                    with open(verbose + "obj_" + moment + ".csv", 'w') as obj_output:
+                        obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+                    print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
         
-        elif(object_name=="pickle") and (verbose != ""):
-            with open(verbose + 'saved_results_' + moment, 'wb') as pickle_output:
-                pickle.dump(self.results, pickle_output)
-            print("Pickled results object saved to:  " + str(verbose + 'saved_results_' + moment))
+                if(object_name=="pickle"):             
+                    with open(verbose + 'saved_results_' + moment, 'wb') as pickle_output:
+                        pickle.dump(self.results, pickle_output)
+                    print("Pickled results object saved to:  " + str(verbose + 'saved_results_' + moment))
             
         
         else:
-            print("please try again" )
+            print("Please enter a valid object_name" )
 
 
 
