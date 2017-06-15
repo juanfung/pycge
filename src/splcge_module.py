@@ -205,20 +205,49 @@ class SimpleCGE:
 #         # self.data = DataPortal()
 #==============================================================================
     
-    def load_data(self):
+    def load_data(self, sam_filename, h_filename, i_filename):
         
-        data = DataPortal()
-        data.load(filename='./splcge-set-i.csv', format='set', set='i')
-        data.load(filename='./splcge-set-h.csv', format='set', set='h')
-        data.load(filename='./splcge-set-u.csv', format='set', set='u')
-        data.load(filename='./splcge-sam.csv', param='sam', format='array')
+        #SAM      
+        splcge_sam = pd.read_excel(sam_filename, header=0, index_col=0)
         
-        self.data = data
-            
+        rows = list(splcge_sam.index.map(str))
+        cols = list(splcge_sam.columns.map(str))
+        sam_tab = {(r,c):splcge_sam.at[r,c] for r in rows for c in cols}
+
+        print(sam_tab)
+        
+        
+        #H
+        splcge_h = pd.read_excel(h_filename, header=0, index_col=0)
+        
+        h = list(splcge_h.index.map(str))
+        
+        print(h)
+        
+        
+        #I
+        splcge_i = pd.read_excel(i_filename, header=0, index_col=0)
+        
+        i = list(splcge_i.index.map(str))
+        
+        print(i)
+        
+        
+        #U
+        u = rows
+        
+        print(u)
+        
+
+         
+
+
+        
+
         
 
     def model_instance(self, verbose=""):
-        self.instance = self.m.create_instance(self.data)
+        self.instance = self.m.create_instance()
         self.instance.pf['LAB'].fixed = True
                         
         self.print_function(verbose, output=self.instance.display, typename="instance")
