@@ -14,25 +14,28 @@ class SimpleCGE:
     """Inputs: dat, solver """
 
 
-    def __init__(self, dat):
-        self.model_data(dat)
+    def __init__(self):
+
         self.model_abstract()
-        #self.model_instance()
+
 
     def model_abstract(self):
-        self.m = AbstractModel()
         
+        self.m = AbstractModel()
+
         # ----------------------------------------------- #
         #DEFINE SETS
+
         self.m.i = Set(doc='goods')
         self.m.h = Set(doc='factor')
         self.m.u = Set(doc='SAM entry')
-
         
         # ----------------------------------------------- #
         #DEFINE PARAMETERS
-        self.m.sam = Param(self.m.u, self.m.u,
+        
+        self.m.sam = Param(self.m.u, self.m.u, 
                            doc='social accounting matrix')
+
 
         def X0_init(model, i):
             # is it necessary to use self.m?
@@ -199,9 +202,30 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
-    def model_data(self, dat):
-        self.data = dat
-        # self.data = DataPortal()
+    def model_data(self, data_dir):      
+
+        
+        data = DataPortal()
+        
+        for filenames in os.listdir(data_dir):
+            if filenames.startswith("set"):                
+
+                dat_type,names,file_type = filenames.split('-')
+                data.load(filename = data_dir + filenames, format = 'set', set = names)                
+                print("File '" + filenames + "' was loaded into set: " + names)
+                
+            if filenames.startswith("param"):
+                
+                dat_type,names,file_type = filenames.split('-')
+                print("File '" + filenames + "' was loaded into param: " + names)             
+
+                data.load(filename = data_dir + filenames, param = names, format='array')
+                
+        self.data = data
+                
+
+
+        
 
     def model_instance(self, verbose=""):
         self.instance = self.m.create_instance(self.data)
@@ -262,16 +286,13 @@ class SimpleCGE:
                 os.makedirs(directory)
         myResults=SolverResults()
         self.instance.solutions.store_to(myResults)
-        # myResults.write() #just a test to make sure myResults is populated with solution
         with open(pathname + 'saved_results_' + moment, 'wb') as pickle_output:
             pickle.dump(myResults, pickle_output)
     
     def model_load_results(self, pathname):
         with open(pathname, 'rb') as pkl_file:
             loadedResults = pickle.load(pkl_file)
-            # loadedResults.write() #another test to make sure nothing is changing
             self.instance.solutions.load_from(loadedResults)
-            # self.instance.display()
     
     def print_function (self, verbose="", output = "", typename=""):
         
@@ -292,36 +313,3 @@ class SimpleCGE:
                 output(ostream=output_file)
             print("Finished")
 
-
-
-
-    
-            
-            
-
-
-# Example calls:
-    
-# Define model and instantiate:
-# test_cge = SimpleCGE("splcge.dat")
-
-# Solve the model, using Minos solver on NEOS:
-# test_cge.model_solve("neos", "minos")
-
-# save results
-# test_cge.model_save_results(r'./results/results_Results')
-# other solvers: "ipopt", "knitro"
-
-#output log file
-#test_cge.model_solve("neos","minos",verbose=r'./test_directory/')
-
-#create instance
-#test_cge.model_instance(verbose=r'./instance_folder/')
-
-# TODO:
-# 1. Testing
-#    - Test module instantiates same model as ConcreteModel()
-#    - Test each function
-# 2. Data import via DataPortal vs pandas vs AMPL format...
-# 3. Updating model (e.g., change a paramater, add a constraint, ...)
-# 4. Output: printing, saving results
