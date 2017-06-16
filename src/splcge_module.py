@@ -225,7 +225,7 @@ class SimpleCGE:
                 dat_type,names,file_type = filenames.split('-')
                 print("File '" + filenames + "' was loaded into param: " + names)             
 
-                data.load(filename = data_dir + filenames, param = names, format='array')
+                data.load(filename = data_dir + filenames, param = names)
                 
         self.data = data
                 
