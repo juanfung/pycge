@@ -11,12 +11,37 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+Getting Ready
+---------------
+
+Before using this program, it is neccesary to prepare your data.
+All data should be stored in a single directory with no other
+files, other than the ones that will be used. All files should be .csv files and
+should be named as follows: type-name-.csv
+
+For example:
+
+
+A file containing the set "h" should be named::
+
+        set-h-.csv
+     
+While a file containing a parameter "sam" should be named::
+
+        param-sam-.csv
+
+
 
 Getting Started
 ---------------
-Define a model with data ``splcge.dat``::
+Define a model::
 
-    test_cge = SimpleCGE("splcge.dat")
+    test_cge = SimpleCGE()
+
+Load the data::
+
+    test_cge.model_data(directory/that/contains/data/files)
+
 
 Instantiate the model::
 
