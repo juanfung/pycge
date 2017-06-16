@@ -227,89 +227,101 @@ class SimpleCGE:
 
         
 
-    def model_instance(self, verbose=""):
+
+    def model_instance(self):
         self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
-                        
-        self.print_function(verbose, output=self.instance.display, typename="instance")
         
-        
-        
+        print("Instance created. Call `model_postprocess` to output.")
+               
         
     
-    def pyomo_modify_instance(self, options=None, model=None, instance=None, verbose=""):
+    def pyomo_modify_instance(self, options=None, model=None, instance=None):
         self.instance.X['BRD'].value = 10.0
         self.instance.X['BRD'].fixed = True
     
-        self.print_function(verbose, output=self.instance.display, typename="instance")
-    
-    
+        print("Instance updated. Call `model_postprocess` to output.")   
     
 
 
-    def model_solve(self, mgr, solver, verbose=""):
+    def model_solve(self, mgr, solver):
         
         with SolverManagerFactory(mgr) as solver_mgr:
-            results = solver_mgr.solve(self.instance, opt=solver)
-            self.instance.solutions.store_to(results)
-            
-        self.print_function(verbose, output=results.write, typename = "results")
-
-            
-
-    def model_postprocess(self, options):
-        self.instance.obj.display()
-        self.instance.X.display()
-        self.instance.px.display()
-        self.instance.Z.display()
+            self.results = solver_mgr.solve(self.instance, opt=solver)
+            self.instance.solutions.store_to(self.results)
         
+        print("Model solved. Call `model_postprocess` to output.")
 
-    def model_output(self, pathname, save_obj=True):
-        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-        directory = (pathname)
-        if not os.path.exists(directory):
-                os.makedirs(directory)
-        for v in self.instance.component_objects(Var, active=True):
-            with open(pathname + str(v) + moment + '.csv', 'w') as var_output:  
-                varobject = getattr(self.instance, str(v))
-                var_output.write ('{},{} \n'.format('Names', varobject ))
-                for index in varobject:
-                    var_output.write ('{},{} \n'.format(index, varobject[index].value))
-        if save_obj==True:
-            with open(pathname + "obj" + moment + ".csv", 'w') as obj_output:
-                obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+            
+
+    def model_postprocess(self, object_name = "" , verbose=""):
     
-    def model_save_results(self, pathname):
-        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-        directory = (pathname)
-        if not os.path.exists(directory):
-                os.makedirs(directory)
-        myResults=SolverResults()
-        self.instance.solutions.store_to(myResults)
-        with open(pathname + 'saved_results_' + moment, 'wb') as pickle_output:
-            pickle.dump(myResults, pickle_output)
+                        
+        if (object_name==""):
+            print("please specify what you would like to output")
+        
+        elif (object_name=="instance"):
+            print_function(verbose, output=self.instance.display, typename="instance")
+        
+        elif (object_name=="results"):
+            print_function(verbose, output=self.results.write, typename = "results")
+        
+        elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+            if(verbose==""):
+                print("Please enter where to export to")
+            else: 
+                if not os.path.exists(verbose):
+                    os.makedirs(verbose)
+        
+                if (object_name=="vars"):
+                    print("Vars saved to: \n")
+                    for v in self.instance.component_objects(Var, active=True):
+                        with open(verbose + str(v) + "_"+  moment + '.csv', 'w') as var_output:
+                            print(str(verbose + str(v) + "_"+  moment + '.csv'))
+                            varobject = getattr(self.instance, str(v))
+                            var_output.write ('{},{} \n'.format('Names', varobject ))
+                            for index in varobject:
+                                var_output.write ('{},{} \n'.format(index, varobject[index].value))
+    
+            
+                if(object_name=="obj"): 
+                    with open(verbose + "obj_" + moment + ".csv", 'w') as obj_output:
+                        obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+                    print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
+        
+                if(object_name=="pickle"):             
+                    with open(verbose + 'saved_results_' + moment, 'wb') as pickle_output:
+                        pickle.dump(self.results, pickle_output)
+                    print("Pickled results object saved to:  " + str(verbose + 'saved_results_' + moment))
+            
+        
+        else:
+            print("Please enter a valid object_name" )
+
+
+
     
     def model_load_results(self, pathname):
         with open(pathname, 'rb') as pkl_file:
             loadedResults = pickle.load(pkl_file)
             self.instance.solutions.load_from(loadedResults)
     
-    def print_function (self, verbose="", output = "", typename=""):
-        
-        if (verbose==""):
-            print("Finished")            
-        elif (verbose=="print"):
-            print("\nThis is the " + typename + "\n")
-            output()
-            print("Finished")            
-        else:            
-            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-            directory = (verbose)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-                
-            with open(verbose + typename + moment, 'w') as output_file:
-                output_file.write("\nThis is the " + typename + "\n" )
-                output(ostream=output_file)
-            print("Finished")
-
+def print_function (verbose="", output = "", typename=""):
+    
+    if (verbose==""):
+        print("Please specify how you would like to output")            
+    elif (verbose=="print"):
+        print("\nThis is the " + typename + "\n")
+        output()
+        print("Output printed")            
+    else:            
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+        directory = (verbose)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            
+        with open(verbose + typename + moment, 'w') as output_file:
+            output_file.write("\nThis is the " + typename + "\n" )
+            output(ostream=output_file)
+        print("Output saved to: " + str(verbose + typename + moment))
