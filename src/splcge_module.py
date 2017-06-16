@@ -14,25 +14,28 @@ class SimpleCGE:
     """Inputs: dat, solver """
 
 
-    def __init__(self, dat):
-        self.model_data(dat)
+    def __init__(self):
+
         self.model_abstract()
-        #self.model_instance()
+
 
     def model_abstract(self):
-        self.m = AbstractModel()
         
+        self.m = AbstractModel()
+
         # ----------------------------------------------- #
         #DEFINE SETS
+
         self.m.i = Set(doc='goods')
         self.m.h = Set(doc='factor')
         self.m.u = Set(doc='SAM entry')
-
         
         # ----------------------------------------------- #
         #DEFINE PARAMETERS
-        self.m.sam = Param(self.m.u, self.m.u,
+        
+        self.m.sam = Param(self.m.u, self.m.u, 
                            doc='social accounting matrix')
+
 
         def X0_init(model, i):
             # is it necessary to use self.m?
@@ -199,9 +202,30 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
-    def model_data(self, dat):
-        self.data = dat
-        # self.data = DataPortal()
+    def model_data(self, data_dir):      
+
+        
+        data = DataPortal()
+        
+        for filenames in os.listdir(data_dir):
+            if filenames.startswith("set"):                
+
+                dat_type,names,file_type = filenames.split('-')
+                data.load(filename = data_dir + filenames, format = 'set', set = names)                
+                print("File '" + filenames + "' was loaded into set: " + names)
+                
+            if filenames.startswith("param"):
+                
+                dat_type,names,file_type = filenames.split('-')
+                print("File '" + filenames + "' was loaded into param: " + names)             
+
+                data.load(filename = data_dir + filenames, param = names, format='array')
+                
+        self.data = data
+                
+
+
+        
 
 
     def model_instance(self):
@@ -281,9 +305,7 @@ class SimpleCGE:
     def model_load_results(self, pathname):
         with open(pathname, 'rb') as pkl_file:
             loadedResults = pickle.load(pkl_file)
-            # loadedResults.write() #another test to make sure nothing is changing
             self.instance.solutions.load_from(loadedResults)
-            # self.instance.display()
     
 def print_function (verbose="", output = "", typename=""):
     
@@ -303,4 +325,3 @@ def print_function (verbose="", output = "", typename=""):
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
         print("Output saved to: " + str(verbose + typename + moment))
-
