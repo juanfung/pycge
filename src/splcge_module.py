@@ -15,24 +15,27 @@ class SimpleCGE:
 
 
     def __init__(self):
-        #self.model_data(dat)
+
         self.model_abstract()
-        #self.model_instance()
+
 
     def model_abstract(self):
-        self.m = AbstractModel()
         
+        self.m = AbstractModel()
+
         # ----------------------------------------------- #
         #DEFINE SETS
+
         self.m.i = Set(doc='goods')
         self.m.h = Set(doc='factor')
         self.m.u = Set(doc='SAM entry')
-
         
         # ----------------------------------------------- #
         #DEFINE PARAMETERS
-        self.m.sam = Param(self.m.u, self.m.u,
+        
+        self.m.sam = Param(self.m.u, self.m.u, 
                            doc='social accounting matrix')
+
 
         def X0_init(model, i):
             # is it necessary to use self.m?
@@ -205,49 +208,33 @@ class SimpleCGE:
 #         # self.data = DataPortal()
 #==============================================================================
     
-    def load_data(self, sam_filename, h_filename, i_filename):
-        
-        #SAM      
-        splcge_sam = pd.read_excel(sam_filename, header=0, index_col=0)
-        
-        rows = list(splcge_sam.index.map(str))
-        cols = list(splcge_sam.columns.map(str))
-        sam_tab = {(r,c):splcge_sam.at[r,c] for r in rows for c in cols}
-
-        print(sam_tab)
-        
-        
-        #H
-        splcge_h = pd.read_excel(h_filename, header=0, index_col=0)
-        
-        h = list(splcge_h.index.map(str))
-        
-        print(h)
-        
-        
-        #I
-        splcge_i = pd.read_excel(i_filename, header=0, index_col=0)
-        
-        i = list(splcge_i.index.map(str))
-        
-        print(i)
-        
-        
-        #U
-        u = rows
-        
-        print(u)
-        
-
-         
-
+    def model_data(self, data_dir):      
 
         
+        data = DataPortal()
+        
+        for filenames in os.listdir(data_dir):
+            if filenames.startswith("set"):                
+
+                dat_type,names,file_type = filenames.split('-')
+                data.load(filename = data_dir + filenames, format = 'set', set = names)                
+                print("File '" + filenames + "' was loaded into set: " + names)
+                
+            if filenames.startswith("param"):
+                
+                dat_type,names,file_type = filenames.split('-')
+                print("File '" + filenames + "' was loaded into param: " + names)             
+
+                data.load(filename = data_dir + filenames, param = names, format='array')
+                
+        self.data = data
+                
+
 
         
 
     def model_instance(self, verbose=""):
-        self.instance = self.m.create_instance()
+        self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
                         
         self.print_function(verbose, output=self.instance.display, typename="instance")
