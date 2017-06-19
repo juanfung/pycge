@@ -6,6 +6,7 @@ import pickle
 from pyomo.opt import SolverResults
 import time
 import os
+from pyomo.opt import SolverStatus, TerminationCondition
 
 
 
@@ -258,6 +259,14 @@ class SimpleCGE:
             self.instance.solutions.store_to(self.results)
         
         print("Model solved. Call `model_postprocess` to output.")
+        
+
+        if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
+            print('Solution is optimal and feasible')
+        elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
+            print("Model is infeasible")
+        else:
+            print ('WARNING. Solver Status: ',  self.result.solver.status)
 
             
 
