@@ -251,10 +251,15 @@ class SimpleCGE:
     
     def pyomo_modify_instance(self, options=None, model=None, instance=None):
         
-        self.instance.X['BRD'].value = 10.0
-        self.instance.X['BRD'].fixed = True
-    
-        print("Instance updated. Call `model_postprocess` to output.")   
+        try:
+        
+            self.instance.X['BRD'].value = 10.0
+            self.instance.X['BRD'].fixed = True
+        
+            print("Instance updated. Call `model_postprocess` to output.")  
+            
+        except:
+            print("Unable to modify instance. Please make sure a 'calibration' instance as already been created")
     
 
 
