@@ -202,26 +202,31 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
-    def model_data(self, data_dir):      
+    def model_data(self, data_dir):
+        
+        if not os.path.exists(data_dir):
+            print("please enter a valid data directory")
+        
+        else:
 
         
-        data = DataPortal()
-        
-        for filenames in os.listdir(data_dir):
-            if filenames.startswith("set"):                
-
-                dat_type,names,file_type = filenames.split('-')
-                data.load(filename = data_dir + filenames, format = 'set', set = names)                
-                print("File '" + filenames + "' was loaded into set: " + names)
-                
-            if filenames.startswith("param"):
-                
-                dat_type,names,file_type = filenames.split('-')
-                print("File '" + filenames + "' was loaded into param: " + names)             
-
-                data.load(filename = data_dir + filenames, param = names, format='array')
-                
-        self.data = data
+            data = DataPortal()
+            
+            for filenames in os.listdir(data_dir):
+                if filenames.startswith("set"):                
+    
+                    dat_type,names,file_type = filenames.split('-')
+                    data.load(filename = data_dir + filenames, format = 'set', set = names)                
+                    print("File '" + filenames + "' was loaded into set: " + names)
+                    
+                if filenames.startswith("param"):
+                    
+                    dat_type,names,file_type = filenames.split('-')
+                    print("File '" + filenames + "' was loaded into param: " + names)             
+    
+                    data.load(filename = data_dir + filenames, param = names, format='array')
+                    
+            self.data = data
                 
 
 
@@ -245,6 +250,8 @@ class SimpleCGE:
 
 
     def model_solve(self, mgr, solver):
+        
+
         
         with SolverManagerFactory(mgr) as solver_mgr:
             self.results = solver_mgr.solve(self.instance, opt=solver)
