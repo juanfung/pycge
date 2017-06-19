@@ -288,6 +288,7 @@ class SimpleCGE:
                 print("Please enter where to export to")
             else: 
                 if not os.path.exists(verbose):
+                    print(verbose, "directory did not exist so one was created")
                     os.makedirs(verbose)
         
                 if (object_name=="vars"):
@@ -335,6 +336,7 @@ def print_function (verbose="", output = "", typename=""):
         moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
         directory = (verbose)
         if not os.path.exists(directory):
+            print(verbose, "directory did not exist so one was created")
             os.makedirs(directory)
             
         with open(verbose + typename + moment, 'w') as output_file:
