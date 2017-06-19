@@ -202,9 +202,12 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
-    def model_data(self, data_dir):
+    def model_data(self, data_dir = ''):
         
-        if not os.path.exists(data_dir):
+        if (data_dir == ""):
+            print("Please specify where you would like to load data from")
+        
+        elif not os.path.exists(data_dir):
             print("please enter a valid data directory")
         
         else:
