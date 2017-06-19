@@ -218,12 +218,15 @@ class SimpleCGE:
                     data.load(filename = data_dir + filenames, format = 'set', set = names)                
                     print("File '" + filenames + "' was loaded into set: " + names)
                     
-                if filenames.startswith("param"):
+                elif filenames.startswith("param"):
                     
                     dat_type,names,file_type = filenames.split('-')
                     print("File '" + filenames + "' was loaded into param: " + names)             
     
                     data.load(filename = data_dir + filenames, param = names, format='array')
+                
+                else:
+                    print(filenames, " is not in the right format and was not loaded into DataPortal")
                     
             self.data = data
 
