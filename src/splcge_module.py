@@ -39,7 +39,6 @@ class SimpleCGE:
 
 
         def X0_init(model, i):
-            # is it necessary to use self.m?
             return model.sam[i, 'HOH']
 
         self.m.X0 = Param(self.m.i,
@@ -209,7 +208,6 @@ class SimpleCGE:
             print("please enter a valid data directory")
         
         else:
-
         
             data = DataPortal()
             
@@ -228,13 +226,11 @@ class SimpleCGE:
                     data.load(filename = data_dir + filenames, param = names, format='array')
                     
             self.data = data
-                
 
-
-        
 
 
     def model_instance(self):
+        
         self.instance = self.m.create_instance(self.data)
         self.instance.pf['LAB'].fixed = True
         
@@ -243,6 +239,7 @@ class SimpleCGE:
         
     
     def pyomo_modify_instance(self, options=None, model=None, instance=None):
+        
         self.instance.X['BRD'].value = 10.0
         self.instance.X['BRD'].fixed = True
     
@@ -251,9 +248,7 @@ class SimpleCGE:
 
 
     def model_solve(self, mgr, solver):
-        
-
-        
+               
         with SolverManagerFactory(mgr) as solver_mgr:
             self.results = solver_mgr.solve(self.instance, opt=solver)
             self.instance.solutions.store_to(self.results)
@@ -271,8 +266,7 @@ class SimpleCGE:
             
 
     def model_postprocess(self, object_name = "" , verbose=""):
-    
-                        
+                           
         if (object_name==""):
             print("please specify what you would like to output")
         
