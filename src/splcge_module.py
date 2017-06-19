@@ -320,9 +320,22 @@ class SimpleCGE:
 
     
     def model_load_results(self, pathname):
-        with open(pathname, 'rb') as pkl_file:
-            loadedResults = pickle.load(pkl_file)
-            self.instance.solutions.load_from(loadedResults)
+        
+        if not os.path.exists(pathname):
+            print(pathname, " does not exist. Please enter a valid path to the file you would like to load")
+        
+        else:
+            
+            try:
+
+                with open(pathname, 'rb') as pkl_file:
+                    loadedResults = pickle.load(pkl_file)
+                    self.instance.solutions.load_from(loadedResults)
+                    print("results from: ", pathname, " were loaded to instance")
+            
+            except:
+                
+                print("Unable to load file. Please make sure correct file is specified. Must be pickled.")
     
 def print_function (verbose="", output = "", typename=""):
     
