@@ -18,16 +18,16 @@ class SimpleCGE:
 
     def __init__(self):
 
-        splcge_model_def.Model_Def.model_abstract(self)
-        splcge_model_def.Model_Def.check(self)
-
-
-
+        # -----------------------------------------------------#
+        #ABSTRACT MODEL DEF
+        splcge_model_def.Model_Def.model_abstract(self)     #define model
+        splcge_model_def.Model_Def.model_sets(self)         #define sets
+        splcge_model_def.Model_Def.model_param(self)        #define params/calibration/variables
+        splcge_model_def.Model_Def.model_constraints(self)  #define constraints 
+        splcge_model_def.Model_Def.model_obj(self)          #define objective
+        splcge_model_def.Model_Def.check(self)              #print that everything was loaded
         
-        # ------------------------------------------------------- #
-        # CREATE MODEL INSTANCE
-        
-        
+
 
         # TODO:
         # separate each of these steps into functions,
@@ -35,6 +35,9 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
+
+    # -----------------------------------------------------#
+    #LOAD DATA
     def model_data(self, data_dir = ''):
         
         if (data_dir == ""):
@@ -67,7 +70,8 @@ class SimpleCGE:
             self.data = data
 
 
-
+    # -----------------------------------------------------#
+    #CREATE INSTANCE
     def model_instance(self):
         
         try:
@@ -81,7 +85,8 @@ class SimpleCGE:
             print("Unable to create instance. Please make sure data is loaded")
                
         
-    
+    # -----------------------------------------------------#
+    #MODIFY INSTANCE    
     def pyomo_modify_instance(self, options=None, model=None, instance=None):
         
         try:
@@ -95,7 +100,8 @@ class SimpleCGE:
             print("Unable to modify instance. Please make sure a 'calibration' instance as already been created")
     
 
-
+    # -----------------------------------------------------#
+    #SOLVE
     def model_solve(self, mgr, solver):
                
         with SolverManagerFactory(mgr) as solver_mgr:
@@ -113,7 +119,8 @@ class SimpleCGE:
             print ('WARNING. Solver Status: ',  self.result.solver.status)
 
             
-
+    # -----------------------------------------------------#
+    #OUTPUT
     def model_postprocess(self, object_name = "" , verbose=""):
                            
         if (object_name==""):
@@ -161,7 +168,8 @@ class SimpleCGE:
 
 
 
-    
+    # -----------------------------------------------------#
+    #IMPORT RESULTS OBJECT    
     def model_load_results(self, pathname):
         
         if not os.path.exists(pathname):
@@ -179,7 +187,10 @@ class SimpleCGE:
             except:
                 
                 print("Unable to load file. Please make sure correct file is specified. Must be pickled.")
-    
+
+
+# -----------------------------------------------------#
+#PRINT    
 def print_function (verbose="", output = "", typename=""):
     
     if (verbose==""):

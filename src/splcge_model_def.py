@@ -14,21 +14,28 @@ import numpy as np
 
 class Model_Def:
     
-
+    # ----------------------------------------------- #
+    #DEFINE MODEL
     def model_abstract(self):
-        
+
         self.m = AbstractModel()
-
-        # ----------------------------------------------- #
-        #DEFINE SETS
-
+        
+        
+    # ----------------------------------------------- #
+    #DEFINE SETS       
+    def model_sets(self):
+        
         self.m.i = Set(doc='goods')
         self.m.h = Set(doc='factor')
         self.m.u = Set(doc='SAM entry')
         
-        # ----------------------------------------------- #
-        #DEFINE PARAMETERS
         
+    # ----------------------------------------------- #
+    #DEFINE PARAMETERS, CALIBRATION, VARIABLES       
+    def model_param(self):
+    
+        # ----------------------------------------------- #
+        #PARAMETERS 
         self.m.sam = Param(self.m.u, self.m.u, 
                            doc='social accounting matrix')
 
@@ -63,7 +70,6 @@ class Model_Def:
         
         # --------------------------------------------- #
         # CALIBRATION
-        
         def alpha_init(model, i):
             return model.X0[i] / sum(model.X0[j] for j in model.i) 
         
@@ -84,11 +90,9 @@ class Model_Def:
         self.m.b = Param(self.m.i,
                          initialize=b_init,
                          doc='scale parameter in production function')
-        
+    
         # -----------------------------------------------------#
-        #Define model system
-        #DEFINE VARIABLES
-        
+        #VARIABLES
         self.m.X = Var(self.m.i,
                        initialize=X0_init,
                        within=PositiveReals,
@@ -122,10 +126,10 @@ class Model_Def:
                         initialize=p_init,
                         within=PositiveReals,
                         doc='the h-th factor price')
-        
-        # ------------------------------------------------------ #
-        # DEFINE EQUATIONS
-        # define constraints
+    
+    # ------------------------------------------------------ #
+    # DEFINE CONSTRAINTS
+    def model_constraints(self):
         
         def eqX_rule(model, i):
             return (model.X[i] == model.alpha[i] * sum(model.pf[h] * model.FF[h] / model.px[i] for h in model.h))
@@ -174,9 +178,10 @@ class Model_Def:
         self.m.eqZ = Constraint(self.m.i,
                                 rule=eqZ_rule,
                                 doc='price equation')
-        
-        # ------------------------------------------------------- #
-        # DEFINE OBJECTIVE
+    
+    # ------------------------------------------------------- #
+    # DEFINE OBJECTIVE
+    def model_obj(self):
 
 
         def obj_rule(model):
@@ -185,5 +190,7 @@ class Model_Def:
         self.m.obj = Objective(rule=obj_rule,
                                sense=maximize,
                                doc='utility function [fictitious]')
+    # ----------------------------------------------- #
+    #PRINT THAT EVERYTHING WAS LOADED  
     def check(self):
-        print("model_abstract loaded")
+        print("AbstractModel loaded")
