@@ -20,12 +20,12 @@ class SimpleCGE:
 
         # -----------------------------------------------------#
         #ABSTRACT MODEL DEF
-        splcge_model_def.Model_Def.model_abstract(self)     #define model
-        splcge_model_def.Model_Def.model_sets(self)         #define sets
-        splcge_model_def.Model_Def.model_param(self)        #define params/calibration/variables
-        splcge_model_def.Model_Def.model_constraints(self)  #define constraints 
-        splcge_model_def.Model_Def.model_obj(self)          #define objective
-        splcge_model_def.Model_Def.check(self)              #print that everything was loaded
+        splcge_model_def.ModelDef.model_abstract(self)     #define model
+        splcge_model_def.ModelDef.model_sets(self)         #define sets
+        splcge_model_def.ModelDef.model_param(self)        #define params/calibration/variables
+        splcge_model_def.ModelDef.model_constraints(self)  #define constraints 
+        splcge_model_def.ModelDef.model_obj(self)          #define objective
+        splcge_model_def.ModelDef.check(self)              #print that everything was loaded
         
 
 

@@ -12,7 +12,7 @@ import numpy as np
 
 
 
-class Model_Def:
+class ModelDef:
     
     # ----------------------------------------------- #
     #DEFINE MODEL
