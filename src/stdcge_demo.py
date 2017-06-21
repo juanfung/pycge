@@ -15,7 +15,7 @@ import os
 # Create abstract model
 model = AbstractModel()
 
-
+ 
 # ------------------------------------------- #
 # DEFINE SETS
 model.i = Set(doc='goods')
@@ -63,14 +63,14 @@ model.Y0 = Param(model.i, initialize=Y0_init,
                  doc='composite factor')
 
 def X0_init(model, i, j):
-    return model.sam[i, i]
+    return model.sam[i, j]
 
 
 model.X0 = Param(model.i, model.i, initialize=X0_init,
                  doc='intermediate input')
 
-def Z0_init(model, i):
-    return model.Y0[i] + sum(model.X0[i,i] for i in model.i)
+def Z0_init(model, j):
+    return model.Y0[j] + sum(model.X0[i,j] for i in model.i)
 
 
 model.Z0 = Param(model.i, initialize=Z0_init,
@@ -136,7 +136,7 @@ model.E0 = Param(model.i, initialize=E0_init,
                  doc='exports')
 
 def Q0_init(model, i):
-    return model.Xp0[i] + model.Xg0[i] + model.Xv0[i] + sum(model.X0[i,i] for i in model.i)
+    return model.Xp0[i] + model.Xg0[i] + model.Xv0[i] + sum(model.X0[i,j] for j in model.i)
 
 
 model.Q0 = Param(model.i, initialize=Q0_init,
@@ -170,18 +170,18 @@ def Sf_init(model):
 model.Sf = Param(initialize=Sf_init,
                  doc='foreign saving in US dollars')
 
-def pWe_init(model):
+def pWe_init(model, i):
     return 1
 
 
-model.pWe = Param(initialize=pWe_init,
+model.pWe = Param(model.i, initialize=pWe_init,
                  doc='export price in US dollars')
 
-def pWm_init(model):
+def pWm_init(model, i):
     return 1
 
 
-model.pWm = Param(initialize=pWm_init,
+model.pWm = Param(model.i, initialize=pWm_init,
                  doc='import price in US dollars')
 
 # ------------------------------------------- #
@@ -254,9 +254,9 @@ def lambd_init (model, i):
     
 model.lambd = Param(model.i, initialize=lambd_init,
                     doc='investment demand share')
-    
+
 def deltam_init(model, i):
-    return (1+model.taum[i]*model.M0[i]**(1-model.eta[i])) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
+    return ((1+model.taum[i])*model.M0[i]**(1-model.eta[i])) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
     
 model.deltam = Param(model.i, initialize=deltam_init,
                     doc='share par. in Armington func.')
@@ -284,7 +284,7 @@ def xie_init(model, i):
  
 model.xie = Param(model.i, initialize=xie_init,
                     doc='share par. in transformation func.')
-       
+
 def theta_init(model, i):
     return model.Z0[i] / (model.xie[i]*model.E0[i]**model.phi[i]+model.xid[i]*model.D0[i]**model.phi[i]**(1/model.phi[i]))
    
@@ -414,7 +414,6 @@ model.epsilon = Var(
               within=PositiveReals,
               doc='exchange rate')
 
-
 model.Sp = Var(
               initialize=Sp0_init,
               within=PositiveReals,
@@ -463,8 +462,8 @@ def eqY_rule(model, i):
 
 model.eqY = Constraint(model.i, rule=eqY_rule, doc='composite factor demand function')
 
-def eqpzs_rule(model, i):
-    return (model.pz[i] == model.ay[i]*model.py[i] +sum(model.ax[i,i]*model.pq[i] for i in model.i) )
+def eqpzs_rule(model, j):
+    return (model.pz[j] == model.ay[j]*model.py[j] +sum(model.ax[i,j]*model.pq[i] for i in model.i) )
 
 model.eqpzs = Constraint(model.i, rule=eqpzs_rule, doc='unit cost function')
 
@@ -509,17 +508,17 @@ def eqXp_rule(model, i):
 model.eqXp = Constraint(model.i, rule=eqXp_rule, doc='household demand function')
 
 def eqpe_rule(model, i):
-    return (model.pe[i] == (model.epsilon * model.pWe))
+    return (model.pe[i] == (model.epsilon * model.pWe[i]))
 
 model.eqpe = Constraint(model.i, rule=eqpe_rule, doc='world export price equation')
 
 def eqpm_rule(model, i):
-    return (model.pm[i] == model.epsilon*model.pWm)
+    return (model.pm[i] == model.epsilon*model.pWm[i])
 
 model.eqpm = Constraint(model.i, rule=eqpm_rule, doc='world import price equation')
 
-def eqepsilon_rule(model):
-    return (sum(model.pWe*model.E[i] for i in model.i)) + model.Sf == sum(model.pWm*model.M[i] for i in model.i)
+def eqepsilon_rule(model): 
+    return sum(model.pWe[i]*model.E[i] for i in model.i) + model.Sf == sum(model.pWm[i]*model.M[i] for i in model.i)
 
 model.eqepsilon = Constraint(rule=eqepsilon_rule, doc='balance of payments')
 
@@ -543,7 +542,7 @@ def eqpzd_rule(model, i):
 
 model.eqpzd = Constraint(model.i, rule=eqpzd_rule, doc='transformation function') 
 
-def eqDs_rule(model, i):
+def eqDs_rule(model, i): 
     return ( model.E[i]== (model.theta[i]**model.phi[i]*model.xie[i]*(1+model.tauz[i])*model.pz[i]/model.pe[i])**(1/(1-model.phi[i]))*model.Z[i])
 
 model.eqDs = Constraint(model.i, rule=eqDs_rule, doc='domestic good supply function')
@@ -554,7 +553,7 @@ def eqE_rule(model, i):
 model.eqE = Constraint(model.i, rule=eqE_rule, doc='export supply function')
 
 def eqpqd_rule(model, i):
-    return ( model.Q[i]==  model.Xp[i] + model.Xg[i] + model.Xv[i] +sum(model.X[i,i] for i in model.i))
+    return ( model.Q[i]==  model.Xp[i] + model.Xg[i] + model.Xv[i] +sum(model.X[i,j] for j in model.i))
 
 model.eqpqd = Constraint(model.i, rule=eqpqd_rule, doc='market clearing cond. for comp. good')
 
@@ -572,6 +571,18 @@ def obj_rule(model):
 model.obj = Objective(rule=obj_rule, sense=maximize,
                       doc='utility function [fictitious]')
 
+
+
+
+
+# Create directory   
+moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+directory = (r'./results/')
+if not os.path.exists(directory):
+    os.makedirs(directory)
+filename = directory + 'results_' 
+
+
 # CREATE MODEL INSTANCE
 data = DataPortal()
 data.load(filename='./stdcge_data_directory/set-i-.csv', format='set', set='i')
@@ -581,7 +592,26 @@ data.load(filename='./stdcge_data_directory/param-sam-.csv', param='sam', format
 
 instance = model.create_instance(data)
 instance.pf['LAB'].fixed = True
-instance.display()
+#instance.display()
+
+# Create file for instance
+with open(filename + "_instance_" + moment, 'w') as instance_output:
+    instance_output.write("\nThis is the instance\n" )
+    instance.display(ostream=instance_output)
+    
+# Create files for variables     
+for v in instance.component_objects(Var, active=True):
+    with open(filename + str(v) + "_" + moment + ".csv", 'w') as var_output:  
+        varobject = getattr(instance, str(v))
+        var_output.write ('{},{} \n'.format('Names', varobject ))
+        for index in varobject:
+            var_output.write ('{},{} \n'.format(index, varobject[index].value))
+
+# Create file for objective
+with open(filename + "_objective_" + moment + ".csv", 'w') as obj_output:
+    obj_output.write ('{},{}\n'.format("objective", value(instance.obj)))
+        
+
 
 
 # ------------------------------------------- #
