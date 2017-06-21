@@ -584,6 +584,35 @@ instance.pf['LAB'].fixed = True
 instance.display()
 
 
+# ------------------------------------------- #
+# SOLVE
+# Using NEOS external solver
+
+# Select solver
+solver = 'minos'  # 'ipopt', 'knitro', 'minos'
+solver_io = 'nl'
+
+# To run as python script:
+# This is an optional code path that allows the script to be run outside of
+# pyomo command-line.  For example:  python splcge_demo.py
+
+if __name__ == '__main__':
+    #This replicates what the pyomo command-line tools does
+    from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
+    import pyomo.environ
+    import pickle
+    #opt = SolverFactory(solver)
+    #opt.options['max_iter'] = 20
+    with SolverManagerFactory("neos") as solver_mgr:
+        results = solver_mgr.solve(instance, opt=solver, tee=True)
+        
+
+    instance.solutions.store_to(results)
+    
+    results.write()
+
+
 
 
 
