@@ -27,6 +27,8 @@ model.u = Set(doc='SAM entry')
 # DEFINE PARAMETERS
 model.sam = Param(model.u, model.u, doc='social accounting matrix')
 
+
+
 def Td0_init(model):
     return model.sam['GOV','HOH']
 
@@ -214,13 +216,13 @@ model.phi = Param(model.i, initialize=phi_init,
                     doc='transformation elasticity parameter')
 
 def alpha_init(model, i):
-    return (model.Xp0[i])/ sum(model.Xp0[i] for i in model.i)
+    return (model.Xp0[i])/ sum(model.Xp0[j] for j in model.i)
 
 model.alpha = Param(model.i, initialize=alpha_init,
                     doc='share parameter in utility func.')
     
 def beta_init(model, h, i):
-    return (model.F0[h, i]) / sum(model.Xg0[i] for i in model.i)
+    return (model.F0[h, i]) / sum(model.F0[k,i] for k in model.h)
 
 model.beta = Param(model.h, model.i,  initialize=beta_init,
                     doc='share parameter in production func.')
@@ -244,7 +246,7 @@ model.ay = Param(model.i, initialize=ay_init,
                     doc=' composite fact. input req. coeff.')
     
 def mu_init(model, i):
-    return model.Xg0[i] / sum(model.Xg0[i] for i in model.i)
+    return model.Xg0[i] / sum(model.Xg0[j] for j in model.i)
     
 model.mu = Param(model.i, initialize=mu_init,
                     doc=' government consumption share')
@@ -272,12 +274,6 @@ def gamma_init(model, i):
        
 model.gamma = Param(model.i, initialize=gamma_init,
                     doc='scale par. in Armington func.')
-     
-def  xid_init(model, i):
-    return model.D0[i]**(1-model.phi[i])/(model.E0[i]**(1-model.phi[i])+model.D0[i]**(1-model.phi[i]))
-    
-model.xid = Param(model.i, initialize=xid_init,
-                    doc='share par. in transformation func.')
     
 def xie_init(model, i):
     return model.E0[i]**(1-model.phi[i])/(model.E0[i]**(1-model.phi[i])+model.D0[i]**(1-model.phi[i]))
@@ -285,8 +281,14 @@ def xie_init(model, i):
 model.xie = Param(model.i, initialize=xie_init,
                     doc='share par. in transformation func.')
 
+def  xid_init(model, i):
+    return model.D0[i]**(1-model.phi[i])/(model.E0[i]**(1-model.phi[i])+model.D0[i]**(1-model.phi[i]))
+    
+model.xid = Param(model.i, initialize=xid_init,
+                    doc='share par. in transformation func.')
+
 def theta_init(model, i):
-    return model.Z0[i] / (model.xie[i]*model.E0[i]**model.phi[i]+model.xid[i]*model.D0[i]**model.phi[i]**(1/model.phi[i]))
+    return model.Z0[i] / (model.xie[i]*model.E0[i]**model.phi[i]+model.xid[i]*model.D0[i]**model.phi[i])**(1/model.phi[i])
    
 model.theta = Param(model.i, initialize=theta_init,
                     doc='scale par. in transformation func.')
@@ -453,7 +455,7 @@ def eqF_rule(model, h, i):
 model.eqF = Constraint(model.h, model.i, rule=eqF_rule, doc='factor demand function')
 
 def eqX_rule(model, i, j):
-    return (model.X[i,j] ==model.ax[i,j]*model.Z[i] )
+    return (model.X[i,j] ==model.ax[i,j]*model.Z[j] )
 
 model.eqX = Constraint(model.i, model.i, rule=eqX_rule, doc='intermediate demand function')
 
@@ -483,7 +485,7 @@ def eqTm_rule(model, i):
 model.eqTm = Constraint(model.i, rule=eqTm_rule, doc='import tariff revenue function')
 
 def eqXg_rule(model, i):
-    return (model.Xg[i] == model.mu[i]*(model.Td +sum(model.Tz[i] for i in model.i) +sum(model.Tm[i] for i in model.i)- model.Sg)  /model.pq[i])
+    return (model.Xg[i] == model.mu[i]*(model.Td +sum(model.Tz[j] for j in model.i) +sum(model.Tm[j] for j in model.i)- model.Sg)  /model.pq[i])
 
 model.eqXg = Constraint(model.i, rule=eqXg_rule, doc='government demand function')
 
@@ -498,7 +500,7 @@ def eqSp_rule(model):
 model.eqSp = Constraint(rule=eqSp_rule, doc='private saving function')
 
 def eqSg_rule(model):
-    return (model.Sg == model.ssg*(model.Td +sum(model.Tz[i] for i in model.i)+sum(model.Tm[i] for i in model.i)))
+    return (model.Sg == model.ssg*(model.Td +sum(model.Tz[j] for j in model.i)+sum(model.Tm[j] for j in model.i)))
 
 model.eqSg = Constraint(rule=eqSg_rule, doc='government saving function')
 
@@ -538,19 +540,19 @@ def eqD_rule(model, i):
 model.eqD = Constraint(model.i, rule=eqD_rule, doc='domestic good demand function')
 
 def eqpzd_rule(model, i):
-    return ( model.Z[i] == model.theta[i]*(model.xie[i]*model.E[i]**model.phi[i]+model.xid[i]*model.D[i]**model.phi[i])**(1/model.phi[i]))
+    return  model.Z[i] == model.theta[i]*(model.xie[i]*model.E[i]**model.phi[i]+model.xid[i]*model.D[i]**model.phi[i])**(1/model.phi[i])
 
 model.eqpzd = Constraint(model.i, rule=eqpzd_rule, doc='transformation function') 
 
-def eqDs_rule(model, i): 
-    return ( model.E[i]== (model.theta[i]**model.phi[i]*model.xie[i]*(1+model.tauz[i])*model.pz[i]/model.pe[i])**(1/(1-model.phi[i]))*model.Z[i])
-
-model.eqDs = Constraint(model.i, rule=eqDs_rule, doc='domestic good supply function')
-
-def eqE_rule(model, i):
-    return ( model.D[i]== (model.theta[i]**model.phi[i]*model.xid[i]*(1+model.tauz[i])*model.pz[i]/model.pd[i])**(1/(1-model.phi[i]))*model.Z[i])
+def eqE_rule(model, i): 
+    return  model.E[i] == (model.theta[i]**model.phi[i]*model.xie[i]*(1+model.tauz[i])*model.pz[i]/model.pe[i])**(1/(1-model.phi[i]))*model.Z[i]
 
 model.eqE = Constraint(model.i, rule=eqE_rule, doc='export supply function')
+
+def eqDs_rule(model, i):
+    return  model.D[i] == (model.theta[i]**model.phi[i]*model.xid[i]*(1+model.tauz[i])*model.pz[i]/model.pd[i])**(1/(1-model.phi[i]))*model.Z[i]
+
+model.eqDs = Constraint(model.i, rule=eqDs_rule, doc='domestic good supply function')
 
 def eqpqd_rule(model, i):
     return ( model.Q[i]==  model.Xp[i] + model.Xg[i] + model.Xv[i] +sum(model.X[i,j] for j in model.i))
@@ -612,7 +614,7 @@ with open(filename + "_objective_" + moment + ".csv", 'w') as obj_output:
     obj_output.write ('{},{}\n'.format("objective", value(instance.obj)))
         
 
-
+#model.display()
 
 # ------------------------------------------- #
 # SOLVE
@@ -631,9 +633,7 @@ if __name__ == '__main__':
     from pyomo.opt import SolverFactory
     from pyomo.opt import SolverResults
     import pyomo.environ
-    import pickle
-    #opt = SolverFactory(solver)
-    #opt.options['max_iter'] = 20
+
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
         
