@@ -28,7 +28,6 @@ model.u = Set(doc='SAM entry')
 model.sam = Param(model.u, model.u, doc='social accounting matrix')
 
 
-
 def Td0_init(model):
     return model.sam['GOV','HOH']
 
@@ -258,7 +257,7 @@ model.lambd = Param(model.i, initialize=lambd_init,
                     doc='investment demand share')
 
 def deltam_init(model, i):
-    return ((1+model.taum[i])*model.M0[i]**(1-model.eta[i])) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
+    return (1+model.taum[i])*model.M0[i]**(1-model.eta[i]) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
     
 model.deltam = Param(model.i, initialize=deltam_init,
                     doc='share par. in Armington func.')
@@ -621,7 +620,7 @@ with open(filename + "_objective_" + moment + ".csv", 'w') as obj_output:
 # Using NEOS external solver
 
 # Select solver
-solver = 'minos'  # 'ipopt', 'knitro', 'minos'
+solver = 'conopt'  # 'ipopt', 'knitro', 'minos'
 solver_io = 'nl'
 
 # To run as python script:
