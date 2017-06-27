@@ -6,6 +6,7 @@ import pickle
 from pyomo.opt import SolverResults
 import time
 import os
+from pyomo.opt import SolverStatus, TerminationCondition
 
 
 
@@ -38,7 +39,6 @@ class SimpleCGE:
 
 
         def X0_init(model, i):
-            # is it necessary to use self.m?
             return model.sam[i, 'HOH']
 
         self.m.X0 = Param(self.m.i,
@@ -202,61 +202,87 @@ class SimpleCGE:
         # def model_sets, def model_params, def model_contraints, def model_objective...
         # also: model_calibrate, model_sim, model_shock, ...
 
-    def model_data(self, data_dir):      
-
+    def model_data(self, data_dir = ''):
         
-        data = DataPortal()
+        if (data_dir == ""):
+            print("Please specify where you would like to load data from")
         
-        for filenames in os.listdir(data_dir):
-            if filenames.startswith("set"):                
-
-                dat_type,names,file_type = filenames.split('-')
-                data.load(filename = data_dir + filenames, format = 'set', set = names)                
-                print("File '" + filenames + "' was loaded into set: " + names)
-                
-            if filenames.startswith("param"):
-                
-                dat_type,names,file_type = filenames.split('-')
-                print("File '" + filenames + "' was loaded into param: " + names)             
-
-                data.load(filename = data_dir + filenames, param = names, format='array')
-                
-        self.data = data
-                
-
-
+        elif not os.path.exists(data_dir):
+            print("please enter a valid data directory")
         
+        else:
+        
+            data = DataPortal()
+            
+            for filenames in os.listdir(data_dir):
+                if filenames.startswith("set"):                
+    
+                    dat_type,names,file_type = filenames.split('-')
+                    data.load(filename = data_dir + filenames, format = 'set', set = names)                
+                    print("File '" + filenames + "' was loaded into set: " + names)
+                    
+                elif filenames.startswith("param"):
+                    
+                    dat_type,names,file_type = filenames.split('-')
+                    print("File '" + filenames + "' was loaded into param: " + names)             
+    
+                    data.load(filename = data_dir + filenames, param = names, format='array')
+                
+                else:
+                    print(filenames, " is not in the right format and was not loaded into DataPortal")
+                    
+            self.data = data
+
 
 
     def model_instance(self):
-        self.instance = self.m.create_instance(self.data)
-        self.instance.pf['LAB'].fixed = True
         
-        print("Instance created. Call `model_postprocess` to output.")
+        try:
+        
+            self.instance = self.m.create_instance(self.data)
+            self.instance.pf['LAB'].fixed = True
+            
+            print("Instance created. Call `model_postprocess` to output.")
+        
+        except:
+            print("Unable to create instance. Please make sure data is loaded")
                
         
     
     def pyomo_modify_instance(self, options=None, model=None, instance=None):
-        self.instance.X['BRD'].value = 10.0
-        self.instance.X['BRD'].fixed = True
-    
-        print("Instance updated. Call `model_postprocess` to output.")   
+        
+        try:
+        
+            self.instance.X['BRD'].value = 10.0
+            self.instance.X['BRD'].fixed = True
+        
+            print("Instance updated. Call `model_postprocess` to output.")  
+            
+        except:
+            print("Unable to modify instance. Please make sure a 'calibration' instance as already been created")
     
 
 
     def model_solve(self, mgr, solver):
-        
+               
         with SolverManagerFactory(mgr) as solver_mgr:
             self.results = solver_mgr.solve(self.instance, opt=solver)
             self.instance.solutions.store_to(self.results)
         
         print("Model solved. Call `model_postprocess` to output.")
+        
+
+        if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
+            print('Solution is optimal and feasible')
+        elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
+            print("Model is infeasible")
+        else:
+            print ('WARNING. Solver Status: ',  self.result.solver.status)
 
             
 
     def model_postprocess(self, object_name = "" , verbose=""):
-    
-                        
+                           
         if (object_name==""):
             print("please specify what you would like to output")
         
@@ -272,6 +298,7 @@ class SimpleCGE:
                 print("Please enter where to export to")
             else: 
                 if not os.path.exists(verbose):
+                    print(verbose, "directory did not exist so one was created")
                     os.makedirs(verbose)
         
                 if (object_name=="vars"):
@@ -303,9 +330,22 @@ class SimpleCGE:
 
     
     def model_load_results(self, pathname):
-        with open(pathname, 'rb') as pkl_file:
-            loadedResults = pickle.load(pkl_file)
-            self.instance.solutions.load_from(loadedResults)
+        
+        if not os.path.exists(pathname):
+            print(pathname, " does not exist. Please enter a valid path to the file you would like to load")
+        
+        else:
+            
+            try:
+
+                with open(pathname, 'rb') as pkl_file:
+                    loadedResults = pickle.load(pkl_file)
+                    self.instance.solutions.load_from(loadedResults)
+                    print("results from: ", pathname, " were loaded to instance")
+            
+            except:
+                
+                print("Unable to load file. Please make sure correct file is specified. Must be pickled.")
     
 def print_function (verbose="", output = "", typename=""):
     
@@ -319,6 +359,7 @@ def print_function (verbose="", output = "", typename=""):
         moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
         directory = (verbose)
         if not os.path.exists(directory):
+            print(verbose, "directory did not exist so one was created")
             os.makedirs(directory)
             
         with open(verbose + typename + moment, 'w') as output_file:
