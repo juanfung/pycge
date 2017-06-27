@@ -277,7 +277,7 @@ class SimpleCGE:
         elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
             print("Model is infeasible")
         else:
-            print ('WARNING. Solver Status: ',  self.result.solver.status)
+            print ('WARNING. Solver Status: ',  self.results.solver.status)
 
             
 
