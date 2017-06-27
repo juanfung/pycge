@@ -97,7 +97,7 @@ def taum_init(model, i):
 
 
 model.taum = Param(model.i, initialize=taum_init,
-                 doc='import tariff rate')
+                 doc='import tariff rate', mutable = True)
 
 
 def Xp0_init(model, i):
@@ -574,16 +574,7 @@ model.obj = Objective(rule=obj_rule, sense=maximize,
 
 
 
-
-
-# Create directory   
-moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-directory = (r'./results/')
-if not os.path.exists(directory):
-    os.makedirs(directory)
-filename = directory + 'results_' 
-
-
+        
 # CREATE MODEL INSTANCE
 data = DataPortal()
 data.load(filename='./stdcge_data_directory/set-i-.csv', format='set', set='i')
@@ -591,68 +582,72 @@ data.load(filename='./stdcge_data_directory/set-h-.csv', format='set', set='h')
 data.load(filename='./stdcge_data_directory/set-u-.csv', format='set', set='u')
 data.load(filename='./stdcge_data_directory/param-sam-.csv', param='sam', format='array')
 
+
+
+
+
+
+
+
+
 instance = model.create_instance(data)
 instance.pf['LAB'].fixed = True
-#instance.display()
 
-# Create file for instance
-with open(filename + "_instance_" + moment, 'w') as instance_output:
-    instance_output.write("\nThis is the instance\n" )
-    instance.display(ostream=instance_output)
-    
-# Create files for variables     
-for v in instance.component_objects(Var, active=True):
-    with open(filename + str(v) + "_" + moment + ".csv", 'w') as var_output:  
-        varobject = getattr(instance, str(v))
-        var_output.write ('{},{} \n'.format('Names', varobject ))
-        for index in varobject:
-            var_output.write ('{},{} \n'.format(index, varobject[index].value))
 
-# Create file for objective
-with open(filename + "_objective_" + moment + ".csv", 'w') as obj_output:
-    obj_output.write ('{},{}\n'.format("objective", value(instance.obj)))
-        
 
-#model.display()
 
+
+
+
+
+
+           
 # ------------------------------------------- #
 # SOLVE
 # Using NEOS external solver
 
 # Select solver
-solver = 'conopt'  # 'ipopt', 'knitro', 'minos'
+solver = 'minos'  # 'ipopt', 'knitro', 'minos'
 solver_io = 'nl'
 
 # To run as python script:
 # This is an optional code path that allows the script to be run outside of
 # pyomo command-line.  For example:  python splcge_demo.py
 
+print("\n solve with original values \n")  
 if __name__ == '__main__':
-    #This replicates what the pyomo command-line tools does
     from pyomo.opt import SolverFactory
     from pyomo.opt import SolverResults
     import pyomo.environ
-
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance, opt=solver, tee=True)
-        
 
-    instance.solutions.store_to(results)
     
-    results.write()
+print ("\n===VALUE BEFORE===== ")
+instance.obj.display()
+
+print("\n now abolish import tariffs \n")
+
+print("\n set taum(i)=0 \n")
 
 
+for i in instance.taum:
+    print("\n Original value for ", instance.taum[i], "=" , instance.taum[i].value)
+    instance.taum[i].value = 0
+    print("New value for ", instance.taum[i], '=' , instance.taum[i].value)
+    
+    
+print("\n now resolve with new values \n")  
+if __name__ == '__main__':
+    from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
+    import pyomo.environ
+    with SolverManagerFactory("neos") as solver_mgr:
+        results = solver_mgr.solve(instance, opt=solver, tee=True)
 
-
-
-
-
-
-
-
-
-
-
+    
+print ("\n===VALUE AFTER===== ")    
+instance.obj.display()
 
 
 
