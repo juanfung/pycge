@@ -204,8 +204,13 @@ class SimpleCGE:
 
     def model_data(self, data_dir = ''):
         
+        if not data_dir.endswith("/") and data_dir != "":
+            data_dir = data_dir + "/"
+        
         if (data_dir == ""):
             print("Please specify where you would like to load data from")
+        
+
         
         elif not os.path.exists(data_dir):
             print("please enter a valid data directory")
@@ -277,7 +282,7 @@ class SimpleCGE:
         elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
             print("Model is infeasible")
         else:
-            print ('WARNING. Solver Status: ',  self.result.solver.status)
+            print ('WARNING. Solver Status: ', self.results.solver)
 
             
 
@@ -361,8 +366,10 @@ def print_function (verbose="", output = "", typename=""):
         if not os.path.exists(directory):
             print(verbose, "directory did not exist so one was created")
             os.makedirs(directory)
+        
+        check = os.path.abspath(os.path.join(directory, typename))
             
-        with open(verbose + typename + moment, 'w') as output_file:
+        with open(check + moment, 'w') as output_file:
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
-        print("Output saved to: " + str(verbose + typename + moment))
+        print("Output saved to: " + str(check + moment))
