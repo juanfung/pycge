@@ -7,7 +7,8 @@ from pyomo.opt import SolverResults
 import time
 import os
 from pyomo.opt import SolverStatus, TerminationCondition
-import splcge_model_def
+import importlib
+
 
 
 
