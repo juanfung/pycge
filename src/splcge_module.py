@@ -204,8 +204,13 @@ class SimpleCGE:
 
     def model_data(self, data_dir = ''):
         
+        if not data_dir.endswith("/") and data_dir != "":
+            data_dir = data_dir + "/"
+        
         if (data_dir == ""):
             print("Please specify where you would like to load data from")
+        
+
         
         elif not os.path.exists(data_dir):
             print("please enter a valid data directory")
