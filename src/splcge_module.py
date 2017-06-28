@@ -254,13 +254,15 @@ class SimpleCGE:
                
         
     
-    def pyomo_modify_instance(self, options=None, model=None, instance=None):
+    def model_modify_instance(self, VAR='', INDEX='', VALUE=''):
         
         try:
-        
-            self.instance.X['BRD'].value = 10.0
-            self.instance.X['BRD'].fixed = True
-        
+    
+            varobject = getattr(self.instance, VAR)
+            print(varobject[INDEX], "was originally", varobject[INDEX].value)
+            varobject[INDEX].value = VALUE 
+            print(varobject[INDEX], " is now set to ", varobject[INDEX].value)
+
             print("Instance updated. Call `model_postprocess` to output.")  
             
         except:
