@@ -366,8 +366,10 @@ def print_function (verbose="", output = "", typename=""):
         if not os.path.exists(directory):
             print(verbose, "directory did not exist so one was created")
             os.makedirs(directory)
+        
+        check = os.path.abspath(os.path.join(directory, typename))
             
-        with open(verbose + typename + moment, 'w') as output_file:
+        with open(check + moment, 'w') as output_file:
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
-        print("Output saved to: " + str(verbose + typename + moment))
+        print("Output saved to: " + str(check + moment))
