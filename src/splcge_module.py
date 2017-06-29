@@ -35,7 +35,8 @@ class SimpleCGE:
         #DEFINE PARAMETERS
         
         self.m.sam = Param(self.m.u, self.m.u, 
-                           doc='social accounting matrix')
+                           doc='social accounting matrix',
+                           mutable = True)
 
 
         def X0_init(model, i):
@@ -43,28 +44,32 @@ class SimpleCGE:
 
         self.m.X0 = Param(self.m.i,
                           initialize=X0_init,
-                          doc='hh consumption of i-th good')
+                          doc='hh consumption of i-th good',
+                          mutable = True)
 
         def F0_init(model, h, i):
             return model.sam[h, i]
 
         self.m.F0 = Param(self.m.h, self.m.i,
                           initialize=F0_init,
-                          doc='h-th factor input by j-th firm')
+                          doc='h-th factor input by j-th firm',
+                          mutable=True)
 
         def Z0_init(model, i):
             return sum(model.F0[h, i] for h in model.h)
 
         self.m.Z0 = Param(self.m.i,
                           initialize=Z0_init,
-                          doc='output of j-th good')
+                          doc='output of j-th good',
+                          mutable = True)
         
         def FF_init(model, h):
             return model.sam['HOH', h]
         
         self.m.FF = Param(self.m.h,
                           initialize=FF_init,
-                          doc = 'factor endowment of the h-th factor')
+                          doc = 'factor endowment of the h-th factor',
+                          mutable = True)
         
         # --------------------------------------------- #
         # CALIBRATION
@@ -74,21 +79,24 @@ class SimpleCGE:
         
         self.m.alpha = Param(self.m.i,
                              initialize=alpha_init,
-                             doc='share parameter in utility function')
+                             doc='share parameter in utility function',
+                             mutable = True)
         
         def beta_init(model, h, i):
             return model.F0[h, i] / sum(model.F0[k, i] for k in model.h)
 
         self.m.beta = Param(self.m.h, self.m.i,
                             initialize=beta_init,
-                            doc='share parameter in production function')
+                            doc='share parameter in production function',
+                            mutable = True)
         
         def b_init(model, i):
             return model.Z0[i] / np.prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
 
         self.m.b = Param(self.m.i,
                          initialize=b_init,
-                         doc='scale parameter in production function')
+                         doc='scale parameter in production function',
+                         mutable = True)
         
         # -----------------------------------------------------#
         #Define model system
@@ -254,19 +262,26 @@ class SimpleCGE:
                
         
     
-    def model_modify_instance(self, VAR='', INDEX='', VALUE=''):
-        
+    def model_modify_instance(self,NAME,INDEX,VALUE):
+
         try:
     
-            varobject = getattr(self.instance, VAR)
-            print(varobject[INDEX], "was originally", varobject[INDEX].value)
-            varobject[INDEX].value = VALUE 
-            print(varobject[INDEX], " is now set to ", varobject[INDEX].value)
+            _object = getattr(self.instance, NAME)
+            print(_object[INDEX], "was originally", _object[INDEX].value)
+            _object[INDEX].value = VALUE 
+            print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
-            print("Instance updated. Call `model_postprocess` to output.")  
+            for p in self.instance.component_objects(Var, active=True):
+                if str(p)==NAME:
+                    varobject = getattr(self.instance, str(p))
+                    varobject[INDEX].fixed = True
+                    print(_object[INDEX], " is now fixed")
+
+
+            print("Instance updated. Call `model_postprocess` to output or `model_solve` to solve.")  
             
         except:
-            print("Unable to modify instance. Please make sure a 'calibration' instance as already been created")
+            print("Unable to modify instance. Please make sure a 'calibration' instance has already been created and that you are trying to access the correct component")
     
 
 
