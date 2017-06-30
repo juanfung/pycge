@@ -271,9 +271,9 @@ class SimpleCGE:
             _object[INDEX].value = VALUE 
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
-            for p in self.instance.component_objects(Var, active=True):
-                if str(p)==NAME:
-                    varobject = getattr(self.instance, str(p))
+            for v in self.instance.component_objects(Var, active=True):
+                if str(v)==NAME:
+                    varobject = getattr(self.instance, str(v))
                     varobject[INDEX].fixed = True
                     print(_object[INDEX], " is now fixed")
 
