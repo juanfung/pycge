@@ -51,7 +51,7 @@ To solve the model, using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
     test_cge.model_solve("neos", "minos")
 
-- Other nonlinear solvers available on NEOS: Ipopt, Knitro
+- Other nonlinear solvers available on NEOS: ``"conopt", "ipopt", "knitro"``
 
 Viewing
 ---------------
@@ -89,10 +89,19 @@ To load a results object back into an instance::
 
     test_cge.model_load_results(pathname = pathname/of/file/to/load)
 
-To modify an instance (a "shock")::
+To modify an instance *after* solving (a "shock")::
 
-    test_cge.pyomo_modify_instance()
+    test_cge.model_modify_instance(NAME, INDEX, VALUE)
 
+where ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified), 
+``INDEX`` is a string (the index where the modification will be made), and 
+``VALUE`` is numeric (the modification).
+
+For example, to modify a variable ``X`` so that ``X[i] == 0``::
+
+     test_cge.model_modify_instance('X', 'i', 0)
+
+Note that modifying a variable means *fixing* it at some value.
 
 
 Indices and tables

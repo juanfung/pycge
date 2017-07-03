@@ -271,6 +271,7 @@ class SimpleCGE:
             _object[INDEX].value = VALUE 
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
+<<<<<<< HEAD
             for p in self.instance.component_objects(Var, active=True):
                 if str(p)==NAME:
                     varobject = getattr(self.instance, str(p))
@@ -280,6 +281,14 @@ class SimpleCGE:
                     if fix == False:
                         varobject[INDEX].fixed = False
                         print("Note, ", _object[INDEX], " is NOT fixed")
+=======
+            for v in self.instance.component_objects(Var, active=True):
+                if str(v)==NAME:
+                    varobject = getattr(self.instance, str(v))
+                    varobject[INDEX].fixed = True
+                    print(_object[INDEX], " is now fixed")
+
+>>>>>>> 61af9071789e123a1b1569633a9f9127c8c126f3
 
             print("Instance updated. Call `model_postprocess` to output or `model_solve` to solve.")  
             
