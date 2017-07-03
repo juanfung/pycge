@@ -262,7 +262,7 @@ class SimpleCGE:
                
         
     
-    def model_modify_instance(self,NAME,INDEX,VALUE):
+    def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
 
         try:
     
@@ -274,9 +274,12 @@ class SimpleCGE:
             for p in self.instance.component_objects(Var, active=True):
                 if str(p)==NAME:
                     varobject = getattr(self.instance, str(p))
-                    varobject[INDEX].fixed = True
-                    print(_object[INDEX], " is now fixed")
-
+                    if fix == True:
+                        varobject[INDEX].fixed = True
+                        print("Note, ", _object[INDEX], " is now fixed")
+                    if fix == False:
+                        varobject[INDEX].fixed = False
+                        print("Note, ", _object[INDEX], " is NOT fixed")
 
             print("Instance updated. Call `model_postprocess` to output or `model_solve` to solve.")  
             
