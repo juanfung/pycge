@@ -91,7 +91,7 @@ To load a results object back into an instance::
 
 To modify an instance *after* solving (a "shock")::
 
-    test_cge.model_modify_instance(NAME, INDEX, VALUE)
+    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
 
 where ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified), 
 ``INDEX`` is a string (the index where the modification will be made), and 
@@ -101,7 +101,12 @@ For example, to modify a variable ``X`` so that ``X[i] == 0``::
 
      test_cge.model_modify_instance('X', 'i', 0)
 
-Note that modifying a variable means *fixing* it at some value.
+Note that the default for modifying a variable means *fixing* it at some value. 
+To unfix a variable simply pass ``fix=False`` into the function call. 
+
+Also note that in order to modify a two-dimensional parameter, it must be surrounded by parenthesis.
+For example::
+    test_cge.model_modify_instance('F0',('CAP','BRD'),0)
 
 
 Indices and tables
