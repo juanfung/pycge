@@ -577,10 +577,10 @@ model.obj = Objective(rule=obj_rule, sense=maximize,
         
 # CREATE MODEL INSTANCE
 data = DataPortal()
-data.load(filename='./stdcge_data_directory/set-i-.csv', format='set', set='i')
-data.load(filename='./stdcge_data_directory/set-h-.csv', format='set', set='h')
-data.load(filename='./stdcge_data_directory/set-u-.csv', format='set', set='u')
-data.load(filename='./stdcge_data_directory/param-sam-.csv', param='sam', format='array')
+data.load(filename='../stdcge_data_directory/set-i-.csv', format='set', set='i')
+data.load(filename='../stdcge_data_directory/set-h-.csv', format='set', set='h')
+data.load(filename='../stdcge_data_directory/set-u-.csv', format='set', set='u')
+data.load(filename='../stdcge_data_directory/param-sam-.csv', param='sam', format='array')
 
 
 
