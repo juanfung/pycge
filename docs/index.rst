@@ -31,6 +31,30 @@ While a file containing a parameter "sam" should be named::
         param-sam-.csv
 
 
+Quick Start
+------------
+
+A quick summary of a standard workflow::
+
+     # create object
+     testcge = SimpleCGE()
+     # add data
+     testcge.load_data(path/to/data)
+     # create base instance
+     testcge.model_instance()
+     # calibrate base instance
+     testcge.model_calibrate(mgr, solver) 
+     # create sim instance to modify
+     testcge.model_sim() 
+     # modify sim instance
+     testcge.model_modify_instance(...) # modify some value
+     testcge.model_modify_instnace(...) # modify another value
+     # solve sim instance
+     testcge.model_solve(mgr, solver) 
+     # compare base and sim equilibria
+     testcge.model_compare(base, sim)
+
+Read on for more details.
 
 Getting Started
 ---------------
@@ -149,7 +173,29 @@ To load a results object back into an instance::
 
     test_cge.model_load_results(pathname = pathname/of/file/to/load)
 
+Two or more simulations
+-------------------------
 
+Currently, an object of class `SimpleCGE` can only have two instances associated with it,
+``base`` and ``sim``. 
+
+Calling ``model_sim`` always creates a new ``sim`` based on the ``base`` instance.
+If you call ``model_modify_instance`` *after* solving ``sim``, you will overwrite the 
+previous ``sim`` instance. 
+
+If you want to analyze multiple policy changes or shocks (i.e., you want to analyze multiple
+``sim`` instances) **and** you want to keep each ``sim`` instance, the easiest thing to do 
+is to copy your existing object and perform the new simulation on the copy::
+
+     import copy
+     copy_cge = deepcopy(test_cge)
+     copy_cge.model_sim()
+     copy_cge.model_modify_instance()
+     # etc.
+
+Now you can perform comparative statics on two ``sim`` instances, one associated with the
+``test_cge`` object and one associated with the ``copy_cge`` object. Both have the same 
+``base`` instance but potentially differ in the ``sim`` instance. 
 
 Indices and tables
 ==================
