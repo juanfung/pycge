@@ -81,9 +81,10 @@ To modify an instance::
 
     test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
 
-where ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified), 
-``INDEX`` is a string (the index where the modification will be made), and 
-``VALUE`` is numeric (the modification).
+where 
+- ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
+- ``INDEX`` is a string (the index where the modification will be made) 
+- ``VALUE`` is numeric (the modification)
 
 For example, to modify a variable ``X`` so that ``X[i] == 0``::
 
@@ -101,7 +102,10 @@ using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
     test_cge.model_solve("neos", "minos")
 
-- Other nonlinear solvers available on NEOS: ``"conopt", "ipopt", "knitro"``
+**Remark**: Other nonlinear solvers available on NEOS include
+- ``"conopt" 
+- "ipopt" 
+- "knitro"``
 
 To perform comparative statics::
 
