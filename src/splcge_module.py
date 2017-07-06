@@ -252,13 +252,13 @@ class SimpleCGE:
         
         try:
         
-            self.instance = self.m.create_instance(self.data)
-            self.instance.pf['LAB'].fixed = True
+            self.base = self.m.create_instance(self.data)
+            self.base.pf['LAB'].fixed = True
             
-            print("Instance created. Call `model_postprocess` to output.")
+            print("BASE instance created. Call `model_postprocess` to output.")
         
         except:
-            print("Unable to create instance. Please make sure data is loaded")
+            print("Unable to create BASE instance. Please make sure data is loaded")
                
         
     
@@ -287,9 +287,10 @@ class SimpleCGE:
 
     def model_solve(self, mgr, solver):
                
+        
         with SolverManagerFactory(mgr) as solver_mgr:
-            self.results = solver_mgr.solve(self.instance, opt=solver)
-            self.instance.solutions.store_to(self.results)
+            self.results = solver_mgr.solve(self.base, opt=solver)
+            self.base.solutions.store_to(self.results)
         
         print("Model solved. Call `model_postprocess` to output.")
         
@@ -309,7 +310,7 @@ class SimpleCGE:
             print("please specify what you would like to output")
         
         elif (object_name=="instance"):
-            print_function(verbose, output=self.instance.display, typename="instance")
+            print_function(verbose, output=self.base.display, typename="instance")
         
         elif (object_name=="results"):
             print_function(verbose, output=self.results.write, typename = "results")
@@ -325,10 +326,10 @@ class SimpleCGE:
         
                 if (object_name=="vars"):
                     print("Vars saved to: \n")
-                    for v in self.instance.component_objects(Var, active=True):
+                    for v in self.base.component_objects(Var, active=True):
                         with open(verbose + str(v) + "_"+  moment + '.csv', 'w') as var_output:
                             print(str(verbose + str(v) + "_"+  moment + '.csv'))
-                            varobject = getattr(self.instance, str(v))
+                            varobject = getattr(self.base, str(v))
                             var_output.write ('{},{} \n'.format('Names', varobject ))
                             for index in varobject:
                                 var_output.write ('{},{} \n'.format(index, varobject[index].value))
@@ -336,7 +337,7 @@ class SimpleCGE:
             
                 if(object_name=="obj"): 
                     with open(verbose + "obj_" + moment + ".csv", 'w') as obj_output:
-                        obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
+                        obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
                     print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
         
                 if(object_name=="pickle"):             
@@ -362,8 +363,8 @@ class SimpleCGE:
 
                 with open(pathname, 'rb') as pkl_file:
                     loadedResults = pickle.load(pkl_file)
-                    self.instance.solutions.load_from(loadedResults)
-                    print("results from: ", pathname, " were loaded to instance")
+                    self.base.solutions.load_from(loadedResults)
+                    print("results from: ", pathname, " were loaded to BASE instance")
             
             except:
                 
