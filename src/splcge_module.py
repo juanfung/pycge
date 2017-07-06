@@ -350,20 +350,41 @@ class SimpleCGE:
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
-    def model_compare(self):
+    def model_compare(self):                       
     
-        print("#===========HERE ARE THE DIFFERENCES==========#")  
-        for n in self.sim.component_objects(Var, active=True):  
-            newobject = getattr(self.sim, str(n))
-            for o in self.base.component_objects(Var, active=True):
-                oldobject = getattr(self.base, str(o))
-                if str(n)==str(o):
-                    print(newobject)
-                    for newindex in newobject:
-                        for oldindex in oldobject:
-                            if newindex == oldindex:
-                                diff = oldobject[oldindex].value - newobject[newindex].value
-                                print(newindex, diff)
+        try:
+            if self.base:
+                try:
+                    if self.sim:
+                                        
+                        try:
+                            if self.base_results:
+                                try:
+                                    if self.sim_results:
+                                        print("#===========HERE ARE THE DIFFERENCES==========#\
+                                               #===========note: both models solved==========#")
+                                except:
+                                        print("#===========HERE ARE THE DIFFERENCES==========#\
+                                               #===========note: base model solved===========#\
+                                               #===========      sim model unsolved==========#")
+                        except:
+                            print("#===========HERE ARE THE DIFFERENCES==========#\
+                                   #===========note: both models unsolved==========#") 
+                        for n in self.sim.component_objects(Var, active=True):  
+                            newobject = getattr(self.sim, str(n))
+                            for o in self.base.component_objects(Var, active=True):
+                                oldobject = getattr(self.base, str(o))
+                                if str(n)==str(o):
+                                    print(newobject)
+                                    for newindex in newobject:
+                                        for oldindex in oldobject:
+                                            if newindex == oldindex:
+                                                diff = oldobject[oldindex].value - newobject[newindex].value
+                                                print(newindex, diff)
+                except AttributeError:
+                    print("You have not created a SIM instance")
+        except AttributeError:
+            print("You have not created a BASE instance")
 
 
     def model_postprocess(self, object_name = "" , verbose="", base=True):
