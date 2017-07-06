@@ -247,7 +247,6 @@ class SimpleCGE:
             self.data = data
 
 
-
     def model_instance(self):
         
         try:
@@ -259,7 +258,19 @@ class SimpleCGE:
         
         except:
             print("Unable to create BASE instance. Please make sure data is loaded")
-               
+              
+
+    def model_sim (self):
+        
+        try:
+        
+            self.sim = self.m.create_instance(self.data)
+            self.sim.pf['LAB'].fixed = True
+            
+            print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+        
+        except:
+            print("Unable to create SIM instance. Please make sure data is loaded.")
         
     
     def model_modify_instance(self,NAME,INDEX,VALUE):
