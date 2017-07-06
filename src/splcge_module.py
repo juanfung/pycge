@@ -296,26 +296,61 @@ class SimpleCGE:
     
 
 
-    def model_solve(self, mgr, solver, calibrate=False):
-               
-        if calibrate==True:
-            with SolverManagerFactory(mgr) as solver_mgr:
-                self.results = solver_mgr.solve(self.base, opt=solver)
-                self.base.solutions.store_to(self.results)
+
+
+
+
+    def model_solve(self, mgr, solver):
+
+        try:
+            if self.base_results:
+                try:
+                    if self.sim:
+                        with SolverManagerFactory(mgr) as solver_mgr:
+                            self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                            self.sim.solutions.store_to(self.sim_results)
+                        
+                        print("Model solved. Call `model_postprocess` to output.")
+                    
             
-            print("Model solved. Call `model_postprocess` to output.")
+                        if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
+                            print('Solution is optimal and feasible')
+                        elif (self.sim_results.solver.termination_condition == TerminationCondition.infeasible):
+                            print("Model is infeasible")
+                        else:
+                            print ('WARNING. Solver Status: ', self.sim_results.solver)
+                except AttributeError:
+                    print("You must create SIM instance before you can solve it. Call `model_sim` first.")
+        except AttributeError:
+            print("You must first calibrate the model. Call `model_calibrate`.")
+
+
+
+    def model_calibrate(self, mgr, solver):
         
-
-            if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
-                print('Solution is optimal and feasible')
-            elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
-                print("Model is infeasible")
-            else:
-                print ('WARNING. Solver Status: ', self.results.solver)
-        
-
-
+        try:
+            if self.base_results:
+                print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
+        except AttributeError:
+                with SolverManagerFactory(mgr) as solver_mgr:
+                    self.base_results = solver_mgr.solve(self.base, opt=solver)
+                    self.base.solutions.store_to(self.base_results)
+                
+                print("Model solved. Call `model_postprocess` to output.")
             
+    
+                if (self.base_results.solver.status == SolverStatus.ok) and (self.base_results.solver.termination_condition == TerminationCondition.optimal):
+                    print('Solution is optimal and feasible')
+                elif (self.base_results.solver.termination_condition == TerminationCondition.infeasible):
+                    print("Model is infeasible")
+                else:
+                    print ('WARNING. Solver Status: ', self.base_results.solver)  
+
+
+
+
+
+
 
     def model_postprocess(self, object_name = "" , verbose=""):
                            
