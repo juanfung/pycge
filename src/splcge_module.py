@@ -254,7 +254,7 @@ class SimpleCGE:
             self.base = self.m.create_instance(self.data)
             self.base.pf['LAB'].fixed = True
             
-            print("BASE instance created. Call `model_postprocess` to output.")
+            print("BASE instance created. Call `model_postprocess` to output or `model_solve` to solve.")
         
         except:
             print("Unable to create BASE instance. Please make sure data is loaded")
@@ -296,22 +296,24 @@ class SimpleCGE:
     
 
 
-    def model_solve(self, mgr, solver):
+    def model_solve(self, mgr, solver, calibrate=False):
                
-        
-        with SolverManagerFactory(mgr) as solver_mgr:
-            self.results = solver_mgr.solve(self.base, opt=solver)
-            self.base.solutions.store_to(self.results)
-        
-        print("Model solved. Call `model_postprocess` to output.")
+        if calibrate==True:
+            with SolverManagerFactory(mgr) as solver_mgr:
+                self.results = solver_mgr.solve(self.base, opt=solver)
+                self.base.solutions.store_to(self.results)
+            
+            print("Model solved. Call `model_postprocess` to output.")
         
 
-        if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
-            print('Solution is optimal and feasible')
-        elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
-            print("Model is infeasible")
-        else:
-            print ('WARNING. Solver Status: ', self.results.solver)
+            if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
+                print('Solution is optimal and feasible')
+            elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
+                print("Model is infeasible")
+            else:
+                print ('WARNING. Solver Status: ', self.results.solver)
+        
+
 
             
 
