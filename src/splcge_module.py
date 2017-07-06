@@ -263,14 +263,16 @@ class SimpleCGE:
     def model_sim (self):
         
         try:
-        
-            self.sim = self.m.create_instance(self.data)
-            self.sim.pf['LAB'].fixed = True
             
-            print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+            if self.base:
         
-        except:
-            print("Unable to create SIM instance. Please make sure data is loaded.")
+                self.sim = self.m.create_instance(self.data)
+                self.sim.pf['LAB'].fixed = True
+                
+                print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+        
+        except AttributeError:
+            print("You must create BASE instance first.")
         
     
     def model_modify_instance(self,NAME,INDEX,VALUE):
@@ -348,6 +350,21 @@ class SimpleCGE:
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
+    def model_compare(self):
+    
+        print("#===========HERE ARE THE DIFFERENCES==========#")  
+        for n in self.sim.component_objects(Var, active=True):  
+            newobject = getattr(self.sim, str(n))
+            for o in self.base.component_objects(Var, active=True):
+                oldobject = getattr(self.base, str(o))
+                if str(n)==str(o):
+                    print(newobject)
+                    for newindex in newobject:
+                        for oldindex in oldobject:
+                            if newindex == oldindex:
+                                diff = oldobject[oldindex].value - newobject[newindex].value
+                                print(newindex, diff)
+
 
     def model_postprocess(self, object_name = "" , verbose="", base=True):
         if base == True:
@@ -387,12 +404,12 @@ class SimpleCGE:
                         if(object_name=="obj"): 
                             with open(check + "obj_" + moment + ".csv", 'w') as obj_output:
                                 obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
-                            print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
+                            print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
                 
                         if(object_name=="pickle"):             
                             with open(check + 'saved_results_' + moment, 'wb') as pickle_output:
                                 pickle.dump(self.base_results, pickle_output)
-                            print("Pickled results object saved to:  " + str(verbose + 'saved_results_' + moment))
+                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))
                     
                 
                 else:
@@ -421,7 +438,8 @@ class SimpleCGE:
                         if not os.path.exists(directory):
                             print(directory, "directory did not exist so one was created")
                             os.makedirs(directory)
-                            check = os.path.abspath(os.path.join(directory, object_name))
+                            
+                        check = os.path.abspath(os.path.join(directory, object_name))
                 
                         if (object_name=="vars"):
                             print("Vars saved to: \n")
