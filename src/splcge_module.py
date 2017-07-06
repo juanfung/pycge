@@ -277,22 +277,22 @@ class SimpleCGE:
 
         try:
     
-            _object = getattr(self.instance, NAME)
+            _object = getattr(self.sim, NAME)
             print(_object[INDEX], "was originally", _object[INDEX].value)
             _object[INDEX].value = VALUE 
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
-            for v in self.instance.component_objects(Var, active=True):
+            for v in self.sim.component_objects(Var, active=True):
                 if str(v)==NAME:
-                    varobject = getattr(self.instance, str(v))
+                    varobject = getattr(self.sim, str(v))
                     varobject[INDEX].fixed = True
                     print(_object[INDEX], " is now fixed")
 
 
-            print("Instance updated. Call `model_postprocess` to output or `model_solve` to solve.")  
+            print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")  
             
         except:
-            print("Unable to modify instance. Please make sure a 'calibration' instance has already been created and that you are trying to access the correct component")
+            print("Unable to modify instance. Please make sure SIM instance has already been created and that you are trying to access the correct component")
     
 
 
