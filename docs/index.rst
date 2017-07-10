@@ -14,6 +14,21 @@ Contents:
 Getting Ready
 ---------------
 
+This program is written in ``python 3`` and depends on the ```pyomo`` <http://www.pyomo.org>`_ 
+package::
+
+    pip install pyomo
+    # install pyomo dependencies
+    pyomo install-extras
+
+See `<http://www.pyomo.org/installation/>`_ for more details on installation, 
+and `the documentation <http://www.pyomo.org/documentation/>`_ for info on the package.
+
+Small to moderately sized problems may be handles through the use of remote solvers
+on the `NEOS Server <https://neos-server.org/neos/>`_, which is accessible by ``pyomo``.
+
+To use a *local* solver, see below.
+
 Before using this program, it is neccesary to prepare your data.
 All data should be stored in a single directory with no other
 files, other than the ones that will be used. All files should be .csv files and
@@ -196,6 +211,12 @@ is to copy your existing object and perform the new simulation on the copy::
 Now you can perform comparative statics on two ``sim`` instances, one associated with the
 ``test_cge`` object and one associated with the ``copy_cge`` object. Both have the same 
 ``base`` instance but potentially differ in the ``sim`` instance. 
+
+Local solvers
+--------------
+
+TODO: Add info on installing Ipopt, etc.
+
 
 Indices and tables
 ==================
