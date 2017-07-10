@@ -12,35 +12,16 @@ import importlib
 
 
 
-class SimpleCGE:
+class PyCGE:
     """Pyomo port of splcge.gams from GAMS model library"""
     """Inputs: dat, solver """
 
-
+# --------------------------------------------------------#
+# LOAD MODEL
     def __init__(self, model_def):
 
-        
 
         self.m = model_def.model()
-
-#==============================================================================
-#         # -----------------------------------------------------#
-#         #ABSTRACT MODEL DEF
-#         splcge_model_def.ModelDef.model_abstract(self)     #define model
-#         splcge_model_def.ModelDef.model_sets(self)         #define sets
-#         splcge_model_def.ModelDef.model_param(self)        #define params/calibration/variables
-#         splcge_model_def.ModelDef.model_constraints(self)  #define constraints 
-#         splcge_model_def.ModelDef.model_obj(self)          #define objective
-#         splcge_model_def.ModelDef.check(self)              #print that everything was loaded
-#         
-# 
-#==============================================================================
-
-        # TODO:
-        # separate each of these steps into functions,
-        # can then import function defs
-        # def model_sets, def model_params, def model_contraints, def model_objective...
-        # also: model_calibrate, model_sim, model_shock, ...
 
 
     # -----------------------------------------------------#
