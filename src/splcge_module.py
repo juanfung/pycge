@@ -275,7 +275,7 @@ class SimpleCGE:
             print("You must create BASE instance first.")
         
     
-    def model_modify_instance(self,NAME,INDEX,VALUE):
+    def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
 
         try:
     
@@ -284,11 +284,16 @@ class SimpleCGE:
             _object[INDEX].value = VALUE 
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
-            for v in self.sim.component_objects(Var, active=True):
-                if str(v)==NAME:
-                    varobject = getattr(self.sim, str(v))
-                    varobject[INDEX].fixed = True
-                    print(_object[INDEX], " is now fixed")
+
+            for p in self.instance.component_objects(Var, active=True):
+                if str(p)==NAME:
+                    varobject = getattr(self.instance, str(p))
+                    if fix == True:
+                        varobject[INDEX].fixed = True
+                        print("Note, ", _object[INDEX], " is now fixed")
+                    if fix == False:
+                        varobject[INDEX].fixed = False
+                        print("Note, ", _object[INDEX], " is NOT fixed")
 
 
             print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")  

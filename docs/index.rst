@@ -31,6 +31,30 @@ While a file containing a parameter "sam" should be named::
         param-sam-.csv
 
 
+Quick Start
+------------
+
+A quick summary of a standard workflow::
+
+     # create object
+     testcge = SimpleCGE()
+     # add data
+     testcge.load_data(path/to/data)
+     # create base instance
+     testcge.model_instance()
+     # calibrate base instance
+     testcge.model_calibrate(mgr, solver) 
+     # create sim instance to modify
+     testcge.model_sim() 
+     # modify sim instance
+     testcge.model_modify_instance(...) # modify some value
+     testcge.model_modify_instnace(...) # modify another value
+     # solve sim instance
+     testcge.model_solve(mgr, solver) 
+     # compare base and sim equilibria
+     testcge.model_compare(base, sim)
+
+Read on for more details.
 
 Getting Started
 ---------------
@@ -47,14 +71,74 @@ Instantiate the model::
 
     test_cge.model_instance()
 
-To solve the model, using the Minos solver on `NEOS <neos-server.org/neos>`_::
+
+Calibrate the base model
+------------------------
+
+The initial call to ``model_instance()`` creates a ``base`` model.
+To calibrate the ``base`` model::
+
+     test_cge.model_calibrate()
+
+This call solves the ``base`` model. A successful calibration should return
+equilibrium values equal to the initial values.
+
+If calibration fails, check your data and your model definition.
+
+Equilibrium comparative statics
+-------------------------------
+
+Once the ``base`` model is calibrated, we can simulate policy changes or shocks to
+our economy and perform comparative statics (i.e., comparing the equilibria with and
+without the policy change). 
+
+First, create a ``sim`` instance::
+
+     test_cge.model_sim()
+
+This step creates a second instance called ``sim`` by copying the ``base`` instance. 
+
+Now you can explore a policy change relative to ``base`` by modifying the ``sim`` 
+instance (changing a parameter value or fixing a variable). 
+
+To modify an instance::
+
+    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
+
+where 
+- ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
+- ``INDEX`` is a string (the index where the modification will be made) 
+- ``VALUE`` is numeric (the modification)
+
+For example, to modify a variable ``X`` so that ``X[i] == 0``::
+
+     test_cge.model_modify_instance('X', 'i', 0)
+
+Note that the default for modifying a variable means *fixing* it at some value. 
+To unfix a variable simply pass ``fix=False`` into the function call. 
+
+Also note that in order to modify a two-dimensional parameter, it must be surrounded by parenthesis.
+For example::
+    test_cge.model_modify_instance('F0',('CAP','BRD'),0)
+
+To solve the ``sim`` instance, e.g., 
+using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
     test_cge.model_solve("neos", "minos")
 
-- Other nonlinear solvers available on NEOS: ``"conopt", "ipopt", "knitro"``
+**Remark**: Other nonlinear solvers available on NEOS include
+- ``"conopt" 
+- "ipopt" 
+- "knitro"``
 
-Viewing
----------------
+To perform comparative statics::
+
+     test_cge.model_compare(base, sim)
+
+This returns the *difference* in equilibrium values between ``base`` and ``sim``.
+
+Viewing an instance or results
+------------------------------
 
 To export anything::
     
@@ -89,25 +173,29 @@ To load a results object back into an instance::
 
     test_cge.model_load_results(pathname = pathname/of/file/to/load)
 
-To modify an instance *after* solving (a "shock")::
+Two or more simulations
+-------------------------
 
-    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
+Currently, an object of class `SimpleCGE` can only have two instances associated with it,
+``base`` and ``sim``. 
 
-where ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified), 
-``INDEX`` is a string (the index where the modification will be made), and 
-``VALUE`` is numeric (the modification).
+Calling ``model_sim`` always creates a new ``sim`` based on the ``base`` instance.
+If you call ``model_modify_instance`` *after* solving ``sim``, you will overwrite the 
+previous ``sim`` instance. 
 
-For example, to modify a variable ``X`` so that ``X[i] == 0``::
+If you want to analyze multiple policy changes or shocks (i.e., you want to analyze multiple
+``sim`` instances) **and** you want to keep each ``sim`` instance, the easiest thing to do 
+is to copy your existing object and perform the new simulation on the copy::
 
-     test_cge.model_modify_instance('X', 'i', 0)
+     import copy
+     copy_cge = deepcopy(test_cge)
+     copy_cge.model_sim()
+     copy_cge.model_modify_instance()
+     # etc.
 
-Note that the default for modifying a variable means *fixing* it at some value. 
-To unfix a variable simply pass ``fix=False`` into the function call. 
-
-Also note that in order to modify a two-dimensional parameter, it must be surrounded by parenthesis.
-For example::
-    test_cge.model_modify_instance('F0',('CAP','BRD'),0)
-
+Now you can perform comparative statics on two ``sim`` instances, one associated with the
+``test_cge`` object and one associated with the ``copy_cge`` object. Both have the same 
+``base`` instance but potentially differ in the ``sim`` instance. 
 
 Indices and tables
 ==================
