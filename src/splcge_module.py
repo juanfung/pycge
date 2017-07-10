@@ -61,21 +61,17 @@ class PyCGE:
     # -----------------------------------------------------#
     #CREATE INSTANCE
     def model_instance(self):
+
         
-        self.instance = self.m.create_instance(self.data)
-        self.instance.pf['LAB'].fixed = True
+        try:
         
-#==============================================================================
-#         try:
-#         
-#             self.instance = self.m.create_instance(self.data)
-#             self.instance.pf['LAB'].fixed = True
-#             
-#             print("Instance created. Call `model_postprocess` to output.")
-#         
-#         except:
-#             print("Unable to create instance. Please make sure data is loaded")
-#==============================================================================
+            self.instance = self.m.create_instance(self.data)
+            self.instance.pf['LAB'].fixed = True
+            
+            print("Instance created. Call `model_postprocess` to output.")
+        
+        except:
+            print("Unable to create instance. Please make sure data is loaded")
                
         
     # -----------------------------------------------------#
