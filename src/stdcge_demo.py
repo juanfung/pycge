@@ -595,82 +595,61 @@ instance_original.pf['LAB'].fixed = True
 
 instance_new = model.create_instance(data)
 instance_new.pf['LAB'].fixed = True
-print("\n#==========THIS IS WHAT WAS CHANGED============#\n")  
-print("The instance_original value of Y['BRD'] was", instance_original.Y['BRD'].value)
-print("The instance_new value of Y['BRD'] was", instance_new.Y['BRD'].value)
-print("The instance_original value of Y['MLK'] was", instance_original.Y['MLK'].value)
-print("The instance_new value of Y['MLK'] was", instance_new.Y['MLK'].value)
-print("\n***now we will modify the `instance_new`***\n")
-instance_new.Y['BRD'].value = 0
-instance_new.Y['MLK'].value = 100              
-print("The instance_original value of Y['BRD'] is still", instance_original.Y['BRD'].value)
-print("The instance_new value of Y['BRD'] is now", instance_new.Y['BRD'].value)
-print("The instance_original value of Y['MLK'] is still", instance_original.Y['MLK'].value)
-print("The instance_new value of Y['MLK'] is now", instance_new.Y['MLK'].value, '\n')
 
 
-#==============================================================================
-# 
-# 
-# #==============================================================================
-# # 
-# #            
-# # # ------------------------------------------- #
-# # # SOLVE
-# # # Using NEOS external solver
-# # 
-# # # Select solver
-# # solver = 'minos'  # 'ipopt', 'knitro', 'minos'
-# # solver_io = 'nl'
-# # 
-# # # To run as python script:
-# # # This is an optional code path that allows the script to be run outside of
-# # # pyomo command-line.  For example:  python splcge_demo.py
-# # 
-# # print("\n solve with original values \n")  
-# # if __name__ == '__main__':
-# #     from pyomo.opt import SolverFactory
-# #     from pyomo.opt import SolverResults
-# #     import pyomo.environ
-# #     with SolverManagerFactory("neos") as solver_mgr:
-# #         results = solver_mgr.solve(instance_original, opt=solver, tee=True)
-# #==============================================================================
-# 
-#     
-# print ("\n===VALUE BEFORE===== ")
-# instance_original.display()
-# 
-# print("\n now abolish import tariffs \n")
-# 
-# print("\n set taum(i)=0 \n")
-# 
-# 
-# for i in instance_new.taum:
-#     print("\n Original value for ", instance_new.taum[i], "=" , instance_new.taum[i].value)
-#     instance_new.taum[i].value = 0
-#     print("New value for ", instance_new.taum[i], '=' , instance_new.taum[i].value)
-#     
-# #==============================================================================
-# #     
-# # print("\n now resolve with new values \n")  
-# # if __name__ == '__main__':
-# #     from pyomo.opt import SolverFactory
-# #     from pyomo.opt import SolverResults
-# #     import pyomo.environ
-# #     with SolverManagerFactory("neos") as solver_mgr:
-# #         results = solver_mgr.solve(instance, opt=solver, tee=True)
-# #==============================================================================
-# 
-#     
-# print ("\n===VALUE AFTER===== ")    
-# instance_new.display()
-# 
-# print("\n=====HERE IS THE DISPLAY OF DIFFERENCES====\n")
-# 
-# from operator import sub
-# C = map(sub, )
-# 
-#==============================================================================
+
+
+
+
+           
+# ------------------------------------------- #
+# SOLVE
+# Using NEOS external solver
+
+# Select solver
+solver = 'minos'  # 'ipopt', 'knitro', 'minos'
+solver_io = 'nl'
+
+# To run as python script:
+# This is an optional code path that allows the script to be run outside of
+# pyomo command-line.  For example:  python splcge_demo.py
+
+print("\n solve with original values \n")  
+if __name__ == '__main__':
+    from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
+    import pyomo.environ
+    with SolverManagerFactory("neos") as solver_mgr:
+        results = solver_mgr.solve(instance_original, opt=solver, tee=True)
+
+    
+print ("\n===VALUE BEFORE===== ")
+instance_original.obj.display()
+
+print("\n now abolish import tariffs \n")
+
+print("\n set taum(i)=0 \n")
+
+
+for i in instance_new.taum:
+    print("\n Original value for ", instance_new.taum[i], "=" , instance_new.taum[i].value)
+    instance_new.taum[i].value = 0
+    print("New value for ", instance_new.taum[i], '=' , instance_new.taum[i].value)
+    
+    
+print("\n now resolve with new values \n")  
+if __name__ == '__main__':
+    from pyomo.opt import SolverFactory
+    from pyomo.opt import SolverResults
+    import pyomo.environ
+    with SolverManagerFactory("neos") as solver_mgr:
+        results = solver_mgr.solve(instance_new, opt=solver, tee=True)
+        
+print ("\n===VALUE AFTER===== ")
+instance_new.obj.display()
+
+
+
 
 
 print("#===========HERE ARE THE DIFFERENCES==========#")  
