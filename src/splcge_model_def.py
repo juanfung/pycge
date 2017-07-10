@@ -12,7 +12,7 @@ import numpy as np
 
 
 
-class ModelDef:
+class SplModelDef:
 
     
     def model(self):
@@ -196,5 +196,5 @@ class ModelDef:
     # ----------------------------------------------- #
     #PRINT THAT EVERYTHING WAS LOADED  
 
-        print("AbstractModel loaded")
+        print("splcge model loaded")
         return self.m
