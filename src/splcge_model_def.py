@@ -13,17 +13,20 @@ import numpy as np
 
 
 class ModelDef:
+
+    
+    def model(self):
     
     # ----------------------------------------------- #
     #DEFINE MODEL
-    def model_abstract(self):
+
 
         self.m = AbstractModel()
         
         
     # ----------------------------------------------- #
     #DEFINE SETS       
-    def model_sets(self):
+
         
         self.m.i = Set(doc='goods')
         self.m.h = Set(doc='factor')
@@ -32,7 +35,7 @@ class ModelDef:
         
     # ----------------------------------------------- #
     #DEFINE PARAMETERS, CALIBRATION, VARIABLES       
-    def model_param(self):
+
     
         # ----------------------------------------------- #
         #PARAMETERS 
@@ -129,7 +132,7 @@ class ModelDef:
     
     # ------------------------------------------------------ #
     # DEFINE CONSTRAINTS
-    def model_constraints(self):
+
         
         def eqX_rule(model, i):
             return (model.X[i] == model.alpha[i] * sum(model.pf[h] * model.FF[h] / model.px[i] for h in model.h))
@@ -181,7 +184,7 @@ class ModelDef:
     
     # ------------------------------------------------------- #
     # DEFINE OBJECTIVE
-    def model_obj(self):
+
 
 
         def obj_rule(model):
@@ -192,5 +195,6 @@ class ModelDef:
                                doc='utility function [fictitious]')
     # ----------------------------------------------- #
     #PRINT THAT EVERYTHING WAS LOADED  
-    def check(self):
+
         print("AbstractModel loaded")
+        return self.m

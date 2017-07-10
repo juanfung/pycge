@@ -17,18 +17,24 @@ class SimpleCGE:
     """Inputs: dat, solver """
 
 
-    def __init__(self):
+    def __init__(self, model_def):
 
-        # -----------------------------------------------------#
-        #ABSTRACT MODEL DEF
-        splcge_model_def.ModelDef.model_abstract(self)     #define model
-        splcge_model_def.ModelDef.model_sets(self)         #define sets
-        splcge_model_def.ModelDef.model_param(self)        #define params/calibration/variables
-        splcge_model_def.ModelDef.model_constraints(self)  #define constraints 
-        splcge_model_def.ModelDef.model_obj(self)          #define objective
-        splcge_model_def.ModelDef.check(self)              #print that everything was loaded
         
 
+        self.m = model_def.model()
+
+#==============================================================================
+#         # -----------------------------------------------------#
+#         #ABSTRACT MODEL DEF
+#         splcge_model_def.ModelDef.model_abstract(self)     #define model
+#         splcge_model_def.ModelDef.model_sets(self)         #define sets
+#         splcge_model_def.ModelDef.model_param(self)        #define params/calibration/variables
+#         splcge_model_def.ModelDef.model_constraints(self)  #define constraints 
+#         splcge_model_def.ModelDef.model_obj(self)          #define objective
+#         splcge_model_def.ModelDef.check(self)              #print that everything was loaded
+#         
+# 
+#==============================================================================
 
         # TODO:
         # separate each of these steps into functions,
@@ -75,15 +81,20 @@ class SimpleCGE:
     #CREATE INSTANCE
     def model_instance(self):
         
-        try:
+        self.instance = self.m.create_instance(self.data)
+        self.instance.pf['LAB'].fixed = True
         
-            self.instance = self.m.create_instance(self.data)
-            self.instance.pf['LAB'].fixed = True
-            
-            print("Instance created. Call `model_postprocess` to output.")
-        
-        except:
-            print("Unable to create instance. Please make sure data is loaded")
+#==============================================================================
+#         try:
+#         
+#             self.instance = self.m.create_instance(self.data)
+#             self.instance.pf['LAB'].fixed = True
+#             
+#             print("Instance created. Call `model_postprocess` to output.")
+#         
+#         except:
+#             print("Unable to create instance. Please make sure data is loaded")
+#==============================================================================
                
         
     # -----------------------------------------------------#
