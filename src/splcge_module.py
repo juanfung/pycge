@@ -247,26 +247,39 @@ class SimpleCGE:
             self.data = data
 
 
-
     def model_instance(self):
         
         try:
         
-            self.instance = self.m.create_instance(self.data)
-            self.instance.pf['LAB'].fixed = True
+            self.base = self.m.create_instance(self.data)
+            self.base.pf['LAB'].fixed = True
             
-            print("Instance created. Call `model_postprocess` to output.")
+            print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
         
         except:
-            print("Unable to create instance. Please make sure data is loaded")
-               
+            print("Unable to create BASE instance. Please make sure data is loaded")
+              
+
+    def model_sim (self):
+        
+        try:
+            
+            if self.base:
+        
+                self.sim = self.m.create_instance(self.data)
+                self.sim.pf['LAB'].fixed = True
+                
+                print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+        
+        except AttributeError:
+            print("You must create BASE instance first.")
         
     
     def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
 
         try:
     
-            _object = getattr(self.instance, NAME)
+            _object = getattr(self.sim, NAME)
             print(_object[INDEX], "was originally", _object[INDEX].value)
             _object[INDEX].value = VALUE 
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
@@ -283,75 +296,201 @@ class SimpleCGE:
                         print("Note, ", _object[INDEX], " is NOT fixed")
 
 
-            print("Instance updated. Call `model_postprocess` to output or `model_solve` to solve.")  
+            print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")  
             
         except:
-            print("Unable to modify instance. Please make sure a 'calibration' instance has already been created and that you are trying to access the correct component")
+            print("Unable to modify instance. Please make sure SIM instance has already been created and that you are trying to access the correct component")
     
+
+
+    def model_calibrate(self, mgr, solver):
+        
+        
+        try:
+            if self.base:
+                try:
+                    if self.base_results:
+                        print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
+                except AttributeError:
+                        with SolverManagerFactory(mgr) as solver_mgr:
+                            self.base_results = solver_mgr.solve(self.base, opt=solver)
+                            self.base.solutions.store_to(self.base_results)
+                        
+                        print("Model solved. Call `model_postprocess` to output.")
+                    
+            
+                        if (self.base_results.solver.status == SolverStatus.ok) and (self.base_results.solver.termination_condition == TerminationCondition.optimal):
+                            print('Solution is optimal and feasible')
+                        elif (self.base_results.solver.termination_condition == TerminationCondition.infeasible):
+                            print("Model is infeasible")
+                        else:
+                            print ('WARNING. Solver Status: ', self.base_results.solver)  
+        except AttributeError:
+            print('You must create the BASE instance before you can solve it. Call `model_instance` first.')
+
 
 
     def model_solve(self, mgr, solver):
-               
-        with SolverManagerFactory(mgr) as solver_mgr:
-            self.results = solver_mgr.solve(self.instance, opt=solver)
-            self.instance.solutions.store_to(self.results)
-        
-        print("Model solved. Call `model_postprocess` to output.")
-        
 
-        if (self.results.solver.status == SolverStatus.ok) and (self.results.solver.termination_condition == TerminationCondition.optimal):
-            print('Solution is optimal and feasible')
-        elif (self.results.solver.termination_condition == TerminationCondition.infeasible):
-            print("Model is infeasible")
-        else:
-            print ('WARNING. Solver Status: ', self.results.solver)
-
+        try:
+            if self.base_results:
+                try:
+                    if self.sim:
+                        with SolverManagerFactory(mgr) as solver_mgr:
+                            self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                            self.sim.solutions.store_to(self.sim_results)
+                        
+                        print("Model solved. Call `model_postprocess` to output.")
+                    
             
+                        if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
+                            print('Solution is optimal and feasible')
+                        elif (self.sim_results.solver.termination_condition == TerminationCondition.infeasible):
+                            print("Model is infeasible")
+                        else:
+                            print ('WARNING. Solver Status: ', self.sim_results.solver)
+                except AttributeError:
+                    print("You must create SIM instance before you can solve it. Call `model_sim` first.")
+        except AttributeError:
+            print("You must first calibrate the model. Call `model_calibrate`.")
 
-    def model_postprocess(self, object_name = "" , verbose=""):
-                           
-        if (object_name==""):
-            print("please specify what you would like to output")
-        
-        elif (object_name=="instance"):
-            print_function(verbose, output=self.instance.display, typename="instance")
-        
-        elif (object_name=="results"):
-            print_function(verbose, output=self.results.write, typename = "results")
-        
-        elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
-            moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-            if(verbose==""):
-                print("Please enter where to export to")
-            else: 
-                if not os.path.exists(verbose):
-                    print(verbose, "directory did not exist so one was created")
-                    os.makedirs(verbose)
-        
-                if (object_name=="vars"):
-                    print("Vars saved to: \n")
-                    for v in self.instance.component_objects(Var, active=True):
-                        with open(verbose + str(v) + "_"+  moment + '.csv', 'w') as var_output:
-                            print(str(verbose + str(v) + "_"+  moment + '.csv'))
-                            varobject = getattr(self.instance, str(v))
-                            var_output.write ('{},{} \n'.format('Names', varobject ))
-                            for index in varobject:
-                                var_output.write ('{},{} \n'.format(index, varobject[index].value))
+
+    def model_compare(self):                       
     
+        try:
+            if self.base:
+                try:
+                    if self.sim:
+                                        
+                        try:
+                            if self.base_results:
+                                try:
+                                    if self.sim_results:
+                                        print("#===========HERE ARE THE DIFFERENCES==========#\
+                                               #===========note: both models solved==========#")
+                                except:
+                                        print("#===========HERE ARE THE DIFFERENCES==========#\
+                                               #===========note: base model solved===========#\
+                                               #===========      sim model unsolved==========#")
+                        except:
+                            print("#===========HERE ARE THE DIFFERENCES==========#\
+                                   #===========note: both models unsolved==========#") 
+                        for n in self.sim.component_objects(Var, active=True):  
+                            newobject = getattr(self.sim, str(n))
+                            for o in self.base.component_objects(Var, active=True):
+                                oldobject = getattr(self.base, str(o))
+                                if str(n)==str(o):
+                                    print(newobject)
+                                    for newindex in newobject:
+                                        for oldindex in oldobject:
+                                            if newindex == oldindex:
+                                                diff = oldobject[oldindex].value - newobject[newindex].value
+                                                print(newindex, diff)
+                except AttributeError:
+                    print("You have not created a SIM instance")
+        except AttributeError:
+            print("You have not created a BASE instance")
+
+
+    def model_postprocess(self, object_name = "" , verbose="", base=True):
+        if base == True:
+            try:
+                if (object_name==""):
+                    print("please specify what you would like to output")
+                
+                elif (object_name=="instance"):
+                    print_function(verbose, output=self.base.display, typename="instance")
+                
+                elif (object_name=="results"):
+                    print_function(verbose, output=self.base_results.write, typename = "results")
+                
+                elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+                    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+                    if(verbose==""):
+                        print("Please enter where to export to")
+                    else:
+                        directory = verbose
+                        if not os.path.exists(directory):
+                            print(directory, "directory did not exist so one was created")
+                            os.makedirs(directory)
+                            
+                        check = os.path.abspath(os.path.join(directory, object_name))
+                
+                        if (object_name=="vars"):
+                            print("Vars saved to: \n")
+                            for v in self.base.component_objects(Var, active=True):
+                                with open(check + str(v) + "_"+  moment + '.csv', 'w') as var_output:
+                                    print(str(check + str(v) + "_"+  moment + '.csv'))
+                                    varobject = getattr(self.base, str(v))
+                                    var_output.write ('{},{} \n'.format('Names', varobject ))
+                                    for index in varobject:
+                                        var_output.write ('{},{} \n'.format(index, varobject[index].value))
             
-                if(object_name=="obj"): 
-                    with open(verbose + "obj_" + moment + ".csv", 'w') as obj_output:
-                        obj_output.write ('{},{}\n'.format("objective", value(self.instance.obj)))
-                    print("Objective saved to: " + str(verbose + "obj_" + moment + ".csv"))
-        
-                if(object_name=="pickle"):             
-                    with open(verbose + 'saved_results_' + moment, 'wb') as pickle_output:
-                        pickle.dump(self.results, pickle_output)
-                    print("Pickled results object saved to:  " + str(verbose + 'saved_results_' + moment))
+                    
+                        if(object_name=="obj"): 
+                            with open(check + "obj_" + moment + ".csv", 'w') as obj_output:
+                                obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
+                            print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
+                
+                        if(object_name=="pickle"):             
+                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output:
+                                pickle.dump(self.base_results, pickle_output)
+                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))
+                    
+                
+                else:
+                    print("Please enter a valid object_name" )
+                    
+            except AttributeError:
+                print('Please make sure what you are trying to output has been created (base, base_results,)')
+                
+        if base == False:
+            try:
+                if (object_name==""):
+                    print("please specify what you would like to output")
+                
+                elif (object_name=="instance"):
+                    print_function(verbose, output=self.sim.display, typename="instance")
+                
+                elif (object_name=="results"):
+                    print_function(verbose, output=self.sim_results.write, typename = "results")
+                
+                elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+                    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+                    if(verbose==""):
+                        print("Please enter where to export to")
+                    else: 
+                        directory = verbose
+                        if not os.path.exists(directory):
+                            print(directory, "directory did not exist so one was created")
+                            os.makedirs(directory)
+                            
+                        check = os.path.abspath(os.path.join(directory, object_name))
+                
+                        if (object_name=="vars"):
+                            print("Vars saved to: \n")
+                            for v in self.sim.component_objects(Var, active=True):
+                                with open(check + str(v) + "_"+  moment + '.csv', 'w') as var_output:
+                                    print(str(check + str(v) + "_"+  moment + '.csv'))
+                                    varobject = getattr(self.base, str(v))
+                                    var_output.write ('{},{} \n'.format('Names', varobject ))
+                                    for index in varobject:
+                                        var_output.write ('{},{} \n'.format(index, varobject[index].value))
             
-        
-        else:
-            print("Please enter a valid object_name" )
+                    
+                        if(object_name=="obj"): 
+                            with open(check + "obj_" + moment + ".csv", 'w') as obj_output:
+                                obj_output.write ('{},{}\n'.format("objective", value(self.sim.obj)))
+                            print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
+                
+                        if(object_name=="pickle"):             
+                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output:
+                                pickle.dump(self.sim_results, pickle_output)
+                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))
+                            
+            except AttributeError:
+                print('Please make sure what you are trying to output has been created (sim, sim_results,)')
+                    
 
 
 
@@ -367,8 +506,8 @@ class SimpleCGE:
 
                 with open(pathname, 'rb') as pkl_file:
                     loadedResults = pickle.load(pkl_file)
-                    self.instance.solutions.load_from(loadedResults)
-                    print("results from: ", pathname, " were loaded to instance")
+                    self.base.solutions.load_from(loadedResults)
+                    print("results from: ", pathname, " were loaded to BASE instance")
             
             except:
                 
