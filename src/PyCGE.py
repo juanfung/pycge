@@ -73,7 +73,7 @@ class PyCGE:
             print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
         
         except:
-            print("Unable to create BASE instance. Please make sure data is loaded")
+            print("Unable to create BASE instance. Please make sure model and data are loaded")
               
 
     def model_sim (self):
