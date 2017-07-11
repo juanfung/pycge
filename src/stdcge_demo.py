@@ -309,6 +309,13 @@ def taud_init(model):
         
 model.taud = Param(initialize=taud_init,
                     doc='direct tax rate')
+
+def hick_init(model):
+    return np.prod((model.alpha[i]/1)**alpha[i] for i in model.i)
+        
+model.hick = Param(initialize=hick_init,
+                    doc='to be used in Hicksian EV')
+
    
 # ------------------------------------------- #
 # Define model system
@@ -439,6 +446,8 @@ model.Tm = Var(model.i,
               initialize=Tm0_init,
               within=PositiveReals,
               doc='import tariff')
+
+
 
 # ------------------------------------------- #
 # DEFINE EQUATIONS
@@ -595,9 +604,13 @@ instance_original.pf['LAB'].fixed = True
 
 instance_new = model.create_instance(data)
 instance_new.pf['LAB'].fixed = True
+               
 
 
-
+alpha = getattr(instance_new, 'alpha')
+for i in alpha:
+    test = ((alpha[i]/1)**alpha[i])
+    print(test)
 
 
 
@@ -624,7 +637,9 @@ if __name__ == '__main__':
 
     
 print ("\n===VALUE BEFORE===== ")
-instance_original.obj.display()
+print("obj = ", instance_original.obj())
+original_obj = instance_original.obj()
+
 
 print("\n now abolish import tariffs \n")
 
@@ -646,7 +661,8 @@ if __name__ == '__main__':
         results = solver_mgr.solve(instance_new, opt=solver, tee=True)
         
 print ("\n===VALUE AFTER===== ")
-instance_new.obj.display()
+print("obj = ", instance_new.obj())
+new_obj = instance_new.obj()
 
 
 
@@ -665,6 +681,40 @@ for n in instance_new.component_objects(Var, active=True):
                         if newindex == oldindex:
                             diff = oldobject[oldindex].value - newobject[newindex].value
                             print(newindex, diff)
+                            
+
+
+alpha = getattr(instance_new, 'alpha')
+for i in alpha:
+    test = np.prod((alpha[i]/1)**alpha[i])
+
+print ('test = ', test)
+
+alpha2 = getattr(instance_original, 'alpha')
+for i2 in alpha2:
+    test2 = np.prod((alpha2[i2]/1)**alpha[i2])
+    
+print ('test2 = ', test2)
+
+        
+UU0 = new_obj
+print ('UU0 = ', UU0)
+
+        
+ep0 = UU0 / test 
+print ('ep0 = ', ep0)
+
+        
+ep1 = original_obj / test2
+print ('ep1 = ', ep1)
+
+        
+EV = ep1 - ep0
+
+print('Hicksian Equivalent variations')
+print(EV)
+
+
                         
 
 
