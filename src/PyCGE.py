@@ -7,209 +7,25 @@ from pyomo.opt import SolverResults
 import time
 import os
 from pyomo.opt import SolverStatus, TerminationCondition
+import importlib
 
 
 
-class SimpleCGE:
+
+class PyCGE:
     """Pyomo port of splcge.gams from GAMS model library"""
     """Inputs: dat, solver """
 
-
-    def __init__(self):
-
-        self.model_abstract()
-
-
-    def model_abstract(self):
-        
-        self.m = AbstractModel()
-
-        # ----------------------------------------------- #
-        #DEFINE SETS
-
-        self.m.i = Set(doc='goods')
-        self.m.h = Set(doc='factor')
-        self.m.u = Set(doc='SAM entry')
-        
-        # ----------------------------------------------- #
-        #DEFINE PARAMETERS
-        
-        self.m.sam = Param(self.m.u, self.m.u, 
-                           doc='social accounting matrix',
-                           mutable = True)
+# --------------------------------------------------------#
+# LOAD MODEL
+    def __init__(self, model_def):
 
 
-        def X0_init(model, i):
-            return model.sam[i, 'HOH']
-
-        self.m.X0 = Param(self.m.i,
-                          initialize=X0_init,
-                          doc='hh consumption of i-th good',
-                          mutable = True)
-
-        def F0_init(model, h, i):
-            return model.sam[h, i]
-
-        self.m.F0 = Param(self.m.h, self.m.i,
-                          initialize=F0_init,
-                          doc='h-th factor input by j-th firm',
-                          mutable=True)
-
-        def Z0_init(model, i):
-            return sum(model.F0[h, i] for h in model.h)
-
-        self.m.Z0 = Param(self.m.i,
-                          initialize=Z0_init,
-                          doc='output of j-th good',
-                          mutable = True)
-        
-        def FF_init(model, h):
-            return model.sam['HOH', h]
-        
-        self.m.FF = Param(self.m.h,
-                          initialize=FF_init,
-                          doc = 'factor endowment of the h-th factor',
-                          mutable = True)
-        
-        # --------------------------------------------- #
-        # CALIBRATION
-        
-        def alpha_init(model, i):
-            return model.X0[i] / sum(model.X0[j] for j in model.i) 
-        
-        self.m.alpha = Param(self.m.i,
-                             initialize=alpha_init,
-                             doc='share parameter in utility function',
-                             mutable = True)
-        
-        def beta_init(model, h, i):
-            return model.F0[h, i] / sum(model.F0[k, i] for k in model.h)
-
-        self.m.beta = Param(self.m.h, self.m.i,
-                            initialize=beta_init,
-                            doc='share parameter in production function',
-                            mutable = True)
-        
-        def b_init(model, i):
-            return model.Z0[i] / np.prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
-
-        self.m.b = Param(self.m.i,
-                         initialize=b_init,
-                         doc='scale parameter in production function',
-                         mutable = True)
-        
-        # -----------------------------------------------------#
-        #Define model system
-        #DEFINE VARIABLES
-        
-        self.m.X = Var(self.m.i,
-                       initialize=X0_init,
-                       within=PositiveReals,
-                       doc='household consumption of the i-th good')
-        
-        self.m.F = Var(self.m.h, self.m.i,
-                       initialize=F0_init,
-                       within=PositiveReals,
-                       doc='the h-th factor input by the j-th firm')
-        
-        self.m.Z = Var(self.m.i,
-                       initialize=Z0_init,
-                       within=PositiveReals,
-                       doc='output of the j-th good')
-        
-        def p_init(model, v):
-            return 1
-        
-        self.m.px = Var(self.m.i,
-                        initialize=p_init,
-                        within=PositiveReals,
-                        doc='demand price of the i-th good')
-        
-        self.m.pz = Var(self.m.i,
-                        initialize=p_init,
-                        within=PositiveReals,
-                        doc='supply price of the i-th good')
-
-        
-        self.m.pf = Var(self.m.h,
-                        initialize=p_init,
-                        within=PositiveReals,
-                        doc='the h-th factor price')
-        
-        # ------------------------------------------------------ #
-        # DEFINE EQUATIONS
-        # define constraints
-        
-        def eqX_rule(model, i):
-            return (model.X[i] == model.alpha[i] * sum(model.pf[h] * model.FF[h] / model.px[i] for h in model.h))
-        
-        self.m.eqX = Constraint(self.m.i,
-                                rule=eqX_rule,
-                                doc='household demand function')
-        
-        
-        def eqpz_rule(model, i):
-            return (model.Z[i] == model.b[i] * np.prod([model.F[h, i]**model.beta[h, i] for h in model.h]))
- 
-    
-        self.m.eqpz = Constraint(self.m.i,
-                                 rule=eqpz_rule,
-                                 doc='production function')
-       
-
-        def eqF_rule(model, h, i):
-            return (model.F[h, i] == model.beta[h, i] * model.pz[i] * model.Z[i] / model.pf[h])
-
-        self.m.eqF = Constraint(self.m.h, self.m.i,
-                                rule=eqF_rule,
-                                doc='factor demand function')
+        self.m = model_def.model()
 
 
-        def eqpx_rule(model, i):
-            return (model.X[i] == model.Z[i])
-
-        self.m.eqpx = Constraint(self.m.i,
-                                 rule=eqpx_rule,
-                                 doc='good market clearning condition')
-
-
-        def eqpf_rule(model, h):
-            return (sum(model.F[h, j] for j in model.i) == model.FF[h])
-
-        self.m.eqpf = Constraint(self.m.h,
-                                 rule=eqpf_rule,
-                                 doc='factor market clearning condition')
-
-
-        def eqZ_rule(model, i):
-            return (model.px[i] == model.pz[i])
-
-        self.m.eqZ = Constraint(self.m.i,
-                                rule=eqZ_rule,
-                                doc='price equation')
-        
-        # ------------------------------------------------------- #
-        # DEFINE OBJECTIVE
-
-
-        def obj_rule(model):
-            return np.prod([model.X[i]**model.alpha[i] for i in model.i])
-
-        self.m.obj = Objective(rule=obj_rule,
-                               sense=maximize,
-                               doc='utility function [fictitious]')
-        
-        # ------------------------------------------------------- #
-        # CREATE MODEL INSTANCE
-        
-        
-
-        # TODO:
-        # separate each of these steps into functions,
-        # can then import function defs
-        # def model_sets, def model_params, def model_contraints, def model_objective...
-        # also: model_calibrate, model_sim, model_shock, ...
-
+    # -----------------------------------------------------#
+    #LOAD DATA
     def model_data(self, data_dir = ''):
         
         if not data_dir.endswith("/") and data_dir != "":
@@ -257,7 +73,7 @@ class SimpleCGE:
             print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
         
         except:
-            print("Unable to create BASE instance. Please make sure data is loaded")
+            print("Unable to create BASE instance. Please make sure model and data are loaded")
               
 
     def model_sim (self):
@@ -265,11 +81,18 @@ class SimpleCGE:
         try:
             
             if self.base:
-        
-                self.sim = self.m.create_instance(self.data)
-                self.sim.pf['LAB'].fixed = True
                 
-                print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+                try:
+                
+                    if self.base_results:
+            
+                        self.sim = self.m.create_instance(self.data)
+                        self.sim.pf['LAB'].fixed = True
+                        
+                        print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+                        
+                except AttributeError:
+                    print("You must calibrate first")
         
         except AttributeError:
             print("You must create BASE instance first.")
@@ -301,6 +124,7 @@ class SimpleCGE:
         except:
             print("Unable to modify instance. Please make sure SIM instance has already been created and that you are trying to access the correct component")
     
+
 
     def model_calibrate(self, mgr, solver):
         
@@ -374,6 +198,8 @@ class SimpleCGE:
                         except:
                             print("#===========HERE ARE THE DIFFERENCES==========#\
                                    #===========note: both models unsolved==========#") 
+                        
+                     
                         for n in self.sim.component_objects(Var, active=True):  
                             newobject = getattr(self.sim, str(n))
                             for o in self.base.component_objects(Var, active=True):
@@ -385,6 +211,12 @@ class SimpleCGE:
                                             if newindex == oldindex:
                                                 diff = oldobject[oldindex].value - newobject[newindex].value
                                                 print(newindex, diff)
+                        
+                        
+                        print("\nCalibrated Value of obj = ", value(self.base.obj))
+                        print("\nSimulated Value of obj = ", value(self.sim.obj))
+                        print("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj))   
+
                 except AttributeError:
                     print("You have not created a SIM instance")
         except AttributeError:
