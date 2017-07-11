@@ -285,9 +285,9 @@ class SimpleCGE:
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
 
-            for p in self.instance.component_objects(Var, active=True):
-                if str(p)==NAME:
-                    varobject = getattr(self.instance, str(p))
+            for v in self.sim.component_objects(Var, active=True):
+                if str(v)==NAME:
+                    varobject = getattr(self.sim, str(v))
                     if fix == True:
                         varobject[INDEX].fixed = True
                         print("Note, ", _object[INDEX], " is now fixed")
@@ -301,7 +301,6 @@ class SimpleCGE:
         except:
             print("Unable to modify instance. Please make sure SIM instance has already been created and that you are trying to access the correct component")
     
-
 
     def model_calibrate(self, mgr, solver):
         
