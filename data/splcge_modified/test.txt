@@ -1,0 +1,1 @@
+This is just a txt doc to show that if a file is not named right, it will not be loaded. splcge will tell the users which files are loaded, and which are not
