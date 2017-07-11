@@ -101,9 +101,9 @@ class PyCGE:
             print(_object[INDEX], " is now set to ", _object[INDEX].value)
 
 
-            for p in self.instance.component_objects(Var, active=True):
-                if str(p)==NAME:
-                    varobject = getattr(self.instance, str(p))
+            for v in self.sim.component_objects(Var, active=True):
+                if str(v)==NAME:
+                    varobject = getattr(self.sim, str(v))
                     if fix == True:
                         varobject[INDEX].fixed = True
                         print("Note, ", _object[INDEX], " is now fixed")
