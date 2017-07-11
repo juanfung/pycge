@@ -215,7 +215,7 @@ class PyCGE:
                         
                         print("\nCalibrated Value of obj = ", value(self.base.obj))
                         print("\nSimulated Value of obj = ", value(self.sim.obj))
-                        print("Difference of obj = ", value(self.base.obj) - value(self.sim.obj))   
+                        print("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj))   
 
                 except AttributeError:
                     print("You have not created a SIM instance")
