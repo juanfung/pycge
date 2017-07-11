@@ -198,6 +198,8 @@ class PyCGE:
                         except:
                             print("#===========HERE ARE THE DIFFERENCES==========#\
                                    #===========note: both models unsolved==========#") 
+                        
+                     
                         for n in self.sim.component_objects(Var, active=True):  
                             newobject = getattr(self.sim, str(n))
                             for o in self.base.component_objects(Var, active=True):
@@ -209,6 +211,12 @@ class PyCGE:
                                             if newindex == oldindex:
                                                 diff = oldobject[oldindex].value - newobject[newindex].value
                                                 print(newindex, diff)
+                        
+                        
+                        print("\nCalibrated Value of obj = ", value(self.base.obj))
+                        print("\nSimulated Value of obj = ", value(self.sim.obj))
+                        print("Difference of obj = ", value(self.base.obj) - value(self.sim.obj))   
+
                 except AttributeError:
                     print("You have not created a SIM instance")
         except AttributeError:
