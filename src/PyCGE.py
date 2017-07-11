@@ -81,11 +81,18 @@ class PyCGE:
         try:
             
             if self.base:
-        
-                self.sim = self.m.create_instance(self.data)
-                self.sim.pf['LAB'].fixed = True
                 
-                print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+                try:
+                
+                    if self.base_results:
+            
+                        self.sim = self.m.create_instance(self.data)
+                        self.sim.pf['LAB'].fixed = True
+                        
+                        print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+                        
+                except AttributeError:
+                    print("You must calibrate first")
         
         except AttributeError:
             print("You must create BASE instance first.")
