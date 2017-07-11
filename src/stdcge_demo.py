@@ -586,10 +586,10 @@ model.obj = Objective(rule=obj_rule, sense=maximize,
         
 # CREATE MODEL INSTANCE
 data = DataPortal()
-data.load(filename='../stdcge_data_directory/set-i-.csv', format='set', set='i')
-data.load(filename='../stdcge_data_directory/set-h-.csv', format='set', set='h')
-data.load(filename='../stdcge_data_directory/set-u-.csv', format='set', set='u')
-data.load(filename='../stdcge_data_directory/param-sam-.csv', param='sam', format='array')
+data.load(filename='../data/stdcge_data_directory/set-i-.csv', format='set', set='i')
+data.load(filename='../data/stdcge_data_directory/set-h-.csv', format='set', set='h')
+data.load(filename='../data/stdcge_data_directory/set-u-.csv', format='set', set='u')
+data.load(filename='../data/stdcge_data_directory/param-sam-.csv', param='sam', format='array')
 
 
 
@@ -606,11 +606,8 @@ instance_new = model.create_instance(data)
 instance_new.pf['LAB'].fixed = True
                
 
+  
 
-alpha = getattr(instance_new, 'alpha')
-for i in alpha:
-    test = ((alpha[i]/1)**alpha[i])
-    print(test)
 
 
 
@@ -681,27 +678,17 @@ for n in instance_new.component_objects(Var, active=True):
                         if newindex == oldindex:
                             diff = oldobject[oldindex].value - newobject[newindex].value
                             print(newindex, diff)
-                            
 
+test = (np.prod((instance_new.alpha[i]/1)**instance_new.alpha[i] for i in instance_new.alpha))
 
-alpha = getattr(instance_new, 'alpha')
-for i in alpha:
-    test = np.prod((alpha[i]/1)**alpha[i])
+print(next(test))
 
-print ('test = ', test)
+test2 = (np.prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha))
 
-alpha2 = getattr(instance_original, 'alpha')
-for i2 in alpha2:
-    test2 = np.prod((alpha2[i2]/1)**alpha[i2])
-    
-print ('test2 = ', test2)
+print(next(test2))
 
         
-UU0 = new_obj
-print ('UU0 = ', UU0)
-
-        
-ep0 = UU0 / test 
+ep0 = new_obj / test 
 print ('ep0 = ', ep0)
 
         
