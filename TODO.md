@@ -7,9 +7,12 @@ TODO list
      - ~~v0.3.0: module with flexible data import (ideally, `pandas`)~~
         - using `pandas` straightforward with `ConcreteModel`
         - Not obviously necessary or advantageous to use `pandas` over `DataPortal`
-     - v0.4: module `PyCGE` that acts on an object of class `ModelDef`, where `ModelDef`
-      is simply the model definition
-     - v0.4.5: add unit tests to test `PyCGE` methods
+     - ~~v0.4: module `PyCGE` that acts on an object of class `ModelDef`, where `ModelDef`
+      is simply the model definition~~
+     - v0.4.1: add `model_welfare()` method to `PyCGE`
+     - v0.4.2: add unit tests to test `PyCGE` methods
+     - v0.4.3: create `CedarRapidsModelDef` class to pass to `PyCGE`
+     - v0.5: 
 
 - `src/splcge_module.py` (based on `splcge.gms`)
      - ~~port splcge_demo.py to module~~
@@ -71,6 +74,7 @@ TODO list
      - ~~once code is broken up into multiple files, module -> package~~
          - **FOR NOW, FORGET PACKAGING**
      - `splcge` and `stdcge` model definitions: one `ModelDef` file or separate?
+         - **DEFINE EACH `*ModelDef` CLASS IN SEPARATE FILES**
      - port Cedar Rapids GAMS code to a `ModelDef` class
 
 - Documentation
