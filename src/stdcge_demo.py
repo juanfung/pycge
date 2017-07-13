@@ -4,10 +4,6 @@
 # ------------------------------------------- #
 # Import packages
 from pyomo.environ import *
-import pandas as pd
-import numpy as np
-import time
-import os
 
 
 # ------------------------------------------- #
@@ -448,7 +444,7 @@ model.Tm = Var(model.i,
 # DEFINE EQUATIONS
 
 def eqpy_rule(model, i):
-    return (model.Y[i] == model.b[i]*np.prod([model.F[h, i]**model.beta[h, i] for h in model.h]))
+    return (model.Y[i] == model.b[i]*prod([model.F[h, i]**model.beta[h, i] for h in model.h]))
 
 model.eqpy = Constraint(model.i, rule=eqpy_rule, doc='composite factor agg. func.')
 
@@ -571,7 +567,7 @@ model.eqpf = Constraint(model.h, rule=eqpf_rule, doc='factor market clearing con
 # ------------------------------------------- #
 # DEFINE OBJECTIVE
 def obj_rule(model):
-    return np.prod([model.Xp[i]**model.alpha[i] for i in model.i])
+    return prod([model.Xp[i]**model.alpha[i] for i in model.i])
 
 model.obj = Objective(rule=obj_rule, sense=maximize,
                       doc='utility function [fictitious]')
@@ -589,11 +585,11 @@ data.load(filename='../data/stdcge_data_directory/param-sam-.csv', param='sam', 
 
 
 
-instance_original = model.create_instance(data)
-instance_original.pf['LAB'].fixed = True
+instance_base = model.create_instance(data)
+instance_base.pf['LAB'].fixed = True
 
-instance_new = model.create_instance(data)
-instance_new.pf['LAB'].fixed = True
+instance_sim = model.create_instance(data)
+instance_sim.pf['LAB'].fixed = True
 
 
 
@@ -623,12 +619,12 @@ if __name__ == '__main__':
     from pyomo.opt import SolverResults
     import pyomo.environ
     with SolverManagerFactory("neos") as solver_mgr:
-        results = solver_mgr.solve(instance_original, opt=solver, tee=True)
+        results = solver_mgr.solve(instance_base, opt=solver, tee=True)
 
     
 print ("\n===VALUE BEFORE===== ")
-print("obj = ", instance_original.obj())
-original_obj = instance_original.obj()
+print("obj = ", instance_base.obj())
+obj_base = instance_base.obj()
 
 
 print("\n now abolish import tariffs \n")
@@ -636,10 +632,10 @@ print("\n now abolish import tariffs \n")
 print("\n set taum(i)=0 \n")
 
 
-for i in instance_new.taum:
-    print("\n Original value for ", instance_new.taum[i], "=" , instance_new.taum[i].value)
-    instance_new.taum[i].value = 0
-    print("New value for ", instance_new.taum[i], '=' , instance_new.taum[i].value)
+for i in instance_sim.taum:
+    print("\n Original value for ", instance_sim.taum[i], "=" , instance_sim.taum[i].value)
+    instance_sim.taum[i].value = 0
+    print("New value for ", instance_sim.taum[i], '=' , instance_sim.taum[i].value)
     
     
 print("\n now resolve with new values \n")  
@@ -648,11 +644,11 @@ if __name__ == '__main__':
     from pyomo.opt import SolverResults
     import pyomo.environ
     with SolverManagerFactory("neos") as solver_mgr:
-        results = solver_mgr.solve(instance_new, opt=solver, tee=True)
+        results = solver_mgr.solve(instance_sim, opt=solver, tee=True)
         
 print ("\n===VALUE AFTER===== ")
-print("obj = ", instance_new.obj())
-new_obj = instance_new.obj()
+print("obj = ", instance_sim.obj())
+obj_sim = instance_sim.obj()
 
 
 
@@ -660,10 +656,10 @@ new_obj = instance_new.obj()
 
 print("#===========HERE ARE THE DIFFERENCES==========#")  
 
-for n in instance_new.component_objects(Var, active=True):  
-        newobject = getattr(instance_new, str(n))
-        for o in instance_original.component_objects(Var, active=True):
-            oldobject = getattr(instance_original, str(o))
+for n in instance_sim.component_objects(Var, active=True):  
+        newobject = getattr(instance_sim, str(n))
+        for o in instance_base.component_objects(Var, active=True):
+            oldobject = getattr(instance_base, str(o))
             if str(n)==str(o):
                 print(newobject)
                 for newindex in newobject:
@@ -679,8 +675,8 @@ for n in instance_new.component_objects(Var, active=True):
 
 
 print('\n----Welfare Measure----')
-ep0 = original_obj /prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha)
-ep1 = new_obj / prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha)
+ep0 = obj_base /prod((instance_base.alpha[i]/1)**instance_base.alpha[i] for i in instance_base.alpha)
+ep1 = obj_sim / prod((instance_base.alpha[i]/1)**instance_base.alpha[i] for i in instance_base.alpha)
 EV = ep1-ep0
 
 print('Hicksian equivalent variations: %.3f' % EV)
