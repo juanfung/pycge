@@ -227,7 +227,7 @@ model.beta = Param(model.h, model.i,  initialize=beta_init,
                     doc='share parameter in production func.')
     
 def b_init(model, i):
-    return model.Y0[i] / np.prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
+    return model.Y0[i] / prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
 
 model.b = Param(model.i, initialize=b_init,
                     doc='scale parameter in production func.')
@@ -594,11 +594,11 @@ instance_original.pf['LAB'].fixed = True
 
 instance_new = model.create_instance(data)
 instance_new.pf['LAB'].fixed = True
+
+
+
                
-
-
-
-
+               
 
 
 
@@ -678,60 +678,15 @@ for n in instance_new.component_objects(Var, active=True):
 
 
 
+print('\n----Welfare Measure----')
+ep0 = original_obj /prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha)
+ep1 = new_obj / prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha)
+EV = ep1-ep0
+
+print('Hicksian equivalent variations: %.3f' % EV)
 
 
 
-#==========================DOESN'T WORK====================================================
-# 
-# def UU0_init(model):
-#     return original_obj
-# 
-#         
-# model.UU0 = Param(initialize=UU0_init,
-#                     doc='Utility level in the Base Run Eq.')
-# 
-# def ep0_init(model):
-#     gen = np.prod((model.alpha[i] / 1)**model.alpha[i] for i in model.i)
-#     value = next(gen)
-#     return model.UU0 / value
-# 
-#         
-# model.ep0 = Param(initialize=ep0_init,
-#                     doc='Expenditure func. in the Base Run Eq.')
-# 
-# def ep1_init(model):
-#     gen = np.prod((model.alpha[i] / 1)**model.alpha[i] for i in model.i)
-#     value = next(gen)
-#     return  new_obj / value
-# 
-#         
-# model.ep1 = Param(initialize=ep1_init,
-#                     doc='Expenditure func. in the C-f Eq.')
-# 
-# def EV_init(model):
-#     return model.ep1 - model.ep0
-#         
-# model.EV = Param(initialize=EV_init,
-#                     doc='Hicksian equivalent variations')
-# 
-# 
-# 
-# instance_EV = model.create_instance(data)
-# 
-# if __name__ == '__main__':
-#     from pyomo.opt import SolverFactory
-#     from pyomo.opt import SolverResults
-#     import pyomo.environ
-#     with SolverManagerFactory("neos") as solver_mgr:
-#         results_EV = solver_mgr.solve(instance_EV, opt=solver, tee=True)
-# 
-# print(instance_EV.ep0())
-# print(instance_EV.ep1())
-# print(instance_EV.EV())
-# print(new_obj)
-# print(original_obj)
-# 
-#==============================================================================
 
 
 
