@@ -210,7 +210,12 @@ class PyCGE:
                                         for oldindex in oldobject:
                                             if newindex == oldindex:
                                                 diff = oldobject[oldindex].value - newobject[newindex].value
-                                                print(newindex, diff)
+                                                if newobject[newindex].value != 0:
+                                                
+                                                    per = (oldobject[oldindex].value / newobject[newindex].value) * 100
+                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)
+                                                else:
+                                                    print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )
                         
                         
                         print("\nCalibrated Value of obj = ", value(self.base.obj))
