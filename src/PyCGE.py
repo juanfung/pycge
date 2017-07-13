@@ -365,3 +365,13 @@ def print_function (verbose="", output = "", typename=""):
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
         print("Output saved to: " + str(check + moment))
+
+def model_welfare(PyCGE):
+    # Solve for Hicksian equivalent variations
+    print('\n----Welfare Measure----')
+    ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+    ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+    EV = ep1-ep0
+    
+    print('Hicksian equivalent variations: %.3f' % EV)
+
