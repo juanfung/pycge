@@ -210,7 +210,12 @@ class PyCGE:
                                         for oldindex in oldobject:
                                             if newindex == oldindex:
                                                 diff = oldobject[oldindex].value - newobject[newindex].value
-                                                print(newindex, diff)
+                                                if newobject[newindex].value != 0:
+                                                
+                                                    per = (oldobject[oldindex].value / newobject[newindex].value) * 100
+                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)
+                                                else:
+                                                    print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )
                         
                         
                         print("\nCalibrated Value of obj = ", value(self.base.obj))
@@ -365,3 +370,13 @@ def print_function (verbose="", output = "", typename=""):
             output_file.write("\nThis is the " + typename + "\n" )
             output(ostream=output_file)
         print("Output saved to: " + str(check + moment))
+
+def model_welfare(PyCGE):
+    # Solve for Hicksian equivalent variations
+    print('\n----Welfare Measure----')
+    ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+    ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+    EV = ep1-ep0
+    
+    print('Hicksian equivalent variations: %.3f' % EV)
+
