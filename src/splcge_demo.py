@@ -199,10 +199,10 @@ if not os.path.exists(directory):
 filename = directory + 'results_' 
 
 data = DataPortal()
-data.load(filename='./splcge-set-i.csv', format='set', set='i')
-data.load(filename='./splcge-set-h.csv', format='set', set='h')
-data.load(filename='./splcge-set-u.csv', format='set', set='u')
-data.load(filename='./splcge-sam.csv', param='sam', format='array')
+data.load(filename='../splcge_data_dir/set-i-.csv', format='set', set='i')
+data.load(filename='../splcge_data_dir/set-h-.csv', format='set', set='h')
+data.load(filename='../splcge_data_dir/set-u-.csv', format='set', set='u')
+data.load(filename='../splcge_data_dir/param-sam-.csv', param='sam', format='array')
 
 instance = model.create_instance(data)
 instance.pf['LAB'].fixed = True
