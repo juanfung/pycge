@@ -310,11 +310,6 @@ def taud_init(model):
 model.taud = Param(initialize=taud_init,
                     doc='direct tax rate')
 
-def hick_init(model):
-    return np.prod((model.alpha[i]/1)**alpha[i] for i in model.i)
-        
-model.hick = Param(initialize=hick_init,
-                    doc='to be used in Hicksian EV')
 
    
 # ------------------------------------------- #
@@ -594,11 +589,6 @@ data.load(filename='../data/stdcge_data_directory/param-sam-.csv', param='sam', 
 
 
 
-
-
-
-
-
 instance_original = model.create_instance(data)
 instance_original.pf['LAB'].fixed = True
 
@@ -606,7 +596,10 @@ instance_new = model.create_instance(data)
 instance_new.pf['LAB'].fixed = True
                
 
-  
+
+
+
+
 
 
 
@@ -677,42 +670,68 @@ for n in instance_new.component_objects(Var, active=True):
                     for oldindex in oldobject:
                         if newindex == oldindex:
                             diff = oldobject[oldindex].value - newobject[newindex].value
-                            print(newindex, diff)
-
-test = (np.prod((instance_new.alpha[i]/1)**instance_new.alpha[i] for i in instance_new.alpha))
-
-print(next(test))
-
-test2 = (np.prod((instance_original.alpha[i]/1)**instance_original.alpha[i] for i in instance_original.alpha))
-
-print(next(test2))
-
-        
-ep0 = new_obj / test 
-print ('ep0 = ', ep0)
-
-        
-ep1 = original_obj / test2
-print ('ep1 = ', ep1)
-
-        
-EV = ep1 - ep0
-
-print('Hicksian Equivalent variations')
-print(EV)
-
-
-                        
+                            if newobject[newindex].value != 0:
+                                per = (oldobject[oldindex].value / newobject[newindex].value) * 100
+                                print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)
+                            else:
+                                print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )                               
 
 
 
 
 
 
-
-
-
-
+#==========================DOESN'T WORK====================================================
+# 
+# def UU0_init(model):
+#     return original_obj
+# 
+#         
+# model.UU0 = Param(initialize=UU0_init,
+#                     doc='Utility level in the Base Run Eq.')
+# 
+# def ep0_init(model):
+#     gen = np.prod((model.alpha[i] / 1)**model.alpha[i] for i in model.i)
+#     value = next(gen)
+#     return model.UU0 / value
+# 
+#         
+# model.ep0 = Param(initialize=ep0_init,
+#                     doc='Expenditure func. in the Base Run Eq.')
+# 
+# def ep1_init(model):
+#     gen = np.prod((model.alpha[i] / 1)**model.alpha[i] for i in model.i)
+#     value = next(gen)
+#     return  new_obj / value
+# 
+#         
+# model.ep1 = Param(initialize=ep1_init,
+#                     doc='Expenditure func. in the C-f Eq.')
+# 
+# def EV_init(model):
+#     return model.ep1 - model.ep0
+#         
+# model.EV = Param(initialize=EV_init,
+#                     doc='Hicksian equivalent variations')
+# 
+# 
+# 
+# instance_EV = model.create_instance(data)
+# 
+# if __name__ == '__main__':
+#     from pyomo.opt import SolverFactory
+#     from pyomo.opt import SolverResults
+#     import pyomo.environ
+#     with SolverManagerFactory("neos") as solver_mgr:
+#         results_EV = solver_mgr.solve(instance_EV, opt=solver, tee=True)
+# 
+# print(instance_EV.ep0())
+# print(instance_EV.ep1())
+# print(instance_EV.EV())
+# print(new_obj)
+# print(original_obj)
+# 
+#==============================================================================
 
 
 
