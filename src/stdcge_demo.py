@@ -575,7 +575,7 @@ model.obj = Objective(rule=obj_rule, sense=maximize,
 
 
         
-# CREATE MODEL INSTANCE
+# LOAD DATA
 data = DataPortal()
 data.load(filename='../data/stdcge_data_directory/set-i-.csv', format='set', set='i')
 data.load(filename='../data/stdcge_data_directory/set-h-.csv', format='set', set='h')
@@ -584,29 +584,21 @@ data.load(filename='../data/stdcge_data_directory/param-sam-.csv', param='sam', 
 
 
 
-
+# CREATE BASE INSTANCE
 instance_base = model.create_instance(data)
 instance_base.pf['LAB'].fixed = True
 
+# CREATE SIM INSTANCE
 instance_sim = model.create_instance(data)
 instance_sim.pf['LAB'].fixed = True
 
 
-
-               
-               
-
-
-
-
-
-           
 # ------------------------------------------- #
 # SOLVE
 # Using NEOS external solver
 
 # Select solver
-solver = 'minos'  # 'ipopt', 'knitro', 'minos'
+solver = 'knitro'  # 'ipopt', 'knitro', 'minos'
 solver_io = 'nl'
 
 # To run as python script:
@@ -645,6 +637,7 @@ if __name__ == '__main__':
     import pyomo.environ
     with SolverManagerFactory("neos") as solver_mgr:
         results = solver_mgr.solve(instance_sim, opt=solver, tee=True)
+       
         
 print ("\n===VALUE AFTER===== ")
 print("obj = ", instance_sim.obj())
@@ -652,28 +645,27 @@ obj_sim = instance_sim.obj()
 
 
 
-
-
 print("#===========HERE ARE THE DIFFERENCES==========#")  
 
-for n in instance_sim.component_objects(Var, active=True):  
-        newobject = getattr(instance_sim, str(n))
-        for o in instance_base.component_objects(Var, active=True):
-            oldobject = getattr(instance_base, str(o))
-            if str(n)==str(o):
-                print(newobject)
-                for newindex in newobject:
-                    for oldindex in oldobject:
-                        if newindex == oldindex:
-                            diff = oldobject[oldindex].value - newobject[newindex].value
-                            if newobject[newindex].value != 0:
-                                per = (oldobject[oldindex].value / newobject[newindex].value) * 100
-                                print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)
-                            else:
-                                print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )                               
+for n in instance_sim.component_objects(Var, active=True):                                      # goes through modified instance
+        newobject = getattr(instance_sim, str(n))                                               # newobject = the vars (X, F, pf, etc.)
+        for o in instance_base.component_objects(Var, active=True):                             # goes through base instance
+            oldobject = getattr(instance_base, str(o))                                          # old object = the vars (X, F, pf, etc.)
+            if str(n)==str(o):                                                                  # If they are the same (i.e. 'X'=='X')
+                print(newobject)                                                                # print the var
+                for newindex in newobject:                                                      # go through the indexes ('BRD','MLK',etc)
+                    for oldindex in oldobject:                                                  # go through the indexes ('BRD','MLK',etc)
+                        if newindex == oldindex:                                                # If they are the same(i.e. 'BRD'=='BRD')
+                            diff = oldobject[oldindex].value - newobject[newindex].value        # get the difference of the values
+                            if newobject[newindex].value != 0:                                  # if the value does not equal zero
+                            
+                                per = (oldobject[oldindex].value / newobject[newindex].value) * 100             # get percentage
+                                print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)     # print
+                            else:                                                                               # if the value does equal 0
+                                print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )# inform the user
 
 
-
+# Solve for Hicksian equivalent variations
 print('\n----Welfare Measure----')
 ep0 = obj_base /prod((instance_base.alpha[i]/1)**instance_base.alpha[i] for i in instance_base.alpha)
 ep1 = obj_sim / prod((instance_base.alpha[i]/1)**instance_base.alpha[i] for i in instance_base.alpha)
