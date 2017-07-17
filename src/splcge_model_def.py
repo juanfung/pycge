@@ -40,7 +40,7 @@ class SplModelDef:
         # ----------------------------------------------- #
         #PARAMETERS 
         self.m.sam = Param(self.m.u, self.m.u, 
-                           doc='social accounting matrix')
+                           doc='social accounting matrix', mutable = True)
 
 
         def X0_init(model, i):
@@ -48,28 +48,28 @@ class SplModelDef:
 
         self.m.X0 = Param(self.m.i,
                           initialize=X0_init,
-                          doc='hh consumption of i-th good')
+                          doc='hh consumption of i-th good', mutable = True)
 
         def F0_init(model, h, i):
             return model.sam[h, i]
 
         self.m.F0 = Param(self.m.h, self.m.i,
                           initialize=F0_init,
-                          doc='h-th factor input by j-th firm')
+                          doc='h-th factor input by j-th firm', mutable = True)
 
         def Z0_init(model, i):
             return sum(model.F0[h, i] for h in model.h)
 
         self.m.Z0 = Param(self.m.i,
                           initialize=Z0_init,
-                          doc='output of j-th good')
+                          doc='output of j-th good', mutable = True)
         
         def FF_init(model, h):
             return model.sam['HOH', h]
         
         self.m.FF = Param(self.m.h,
                           initialize=FF_init,
-                          doc = 'factor endowment of the h-th factor')
+                          doc = 'factor endowment of the h-th factor', mutable = True)
         
         # --------------------------------------------- #
         # CALIBRATION

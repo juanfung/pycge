@@ -43,20 +43,20 @@ class StdModelDef:
         
         
         self.m.Td0 = Param(initialize=Td0_init,
-                         doc='direct tax')
+                         doc='direct tax', mutable = True)
         
         def Tz0_init(model, i):
             return model.sam['IDT', i]
         
         
         self.m.Tz0 = Param(self.m.i, initialize=Tz0_init,
-                         doc='production tax')
+                         doc='production tax', mutable = True)
         
         def Tm0_init(model, i):
             return model.sam['TRF', i]
         
         self.m.Tm0 = Param(self.m.i, initialize=Tm0_init,
-                         doc='import tariff')
+                         doc='import tariff', mutable = True)
         
         
         def F0_init(model, h, i):
@@ -64,35 +64,35 @@ class StdModelDef:
         
         
         self.m.F0 = Param(self.m.h, self.m.i, initialize=F0_init,
-                         doc='the h-th factor input by the j-th firm')
+                         doc='the h-th factor input by the j-th firm', mutable = True)
         
         def Y0_init(model, i):
             return sum(model.F0[h, i] for h in model.h)
          
         
         self.m.Y0 = Param(self.m.i, initialize=Y0_init,
-                         doc='composite factor')
+                         doc='composite factor', mutable = True)
         
         def X0_init(model, i, j):
             return model.sam[i, j]
         
         
         self.m.X0 = Param(self.m.i, self.m.i, initialize=X0_init,
-                         doc='intermediate input')
+                         doc='intermediate input', mutable = True)
         
         def Z0_init(model, j):
             return model.Y0[j] + sum(model.X0[i,j] for i in model.i)
         
         
         self.m.Z0 = Param(self.m.i, initialize=Z0_init,
-                         doc='output of the j-th good')
+                         doc='output of the j-th good', mutable = True)
         
         def M0_init(model, i):
             return model.sam['EXT', i]
         
         
         self.m.M0 = Param(self.m.i, initialize=M0_init,
-                         doc='imports')
+                         doc='imports', mutable = True)
         
         
         def tauz_init(model, i):
@@ -100,7 +100,7 @@ class StdModelDef:
         
         
         self.m.tauz = Param(self.m.i, initialize=tauz_init,
-                         doc='production tax rate')
+                         doc='production tax rate', mutable = True)
         
         def taum_init(model, i):
             return model.Tm0[i]/model.M0[i]
@@ -115,14 +115,14 @@ class StdModelDef:
         
         
         self.m.Xp0 = Param(self.m.i, initialize=Xp0_init,
-                         doc='household consumption of the i-th good')
+                         doc='household consumption of the i-th good', mutable = True)
         
         def FF_init(model, h):
             return model.sam['HOH', h]
         
         
         self.m.FF = Param(self.m.h, initialize=FF_init,
-                         doc='factor endowment of the h-th factor')
+                         doc='factor endowment of the h-th factor', mutable = True)
         
         
         def Xg0_init(model, i):
@@ -130,70 +130,70 @@ class StdModelDef:
         
         
         self.m.Xg0 = Param(self.m.i, initialize=Xg0_init,
-                         doc='government consumption')
+                         doc='government consumption', mutable = True)
         
         def Xv0_init(model, i):
             return model.sam[i, 'INV']
         
         
         self.m.Xv0 = Param(self.m.i, initialize=Xv0_init,
-                         doc='investment demand')
+                         doc='investment demand', mutable = True)
         
         def E0_init(model, i):
             return model.sam[i, 'EXT']
         
         
         self.m.E0 = Param(self.m.i, initialize=E0_init,
-                         doc='exports')
+                         doc='exports', mutable = True)
         
         def Q0_init(model, i):
             return model.Xp0[i] + model.Xg0[i] + model.Xv0[i] + sum(model.X0[i,j] for j in model.i)
         
         
         self.m.Q0 = Param(self.m.i, initialize=Q0_init,
-                         doc='Armingtons composite good')
+                         doc='Armingtons composite good', mutable = True)
         
         def D0_init(model, i):
             return (1 + model.tauz[i])*model.Z0[i]-model.E0[i]
         
         
         self.m.D0 = Param(self.m.i, initialize=D0_init,
-                         doc='domestic good')
+                         doc='domestic good', mutable = True)
         
         def Sp0_init(model):
             return model.sam['INV', 'HOH']
         
         
         self.m.Sp0 = Param(initialize=Sp0_init,
-                         doc='private saving')
+                         doc='private saving', mutable = True)
         
         def Sg0_init(model):
             return model.sam['INV','GOV']
         
         
         self.m.Sg0 = Param(initialize=Sg0_init,
-                         doc='government saving')
+                         doc='government saving', mutable = True)
         
         def Sf_init(model):
             return model.sam['INV','EXT']
         
         
         self.m.Sf = Param(initialize=Sf_init,
-                         doc='foreign saving in US dollars')
+                         doc='foreign saving in US dollars', mutable = True)
         
         def pWe_init(model, i):
             return 1
         
         
         self.m.pWe = Param(self.m.i, initialize=pWe_init,
-                         doc='export price in US dollars')
+                         doc='export price in US dollars', mutable = True)
         
         def pWm_init(model, i):
             return 1
         
         
         self.m.pWm = Param(self.m.i, initialize=pWm_init,
-                         doc='import price in US dollars')
+                         doc='import price in US dollars', mutable = True)
         
         # ------------------------------------------- #
         # CALIBRATION
