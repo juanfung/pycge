@@ -78,21 +78,21 @@ class SplModelDef:
         
         self.m.alpha = Param(self.m.i,
                              initialize=alpha_init,
-                             doc='share parameter in utility function', mutable = True)
+                             doc='share parameter in utility function')
         
         def beta_init(model, h, i):
             return model.F0[h, i] / sum(model.F0[k, i] for k in model.h)
 
         self.m.beta = Param(self.m.h, self.m.i,
                             initialize=beta_init,
-                            doc='share parameter in production function', mutable = True)
+                            doc='share parameter in production function')
         
         def b_init(model, i):
             return model.Z0[i] / np.prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
 
         self.m.b = Param(self.m.i,
                          initialize=b_init,
-                         doc='scale parameter in production function', mutable = True)
+                         doc='scale parameter in production function')
     
         # -----------------------------------------------------#
         #VARIABLES

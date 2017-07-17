@@ -204,121 +204,121 @@ class StdModelDef:
         
         
         self.m.sigma = Param(self.m.i, initialize=sigma_init,
-                            doc='elasticity of substitution', mutable = True)
+                            doc='elasticity of substitution')
         
         def psi_init(model, i):
             return 2
         
         self.m.psi = Param(self.m.i, initialize=psi_init,
-                            doc='elasticity of transformation', mutable = True)
+                            doc='elasticity of transformation')
         
         def eta_init(model, i):
             return (model.sigma[i] - 1) / model.sigma[i]
         
         self.m.eta = Param(self.m.i, initialize=eta_init,
-                            doc='substitution elasticity parameter', mutable = True)
+                            doc='substitution elasticity parameter')
         
         def phi_init(model, i):
             return (model.psi[i] + 1) / model.psi[i]
         
         self.m.phi = Param(self.m.i, initialize=phi_init,
-                            doc='transformation elasticity parameter', mutable = True)
+                            doc='transformation elasticity parameter')
         
         def alpha_init(model, i):
             return (model.Xp0[i])/ sum(model.Xp0[j] for j in model.i)
         
         self.m.alpha = Param(self.m.i, initialize=alpha_init,
-                            doc='share parameter in utility func.', mutable = True)
+                            doc='share parameter in utility func.')
             
         def beta_init(model, h, i):
             return (model.F0[h, i]) / sum(model.F0[k,i] for k in model.h)
         
         self.m.beta = Param(self.m.h, self.m.i,  initialize=beta_init,
-                            doc='share parameter in production func.', mutable = True)
+                            doc='share parameter in production func.')
             
         def b_init(model, i):
             return model.Y0[i] / np.prod([model.F0[h, i]**model.beta[h, i] for h in model.h])
         
         self.m.b = Param(self.m.i, initialize=b_init,
-                            doc='scale parameter in production func.', mutable = True)
+                            doc='scale parameter in production func.')
             
         def ax_init(model, i, j):
             return model.X0[i,j] / model.Z0[j]
         
         self.m.ax = Param(self.m.i, self.m.i, initialize=ax_init,
-                            doc='intermediate input requirement coeff.', mutable = True)
+                            doc='intermediate input requirement coeff.')
             
         def ay_init(model,i):
             return model.Y0[i]/model.Z0[i]
             
         self.m.ay = Param(self.m.i, initialize=ay_init,
-                            doc=' composite fact. input req. coeff.', mutable = True)
+                            doc=' composite fact. input req. coeff.')
             
         def mu_init(model, i):
             return model.Xg0[i] / sum(model.Xg0[j] for j in model.i)
             
         self.m.mu = Param(self.m.i, initialize=mu_init,
-                            doc=' government consumption share', mutable = True)
+                            doc=' government consumption share')
             
         def lambd_init (model, i):
             return model.Xv0[i] / (model.Sp0 + model.Sg0 + model.Sf)
             
         self.m.lambd = Param(self.m.i, initialize=lambd_init,
-                            doc='investment demand share', mutable = True)
+                            doc='investment demand share')
         
         def deltam_init(model, i):
             return (1+model.taum[i])*model.M0[i]**(1-model.eta[i]) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
             
         self.m.deltam = Param(self.m.i, initialize=deltam_init,
-                            doc='share par. in Armington func.', mutable = True)
+                            doc='share par. in Armington func.')
             
         def deltad_init(model, i):
             return model.D0[i]**(1-model.eta[i]) / ((1+model.taum[i])*model.M0[i]**(1-model.eta[i]) + model.D0[i]**(1-model.eta[i]))
             
         self.m.deltad = Param(self.m.i, initialize=deltad_init,
-                            doc='share par. in Armington func.', mutable = True)
+                            doc='share par. in Armington func.')
             
         def gamma_init(model, i):
             return model.Q0[i] / (model.deltam[i]*model.M0[i]**model.eta[i]+model.deltad[i]*model.D0[i]**model.eta[i])**(1/model.eta[i])
                
         self.m.gamma = Param(self.m.i, initialize=gamma_init,
-                            doc='scale par. in Armington func.', mutable = True)
+                            doc='scale par. in Armington func.')
             
         def xie_init(model, i):
             return model.E0[i]**(1-model.phi[i])/(model.E0[i]**(1-model.phi[i])+model.D0[i]**(1-model.phi[i]))
          
         self.m.xie = Param(self.m.i, initialize=xie_init,
-                            doc='share par. in transformation func.', mutable = True)
+                            doc='share par. in transformation func.')
         
         def  xid_init(model, i):
             return model.D0[i]**(1-model.phi[i])/(model.E0[i]**(1-model.phi[i])+model.D0[i]**(1-model.phi[i]))
             
         self.m.xid = Param(self.m.i, initialize=xid_init,
-                            doc='share par. in transformation func.', mutable = True)
+                            doc='share par. in transformation func.')
         
         def theta_init(model, i):
             return model.Z0[i] / (model.xie[i]*model.E0[i]**model.phi[i]+model.xid[i]*model.D0[i]**model.phi[i])**(1/model.phi[i])
            
         self.m.theta = Param(self.m.i, initialize=theta_init,
-                            doc='scale par. in transformation func.', mutable = True)
+                            doc='scale par. in transformation func.')
              
         def ssp_init(model):
             return model.Sp0/sum(model.FF[h] for h in model.h)
             
         self.m.ssp = Param(initialize=ssp_init,
-                            doc='average propensity for private saving', mutable = True)
+                            doc='average propensity for private saving')
             
         def ssg_init(model):
             return model.Sg0/(model.Td0+sum(model.Tz0[i] for i in model.i)+sum(model.Tm0[i] for i in model.i))
             
         self.m.ssg = Param(initialize=ssg_init,
-                            doc='average propensity for gov. saving', mutable = True)
+                            doc='average propensity for gov. saving')
             
         def taud_init(model):
             return model.Td0/sum(model.FF[h] for h in model.h)
                 
         self.m.taud = Param(initialize=taud_init,
-                            doc='direct tax rate', mutable = True)
+                            doc='direct tax rate')
            
         # ------------------------------------------- #
         # Define model system
