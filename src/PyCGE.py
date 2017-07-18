@@ -71,16 +71,18 @@ class PyCGE:
                     if self.data: #if the data is loaded
         
                         self.base = self.m.create_instance(self.data) #create instance
+                        test = False
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #find the variable the user entered
+                                test = True
                                 varobject = getattr(self.base, str(v)) #from that variable
                                 try:
                                     varobject[INDEX].fixed = True #fix the index the user entered
                                     print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
                                 except:
                                     print("index", INDEX, "does not exist for", NAME)
-                            else:
-                                print("variable", NAME, "does not exist")
+                        if test == False:
+                            print("variable", NAME, "does not exist")
                 except:
                     print("data not loaded")
         
