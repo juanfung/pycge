@@ -112,28 +112,36 @@ class PyCGE:
     def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
 
         try:
-    
-            _object = getattr(self.sim, NAME)
-            print(_object[INDEX], "was originally", _object[INDEX].value)
-            _object[INDEX].value = VALUE 
-            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+            if self.sim:
+                try:
+                _object = getattr(self.sim, NAME)
+                except AttributeError:
+                    print(NAME, "does not exist in current instance")
+                try:
+                    print(_object[INDEX], "was originally", _object[INDEX].value)
+                    _object[INDEX].value = VALUE 
+                    print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                    
+                    for v in self.sim.component_objects(Var, active=True):
+                        if str(v)==NAME:
+                            varobject = getattr(self.sim, str(v))
+                            if fix == True:
+                                varobject[INDEX].fixed = True
+                                print("Note, ", _object[INDEX], " is now fixed")
+                            if fix == False:
+                                varobject[INDEX].fixed = False
+                                print("Note, ", _object[INDEX], " is NOT fixed")
 
 
-            for v in self.sim.component_objects(Var, active=True):
-                if str(v)==NAME:
-                    varobject = getattr(self.sim, str(v))
-                    if fix == True:
-                        varobject[INDEX].fixed = True
-                        print("Note, ", _object[INDEX], " is now fixed")
-                    if fix == False:
-                        varobject[INDEX].fixed = False
-                        print("Note, ", _object[INDEX], " is NOT fixed")
+                    print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")
+                except AttributeError:
+                    print(INDEX, "is not an index of", NAME)
+                except:
+                    print("unable to modify, please make sure" NAME, INDEX, "is mutable")
 
 
-            print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")  
-            
-        except:
-            print("Unable to modify instance. Please make sure SIM instance has already been created and that you are trying to access the correct component")
+        except AttributeError:
+            print("Must first create sim instance. Call `model_sim`.")
     
 
 
