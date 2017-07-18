@@ -98,8 +98,7 @@ class PyCGE:
                 
                     if self.base_results:
             
-                        self.sim = self.m.create_instance(self.data)
-                        self.sim.pf['LAB'].fixed = True
+                        self.sim = self.base
                         
                         print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
                         
