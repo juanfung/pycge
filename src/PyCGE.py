@@ -63,17 +63,29 @@ class PyCGE:
             self.data = data
 
 
-    def model_instance(self):
+    def model_instance(self, NAME, INDEX):
         
         try:
+            if self.m: #if the model is loaded
+                try:
+                    if self.data: #if the data is loaded
         
-            self.base = self.m.create_instance(self.data)
-            self.base.pf['LAB'].fixed = True
-            
-            print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
+                        self.base = self.m.create_instance(self.data) #create instance
+                        for v in self.base.component_objects(Var, active=True): #go through variables
+                        if str(v)==NAME: #find the variable the user entered
+                            varobject = getattr(self.base, str(v)) #from that variable
+                            try:
+                                varobject[INDEX].fixed = True #fix the index the user entered
+                                print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
+                            except:
+                                print("index", INDEX, "does not exist for", NAME)
+                        else:
+                            print("variable", NAME, "does not exist")
+                except:
+                    print("data not loaded")
         
         except:
-            print("Unable to create BASE instance. Please make sure model and data are loaded")
+            print("model not loaded")
               
 
     def model_sim (self):
