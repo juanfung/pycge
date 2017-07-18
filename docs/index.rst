@@ -51,8 +51,10 @@ Quick Start
 
 A quick summary of a standard workflow::
 
-     # create object
-     testcge = SimpleCGE()
+     # create model definition object
+     testdef = ModelDef()
+     # create pycge object
+     testcge = PyCGE(testdef)
      # add data
      testcge.load_data(path/to/data)
      # create base instance
@@ -75,7 +77,11 @@ Getting Started
 ---------------
 Define a model::
 
-    test_cge = SimpleCGE()
+    test_def = ModelDef()
+
+Create a model from a ``ModelDef``::
+
+    test_cge = PyCGE(test_def)
 
 Load the data::
 
@@ -87,7 +93,7 @@ Instantiate the model::
     test_cge.model_instance()
 
 
-Calibrate the base model
+Calibrate the Base Model
 ------------------------
 
 The initial call to ``model_instance()`` creates a ``base`` model.
@@ -100,7 +106,7 @@ equilibrium values equal to the initial values.
 
 If calibration fails, check your data and your model definition.
 
-Equilibrium comparative statics
+Equilibrium Comparative Statics
 -------------------------------
 
 Once the ``base`` model is calibrated, we can simulate policy changes or shocks to
@@ -152,7 +158,7 @@ To perform comparative statics::
 
 This returns the *difference* in equilibrium values between ``base`` and ``sim``.
 
-Viewing an instance or results
+Viewing an Instance or Results
 ------------------------------
 
 To export anything::
@@ -188,10 +194,10 @@ To load a results object back into an instance::
 
     test_cge.model_load_results(pathname = pathname/of/file/to/load)
 
-Two or more simulations
+Two or More Simulations
 -------------------------
 
-Currently, an object of class `SimpleCGE` can only have two instances associated with it,
+Currently, an object of class ``PyCGE`` can only have two instances associated with it,
 ``base`` and ``sim``. 
 
 Calling ``model_sim`` always creates a new ``sim`` based on the ``base`` instance.
@@ -212,10 +218,26 @@ Now you can perform comparative statics on two ``sim`` instances, one associated
 ``test_cge`` object and one associated with the ``copy_cge`` object. Both have the same 
 ``base`` instance but potentially differ in the ``sim`` instance. 
 
-Local solvers
+Local Solvers
 --------------
 
 TODO: Add info on installing Ipopt, etc.
+
+Working With Model Definitions
+------------------------------
+
+A model definition is contained within a ``ModelDef`` class, and should be imported along with
+``PyCGE``::
+
+    import pycge
+    from model_def import ModelDef
+
+You may work with multiple ``ModelDef`` classes, e.g., ``ModelDef1``, ``ModelDef2``, and so on.
+You may also edit an existing ``ModelDef`` and re-load it using ``importlib``::
+
+    importlib.reload(ModelDef)
+
+
 
 
 Indices and tables
