@@ -72,15 +72,15 @@ class PyCGE:
         
                         self.base = self.m.create_instance(self.data) #create instance
                         for v in self.base.component_objects(Var, active=True): #go through variables
-                        if str(v)==NAME: #find the variable the user entered
-                            varobject = getattr(self.base, str(v)) #from that variable
-                            try:
-                                varobject[INDEX].fixed = True #fix the index the user entered
-                                print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
-                            except:
-                                print("index", INDEX, "does not exist for", NAME)
-                        else:
-                            print("variable", NAME, "does not exist")
+                            if str(v)==NAME: #find the variable the user entered
+                                varobject = getattr(self.base, str(v)) #from that variable
+                                try:
+                                    varobject[INDEX].fixed = True #fix the index the user entered
+                                    print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
+                                except:
+                                    print("index", INDEX, "does not exist for", NAME)
+                            else:
+                                print("variable", NAME, "does not exist")
                 except:
                     print("data not loaded")
         
@@ -114,7 +114,7 @@ class PyCGE:
         try:
             if self.sim:
                 try:
-                _object = getattr(self.sim, NAME)
+                    _object = getattr(self.sim, NAME)
                 except AttributeError:
                     print(NAME, "does not exist in current instance")
                 try:
@@ -137,7 +137,7 @@ class PyCGE:
                 except AttributeError:
                     print(INDEX, "is not an index of", NAME)
                 except:
-                    print("unable to modify, please make sure" NAME, INDEX, "is mutable")
+                    print("unable to modify, please make sure", NAME, INDEX, "is mutable")
 
 
         except AttributeError:
