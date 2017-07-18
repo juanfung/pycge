@@ -8,6 +8,7 @@ import time
 import os
 from pyomo.opt import SolverStatus, TerminationCondition
 import importlib
+import copy
 
 
 
@@ -28,37 +29,37 @@ class PyCGE:
     #LOAD DATA
     def model_data(self, data_dir = ''):
         
-        if not data_dir.endswith("/") and data_dir != "":
-            data_dir = data_dir + "/"
+        if not data_dir.endswith("/") and data_dir != "": #if the user forgot the slash at the end
+            data_dir = data_dir + "/" #add one
         
-        if (data_dir == ""):
+        if (data_dir == ""): #if the user didnt enter a directory
             print("Please specify where you would like to load data from")
         
 
         
-        elif not os.path.exists(data_dir):
+        elif not os.path.exists(data_dir): #if the directory does not exist
             print("please enter a valid data directory")
         
         else:
         
-            data = DataPortal()
+            data = DataPortal() #create data portal
             
-            for filenames in os.listdir(data_dir):
+            for filenames in os.listdir(data_dir): #go through files in directory
                 if filenames.startswith("set"):                
     
-                    dat_type,names,file_type = filenames.split('-')
-                    data.load(filename = data_dir + filenames, format = 'set', set = names)                
-                    print("File '" + filenames + "' was loaded into set: " + names)
+                    dat_type,names,file_type = filenames.split('-') #break up the name (for example: set,i,csv)
+                    data.load(filename = data_dir + filenames, format = 'set', set = names)  #load data              
+                    print("File '" + filenames + "' was loaded into set: " + names) 
                     
                 elif filenames.startswith("param"):
                     
-                    dat_type,names,file_type = filenames.split('-')
-                    print("File '" + filenames + "' was loaded into param: " + names)             
+                    dat_type,names,file_type = filenames.split('-') #break up the name (for example: param,sam,csv)
+                    print("File '" + filenames + "' was loaded into param: " + names)            
     
-                    data.load(filename = data_dir + filenames, param = names, format='array')
+                    data.load(filename = data_dir + filenames, param = names, format='array') #load data
                 
-                else:
-                    print(filenames, " is not in the right format and was not loaded into DataPortal")
+                else: #if it doesn't start with "set" or "param"
+                    print(filenames, " is not in the right format and was not loaded into DataPortal") 
                     
             self.data = data
 
@@ -71,17 +72,18 @@ class PyCGE:
                     if self.data: #if the data is loaded
         
                         self.base = self.m.create_instance(self.data) #create instance
-                        test = False
+                        test = False #create a flag to check if the NAME was ever found
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #find the variable the user entered
-                                test = True
+                                test = True #NAME was found
                                 varobject = getattr(self.base, str(v)) #from that variable
                                 try:
                                     varobject[INDEX].fixed = True #fix the index the user entered
+                                    print("Note, ", NAME, INDEX, " is now fixed")
                                     print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
                                 except:
                                     print("index", INDEX, "does not exist for", NAME)
-                        if test == False:
+                        if test == False: #NAME was never found
                             print("variable", NAME, "does not exist")
                 except:
                     print("data not loaded")
@@ -94,13 +96,13 @@ class PyCGE:
         
         try:
             
-            if self.base:
+            if self.base: #if the base instance has been created
                 
                 try:
                 
-                    if self.base_results:
+                    if self.base_results: #if the base instance has been calibrated
             
-                        self.sim = self.base
+                        self.sim = copy.deepcopy(self.base) #create self.sim which is exactly the same as the self.base
                         
                         print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
                         
@@ -114,35 +116,36 @@ class PyCGE:
     def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
 
         try:
-            if self.sim:
-                try:
-                    _object = getattr(self.sim, NAME)
+            if self.sim: #if the sim instance has been created
+                try: #make sure the component they are trying to access exists
+                    _object = getattr(self.sim, NAME) #get the attribute the user entered
+                    try:
+                        print(_object[INDEX], "was originally", _object[INDEX].value)
+                        _object[INDEX].value = VALUE #set the value to what the user entered
+                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                        
+                        for v in self.sim.component_objects(Var, active=True): #go through variabled
+                            if str(v)==NAME: #if the component they entered was a variable
+                                varobject = getattr(self.sim, str(v)) #get the entered variable
+                                if fix == True:
+                                    varobject[INDEX].fixed = True #fix it (default)
+                                    print("Note, ", _object[INDEX], " is now fixed")
+                                if fix == False:
+                                    varobject[INDEX].fixed = False
+                                    print("Note, ", _object[INDEX], " is NOT fixed")
+    
+    
+                        print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")
+                    except AttributeError: #if INDEX does not exist
+                        print(INDEX, "is not an index of", NAME)
+                    except Exception as e: #if something else went wrong 
+                        print(e)                    
                 except AttributeError:
                     print(NAME, "does not exist in current instance")
-                try:
-                    print(_object[INDEX], "was originally", _object[INDEX].value)
-                    _object[INDEX].value = VALUE 
-                    print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                    
-                    for v in self.sim.component_objects(Var, active=True):
-                        if str(v)==NAME:
-                            varobject = getattr(self.sim, str(v))
-                            if fix == True:
-                                varobject[INDEX].fixed = True
-                                print("Note, ", _object[INDEX], " is now fixed")
-                            if fix == False:
-                                varobject[INDEX].fixed = False
-                                print("Note, ", _object[INDEX], " is NOT fixed")
 
 
-                    print("SIM updated. Call `model_postprocess` to output or `model_solve` to solve.")
-                except AttributeError:
-                    print(INDEX, "is not an index of", NAME)
-                except:
-                    print("unable to modify, please make sure", NAME, INDEX, "is mutable")
 
-
-        except AttributeError:
+        except AttributeError: #if sim instance does not exist
             print("Must first create sim instance. Call `model_sim`.")
     
 
@@ -151,11 +154,11 @@ class PyCGE:
         
         
         try:
-            if self.base:
+            if self.base: #if base instance has already been created
                 try:
-                    if self.base_results:
+                    if self.base_results: #if base has already been calibrated
                         print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
-                except AttributeError:
+                except AttributeError: #if the base has NOT already been calibrated
                         with SolverManagerFactory(mgr) as solver_mgr:
                             self.base_results = solver_mgr.solve(self.base, opt=solver)
                             self.base.solutions.store_to(self.base_results)
@@ -169,7 +172,7 @@ class PyCGE:
                             print("Model is infeasible")
                         else:
                             print ('WARNING. Solver Status: ', self.base_results.solver)  
-        except AttributeError:
+        except AttributeError: #if the user has not created the base instance yet
             print('You must create the BASE instance before you can solve it. Call `model_instance` first.')
 
 
@@ -177,9 +180,9 @@ class PyCGE:
     def model_solve(self, mgr, solver):
 
         try:
-            if self.base_results:
+            if self.base_results: #if the base has already been calibrated
                 try:
-                    if self.sim:
+                    if self.sim: #if the sim instance has already been created
                         with SolverManagerFactory(mgr) as solver_mgr:
                             self.sim_results = solver_mgr.solve(self.sim, opt=solver)
                             self.sim.solutions.store_to(self.sim_results)
@@ -193,23 +196,23 @@ class PyCGE:
                             print("Model is infeasible")
                         else:
                             print ('WARNING. Solver Status: ', self.sim_results.solver)
-                except AttributeError:
+                except AttributeError: #if sim instance has not been created
                     print("You must create SIM instance before you can solve it. Call `model_sim` first.")
-        except AttributeError:
+        except AttributeError: #if base has not been calibrated
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
     def model_compare(self):                       
     
         try:
-            if self.base:
+            if self.base: #if base instance has been created
                 try:
-                    if self.sim:
+                    if self.sim: #if sim instance has been created
                                         
                         try:
-                            if self.base_results:
+                            if self.base_results: #if base has been solved
                                 try:
-                                    if self.sim_results:
+                                    if self.sim_results: #if sim has been solved
                                         print("#===========HERE ARE THE DIFFERENCES==========#\
                                                #===========note: both models solved==========#")
                                 except:
@@ -221,21 +224,21 @@ class PyCGE:
                                    #===========note: both models unsolved==========#") 
                         
                      
-                        for n in self.sim.component_objects(Var, active=True):  
-                            newobject = getattr(self.sim, str(n))
-                            for o in self.base.component_objects(Var, active=True):
-                                oldobject = getattr(self.base, str(o))
-                                if str(n)==str(o):
-                                    print(newobject)
-                                    for newindex in newobject:
-                                        for oldindex in oldobject:
-                                            if newindex == oldindex:
-                                                diff = oldobject[oldindex].value - newobject[newindex].value
-                                                if newobject[newindex].value != 0:
+                        for n in self.sim.component_objects(Var, active=True):  #go through sim components
+                            newobject = getattr(self.sim, str(n)) #get sim object
+                            for o in self.base.component_objects(Var, active=True): #go through base components
+                                oldobject = getattr(self.base, str(o)) #get base object
+                                if str(n)==str(o): #if they are the same object (for example X == X)
+                                    print(newobject) # print it
+                                    for newindex in newobject: #go through sim indexes
+                                        for oldindex in oldobject: #go through base indexes
+                                            if newindex == oldindex: #if they are the same index (for example 'BRD' == 'BRD')
+                                                diff = oldobject[oldindex].value - newobject[newindex].value #calculate the difference between the two
+                                                if newobject[newindex].value != 0: #if the sim value does not equal 0 (to avoid division by 0)
                                                 
-                                                    per = (oldobject[oldindex].value / newobject[newindex].value) * 100
-                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)
-                                                else:
+                                                    per = (oldobject[oldindex].value / newobject[newindex].value) * 100 #caluculate percentage
+                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per) 
+                                                else: #if it DOES equal zero
                                                     print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )
                         
                         
@@ -250,19 +253,19 @@ class PyCGE:
 
 
     def model_postprocess(self, object_name = "" , verbose="", base=True):
-        if base == True:
+        if base == True: # if you want to post process things from the base
             try:
-                if (object_name==""):
+                if (object_name==""): #make sure user enters something
                     print("please specify what you would like to output")
                 
                 elif (object_name=="instance"):
-                    print_function(verbose, output=self.base.display, typename="instance")
+                    print_function(verbose, output=self.base.display, typename="instance") #call print funtion passing it the neccesary arguments
                 
                 elif (object_name=="results"):
-                    print_function(verbose, output=self.base_results.write, typename = "results")
+                    print_function(verbose, output=self.base_results.write, typename = "results")#call print funtion passing it the neccesary arguments
                 
                 elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
-                    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
+                    moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime()) #create moment
                     if(verbose==""):
                         print("Please enter where to export to")
                     else:
@@ -271,28 +274,28 @@ class PyCGE:
                             print(directory, "directory did not exist so one was created")
                             os.makedirs(directory)
                             
-                        check = os.path.abspath(os.path.join(directory, object_name))
+                        check = os.path.abspath(os.path.join(directory, object_name)) #creates a directory whether the user ends the path with a '/' or not
                 
                         if (object_name=="vars"):
-                            print("Vars saved to: \n")
-                            for v in self.base.component_objects(Var, active=True):
-                                with open(check + str(v) + "_"+  moment + '.csv', 'w') as var_output:
-                                    print(str(check + str(v) + "_"+  moment + '.csv'))
-                                    varobject = getattr(self.base, str(v))
-                                    var_output.write ('{},{} \n'.format('Names', varobject ))
-                                    for index in varobject:
-                                        var_output.write ('{},{} \n'.format(index, varobject[index].value))
+                            print("Vars saved to: \n") #let user know where they were saved to (pt. 1)
+                            for v in self.base.component_objects(Var, active=True): #go through components
+                                with open(check + str(v) + "_"+  moment + '.csv', 'w') as var_output: #create a file
+                                    print(str(check + str(v) + "_"+  moment + '.csv'))#let user know where they were saved to (pt. 2)
+                                    varobject = getattr(self.base, str(v)) #get attributes for variable
+                                    var_output.write ('{},{} \n'.format('Names', varobject )) #write the headers for the file
+                                    for index in varobject: #go through indexes
+                                        var_output.write ('{},{} \n'.format(index, varobject[index].value))#write index and value for each var
             
                     
                         if(object_name=="obj"): 
-                            with open(check + "obj_" + moment + ".csv", 'w') as obj_output:
+                            with open(check + "obj_" + moment + ".csv", 'w') as obj_output: #create file
                                 obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
-                            print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
+                            print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))#let the user know where it was saved
                 
                         if(object_name=="pickle"):             
-                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output:
-                                pickle.dump(self.base_results, pickle_output)
-                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))
+                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output: #create file
+                                pickle.dump(self.base_results, pickle_output) #save results as a pickle file
+                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))#let user know where it was saved
                     
                 
                 else:
@@ -301,7 +304,7 @@ class PyCGE:
             except AttributeError:
                 print('Please make sure what you are trying to output has been created (base, base_results,)')
                 
-        if base == False:
+        if base == False: # if you want to post process things from the sim (everything else is the same)
             try:
                 if (object_name==""):
                     print("please specify what you would like to output")
@@ -352,45 +355,59 @@ class PyCGE:
 
 
     
-    def model_load_results(self, pathname):
+    def model_load_results(self, pathname, base=True):
         
-        if not os.path.exists(pathname):
+        if not os.path.exists(pathname): #if the path does not exist
             print(pathname, " does not exist. Please enter a valid path to the file you would like to load")
         
-        else:
+        else: #if the path does exist
             
-            try:
-
-                with open(pathname, 'rb') as pkl_file:
-                    loadedResults = pickle.load(pkl_file)
-                    self.base.solutions.load_from(loadedResults)
-                    print("results from: ", pathname, " were loaded to BASE instance")
-            
-            except:
-                
+            try: #try to load a pickle file
+                with open(pathname, 'rb') as pkl_file: #open it                    
+                    if base==True: #if you want to load the results to the base instance
+                        try:
+                            self.base_results = pickle.load(pkl_file) #load it
+                            self.base.solutions.load_from(self.base_results) #load the results to the base instance
+                            print("results from: ", pathname, " were loaded to BASE instance") 
+                        except AttributeError: #if self.base doesnt exist yet
+                            print('must create base instance first.')
+                    else:
+                        try:
+                            self.sim_results = pickle.load(pkl_file)
+                            self.sim.solutions.load_from(self.sim_results) #load the results to the sim instance
+                            print("results from: ", pathname, " were loaded to SIM instance")
+                        except AttributeError: #if self.sim doesnt exist yet
+                            print('must create sim instance first.')                        
+                        
+            except: #it wasnt a pickle file
                 print("Unable to load file. Please make sure correct file is specified. Must be pickled.")
+                
+                
+
+            
+
     
-def print_function (verbose="", output = "", typename=""):
+def print_function (verbose="", output = "", typename=""): #this is called from the `model_postprocess` function
     
     if (verbose==""):
         print("Please specify how you would like to output")            
     elif (verbose=="print"):
-        print("\nThis is the " + typename + "\n")
-        output()
+        print("\nThis is the " + typename + "\n") #either instance or results
+        output() #either `self.base_results.write()` or `self.base.display()`
         print("Output printed")            
     else:            
-        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
-        directory = (verbose)
-        if not os.path.exists(directory):
+        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime()) #create moment
+        directory = (verbose) #not really useful other, but makes more sense later on
+        if not os.path.exists(directory): #if it doesnt exist
             print(verbose, "directory did not exist so one was created")
             os.makedirs(directory)
         
-        check = os.path.abspath(os.path.join(directory, typename))
+        check = os.path.abspath(os.path.join(directory, typename)) #makes sure directory ends in '/'
             
         with open(check + moment, 'w') as output_file:
-            output_file.write("\nThis is the " + typename + "\n" )
-            output(ostream=output_file)
-        print("Output saved to: " + str(check + moment))
+            output_file.write("\nThis is the " + typename + "\n" ) #write header for file
+            output(ostream=output_file) #write to file
+        print("Output saved to: " + str(check + moment)) #let the user know where it is saved
 
 def model_welfare(PyCGE):
     # Solve for Hicksian equivalent variations
