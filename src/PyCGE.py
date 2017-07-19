@@ -2,7 +2,8 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
-import pickle
+#import pickle
+import dill
 from pyomo.opt import SolverResults
 import time
 import os
@@ -264,7 +265,7 @@ class PyCGE:
                 elif (object_name=="results"):
                     print_function(verbose, output=self.base_results.write, typename = "results")#call print funtion passing it the neccesary arguments
                 
-                elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+                elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
                     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime()) #create moment
                     if(verbose==""):
                         print("Please enter where to export to")
@@ -292,10 +293,10 @@ class PyCGE:
                                 obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
                             print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))#let the user know where it was saved
                 
-                        if(object_name=="pickle"):             
-                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output: #create file
-                                pickle.dump(self.base_results, pickle_output) #save results as a pickle file
-                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))#let user know where it was saved
+                        if(object_name=="dill_instance"):             
+                            with open(check + '_base_' + moment, 'wb') as dill_output: #create file
+                                dill.dump(self.base, dill_output) #save results as a dill file
+                            print("Base instance saved to:  " + str(check + '_base_' + moment))#let user know where it was saved
                     
                 
                 else:
@@ -315,7 +316,7 @@ class PyCGE:
                 elif (object_name=="results"):
                     print_function(verbose, output=self.sim_results.write, typename = "results")
                 
-                elif (object_name=="vars") or (object_name=="obj") or (object_name=="pickle"):
+                elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
                     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
                     if(verbose==""):
                         print("Please enter where to export to")
@@ -343,10 +344,10 @@ class PyCGE:
                                 obj_output.write ('{},{}\n'.format("objective", value(self.sim.obj)))
                             print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
                 
-                        if(object_name=="pickle"):             
-                            with open(check + 'saved_results_' + moment, 'wb') as pickle_output:
-                                pickle.dump(self.sim_results, pickle_output)
-                            print("Pickled results object saved to:  " + str(check + 'saved_results_' + moment))
+                        if(object_name=="dill_instance"):             
+                            with open(check + 'sim_' + moment, 'wb') as dill_output:
+                                dill.dump(self.sim, dill_output)
+                            print("Sim instance saved to:  " + str(check + '_sim_' + moment))
                             
             except AttributeError:
                 print('Please make sure what you are trying to output has been created (sim, sim_results,)')
@@ -361,26 +362,19 @@ class PyCGE:
             print(pathname, " does not exist. Please enter a valid path to the file you would like to load")
         
         else: #if the path does exist
-            
-            try: #try to load a pickle file
-                with open(pathname, 'rb') as pkl_file: #open it                    
-                    if base==True: #if you want to load the results to the base instance
-                        try:
-                            self.base_results = pickle.load(pkl_file) #load it
-                            self.base.solutions.load_from(self.base_results) #load the results to the base instance
-                            print("results from: ", pathname, " were loaded to BASE instance") 
-                        except AttributeError: #if self.base doesnt exist yet
-                            print('must create base instance first.')
-                    else:
-                        try:
-                            self.sim_results = pickle.load(pkl_file)
-                            self.sim.solutions.load_from(self.sim_results) #load the results to the sim instance
-                            print("results from: ", pathname, " were loaded to SIM instance")
-                        except AttributeError: #if self.sim doesnt exist yet
-                            print('must create sim instance first.')                        
-                        
-            except: #it wasnt a pickle file
-                print("Unable to load file. Please make sure correct file is specified. Must be pickled.")
+        
+            with open(pathname, 'rb') as dill_file: #open it                    
+                if base==True: #if you want to load the results to the base instance
+                
+                    self.base = dill.load(dill_file) #load it
+                    print("base instance loaded") 
+
+                else:
+
+                    self.sim = dill.load(dill_file)
+                    print("sim instance loaded")
+                     
+
                 
                 
 
