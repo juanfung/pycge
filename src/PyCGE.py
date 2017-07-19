@@ -365,7 +365,7 @@ class PyCGE:
 
 
     
-    def model_load_results(self, pathname, base=True):
+    def model_load_instance(self, pathname, base=True):
         
         if not os.path.exists(pathname): #if the path does not exist
             print(pathname, " does not exist. Please enter a valid path to the file you would like to load")
