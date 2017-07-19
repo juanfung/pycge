@@ -2,7 +2,6 @@
 from pyomo.environ import *
 import pandas as pd
 import numpy as np
-#import pickle
 import dill
 from pyomo.opt import SolverResults
 import time
@@ -293,10 +292,15 @@ class PyCGE:
                                 obj_output.write ('{},{}\n'.format("objective", value(self.base.obj)))
                             print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))#let the user know where it was saved
                 
-                        if(object_name=="dill_instance"):             
-                            with open(check + '_base_' + moment, 'wb') as dill_output: #create file
-                                dill.dump(self.base, dill_output) #save results as a dill file
-                            print("Base instance saved to:  " + str(check + '_base_' + moment))#let user know where it was saved
+                        if(object_name=="dill_instance"):
+                            try:
+                                if self.base_results:
+                                    
+                                    with open(check + '_base_' + moment, 'wb') as dill_output: #create file
+                                        dill.dump(self.base, dill_output) #save results as a dill file
+                                    print("Base instance saved to:  " + str(check + '_base_' + moment))#let user know where it was saved
+                            except AttributeError:
+                                print('You must calibrate base instance first')
                     
                 
                 else:
@@ -344,10 +348,15 @@ class PyCGE:
                                 obj_output.write ('{},{}\n'.format("objective", value(self.sim.obj)))
                             print("Objective saved to: " + str(check + "obj_" + moment + ".csv"))
                 
-                        if(object_name=="dill_instance"):             
-                            with open(check + 'sim_' + moment, 'wb') as dill_output:
-                                dill.dump(self.sim, dill_output)
-                            print("Sim instance saved to:  " + str(check + '_sim_' + moment))
+                        if(object_name=="dill_instance"):
+                            try:
+                                if self.sim_results:
+                                    
+                                    with open(check + 'sim_' + moment, 'wb') as dill_output:
+                                        dill.dump(self.sim, dill_output)
+                                    print("Sim instance saved to:  " + str(check + '_sim_' + moment))
+                            except AttributeError:
+                                print('You must solve sim instance first')
                             
             except AttributeError:
                 print('Please make sure what you are trying to output has been created (sim, sim_results,)')
