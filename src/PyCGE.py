@@ -80,7 +80,8 @@ class PyCGE:
                                 try:
                                     varobject[INDEX].fixed = True #fix the index the user entered
                                     print("Note, ", NAME, INDEX, " is now fixed")
-                                    print("BASE instance created. Call `model_postprocess` to output or `model_calibrate` to solve.")
+                                    print("BASE instance created. (This can be modified by calling `model_modify_base`.)\
+                                          Call `model_postprocess` to output or `model_calibrate` to solve.")
                                 except:
                                     print("index", INDEX, "does not exist for", NAME)
                         if test == False: #NAME was never found
@@ -104,7 +105,7 @@ class PyCGE:
             
                         self.sim = copy.deepcopy(self.base) #create self.sim which is exactly the same as the self.base
                         
-                        print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_instance` to modify.")
+                        print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_sim` to modify.")
                         
                 except AttributeError:
                     print("You must calibrate first")
@@ -147,6 +148,43 @@ class PyCGE:
 
         except AttributeError: #if sim instance does not exist
             print("Must first create sim instance. Call `model_sim`.")
+            
+            
+            
+    def model_modify_base(self,NAME,INDEX,VALUE,fix=True):
+
+        try:
+            if self.base: #if the base instance has been created
+                try: #make sure the component they are trying to access exists
+                    _object = getattr(self.base, NAME) #get the attribute the user entered
+                    try:
+                        print(_object[INDEX], "was originally", _object[INDEX].value)
+                        _object[INDEX].value = VALUE #set the value to what the user entered
+                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                        
+                        for v in self.base.component_objects(Var, active=True): #go through variables
+                            if str(v)==NAME: #if the component they entered was a variable
+                                varobject = getattr(self.base, str(v)) #get the entered variable
+                                if fix == True:
+                                    varobject[INDEX].fixed = True #fix it (default)
+                                    print("Note, ", _object[INDEX], " is now fixed")
+                                if fix == False:
+                                    varobject[INDEX].fixed = False
+                                    print("Note, ", _object[INDEX], " is NOT fixed")
+    
+    
+                        print("BASE updated. Call `model_postprocess` to output or `model_solve` to solve.")
+                    except AttributeError: #if INDEX does not exist
+                        print(INDEX, "is not an index of", NAME)
+                    except Exception as e: #if something else went wrong 
+                        print(e)                    
+                except AttributeError:
+                    print(NAME, "does not exist in current instance")
+
+
+
+        except AttributeError: #if sim instance does not exist
+            print("Must first create base instance. Call `model_instance`.")
     
 
 
