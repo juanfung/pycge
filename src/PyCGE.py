@@ -80,8 +80,8 @@ class PyCGE:
                                 try:
                                     varobject[INDEX].fixed = True #fix the index the user entered
                                     print("Note, ", NAME, INDEX, " is now fixed")
-                                    print("BASE instance created. (This can be modified by calling `model_modify_base`.)\
-                                          Call `model_postprocess` to output or `model_calibrate` to solve.")
+                                    print("BASE instance created. (This can be modified by calling `model_modify_base`.) Call `model_postprocess` to output or `model_calibrate` to solve.")
+                                    self.base_calibrated = False
                                 except:
                                     print("index", INDEX, "does not exist for", NAME)
                         if test == False: #NAME was never found
@@ -98,16 +98,15 @@ class PyCGE:
         try:
             
             if self.base: #if the base instance has been created
-                
-                try:
-                
-                    if self.base_results: #if the base instance has been calibrated
-            
-                        self.sim = copy.deepcopy(self.base) #create self.sim which is exactly the same as the self.base
+
+                if self.base_calibrated==True: #if the base instance has been calibrated
+        
+                    self.sim = copy.deepcopy(self.base) #create self.sim which is exactly the same as the self.base
+                    self.sim_solved = False
+                    
+                    print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_sim` to modify.")
                         
-                        print("SIM instance created. Note, this is currently the same as BASE. Call `model_modify_sim` to modify.")
-                        
-                except AttributeError:
+                else:
                     print("You must calibrate first")
         
         except AttributeError:
@@ -124,6 +123,7 @@ class PyCGE:
                         print(_object[INDEX], "was originally", _object[INDEX].value)
                         _object[INDEX].value = VALUE #set the value to what the user entered
                         print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                        self.sim_solved = False
                         
                         for v in self.sim.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
@@ -162,6 +162,8 @@ class PyCGE:
                         _object[INDEX].value = VALUE #set the value to what the user entered
                         print(_object[INDEX], " is now set to ", _object[INDEX].value)
                         
+                        self.base_calibrated = False
+                        
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
                                 varobject = getattr(self.base, str(v)) #get the entered variable
@@ -193,23 +195,23 @@ class PyCGE:
         
         try:
             if self.base: #if base instance has already been created
-                try:
-                    if self.base_results: #if base has already been calibrated
-                        print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
-                except AttributeError: #if the base has NOT already been calibrated
-                        with SolverManagerFactory(mgr) as solver_mgr:
-                            self.base_results = solver_mgr.solve(self.base, opt=solver)
-                            self.base.solutions.store_to(self.base_results)
-                        
-                        print("Model solved. Call `model_postprocess` to output.")
+                if self.base_calibrated == True: #if base has already been calibrated
+                    print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
+                else:
+                    with SolverManagerFactory(mgr) as solver_mgr:
+                        self.base_results = solver_mgr.solve(self.base, opt=solver)
+                        self.base.solutions.store_to(self.base_results)
                     
-            
-                        if (self.base_results.solver.status == SolverStatus.ok) and (self.base_results.solver.termination_condition == TerminationCondition.optimal):
-                            print('Solution is optimal and feasible')
-                        elif (self.base_results.solver.termination_condition == TerminationCondition.infeasible):
-                            print("Model is infeasible")
-                        else:
-                            print ('WARNING. Solver Status: ', self.base_results.solver)  
+                    print("Model solved. Call `model_postprocess` to output.")
+                    self.base_calibrated = True
+                
+        
+                    if (self.base_results.solver.status == SolverStatus.ok) and (self.base_results.solver.termination_condition == TerminationCondition.optimal):
+                        print('Solution is optimal and feasible')
+                    elif (self.base_results.solver.termination_condition == TerminationCondition.infeasible):
+                        print("Model is infeasible")
+                    else:
+                        print ('WARNING. Solver Status: ', self.base_results.solver)  
         except AttributeError: #if the user has not created the base instance yet
             print('You must create the BASE instance before you can solve it. Call `model_instance` first.')
 
@@ -217,26 +219,30 @@ class PyCGE:
 
     def model_solve(self, mgr, solver):
 
-        try:
-            if self.base_results: #if the base has already been calibrated
-                try:
-                    if self.sim: #if the sim instance has already been created
+
+        if self.base_calibrated == True: #if the base has already been calibrated
+            try:
+                if self.sim: #if the sim instance has already been created
+                    if self.sim_solved == True:
+                        print("this sim has already been solved")
+                    else:
                         with SolverManagerFactory(mgr) as solver_mgr:
                             self.sim_results = solver_mgr.solve(self.sim, opt=solver)
                             self.sim.solutions.store_to(self.sim_results)
                         
                         print("Model solved. Call `model_postprocess` to output.")
-                    
-            
-                        if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
-                            print('Solution is optimal and feasible')
-                        elif (self.sim_results.solver.termination_condition == TerminationCondition.infeasible):
-                            print("Model is infeasible")
-                        else:
-                            print ('WARNING. Solver Status: ', self.sim_results.solver)
-                except AttributeError: #if sim instance has not been created
-                    print("You must create SIM instance before you can solve it. Call `model_sim` first.")
-        except AttributeError: #if base has not been calibrated
+                        self.sim_solved = True
+                
+        
+                    if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
+                        print('Solution is optimal and feasible')
+                    elif (self.sim_results.solver.termination_condition == TerminationCondition.infeasible):
+                        print("Model is infeasible")
+                    else:
+                        print ('WARNING. Solver Status: ', self.sim_results.solver)
+            except AttributeError: #if sim instance has not been created
+                print("You must create SIM instance before you can solve it. Call `model_sim` first.")
+        else: #if base has not been calibrated
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
