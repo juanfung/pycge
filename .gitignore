@@ -1,3 +1,4 @@
 results/
 docs/_build/
 data_directory/
+src/__pycache__/
