@@ -113,7 +113,7 @@ class PyCGE:
             print("You must create BASE instance first.")
         
     
-    def model_modify_instance(self,NAME,INDEX,VALUE,fix=True):
+    def model_modify_sim(self,NAME,INDEX,VALUE,fix=True):
 
         try:
             if self.sim: #if the sim instance has been created
@@ -124,7 +124,7 @@ class PyCGE:
                         _object[INDEX].value = VALUE #set the value to what the user entered
                         print(_object[INDEX], " is now set to ", _object[INDEX].value)
                         
-                        for v in self.sim.component_objects(Var, active=True): #go through variabled
+                        for v in self.sim.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
                                 varobject = getattr(self.sim, str(v)) #get the entered variable
                                 if fix == True:
