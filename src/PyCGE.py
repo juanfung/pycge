@@ -371,6 +371,13 @@ class PyCGE:
                 
                 elif (object_name=="results"):
                     print_function(verbose, output=self.sim_results.write, typename = "results")
+                    
+                elif (object_name=="params"):
+                    for p in self.sim.component_objects(Param, active=True):
+                        paramobject = getattr(self.sim, str(p))
+                        print('\n', paramobject,'--->', paramobject.doc)
+                        for index in paramobject:
+                            print(index, value(paramobject[index]))                    
                 
                 elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
                     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
