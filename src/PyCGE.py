@@ -313,7 +313,7 @@ class PyCGE:
                         paramobject = getattr(self.base, str(p))
                         print('\n', paramobject,'--->', paramobject.doc)
                         for index in paramobject:
-                            print(index, paramobject[index])
+                            print(index, value(paramobject[index]))
 
                 
                 elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
