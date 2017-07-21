@@ -23,7 +23,8 @@ class PyCGE:
 
 
         self.m = model_def.model()
-
+        self.dict_base = {}
+        self.dict_sim = {}
 
     # -----------------------------------------------------#
     #LOAD DATA
@@ -113,17 +114,28 @@ class PyCGE:
             print("You must create BASE instance first.")
         
     
-    def model_modify_sim(self,NAME,INDEX,VALUE,fix=True):
+    def model_modify_sim(self,NAME,INDEX,VALUE,fix=True, undo=False):
 
         try:
             if self.sim: #if the sim instance has been created
                 try: #make sure the component they are trying to access exists
                     _object = getattr(self.sim, NAME) #get the attribute the user entered
+                    dict_key = _object[INDEX].value
                     try:
-                        print(_object[INDEX], "was originally", _object[INDEX].value)
-                        _object[INDEX].value = VALUE #set the value to what the user entered
-                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                        self.sim_solved = False
+                        if undo==False:
+                                                       
+                            self.dict_sim[dict_key] = _object[INDEX].value                                            
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = VALUE #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_solved = False
+                            
+                        if undo==True:
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = self.dict_sim[dict_key] #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_solved = False
+                            
                         
                         for v in self.sim.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
@@ -149,20 +161,32 @@ class PyCGE:
         except AttributeError: #if sim instance does not exist
             print("Must first create sim instance. Call `model_sim`.")
             
+        print("\nRemember, you can pass in undo=True to restore to the following value:")
+        print (self.dict_sim)
             
             
-    def model_modify_base(self,NAME,INDEX,VALUE,fix=True):
+            
+    def model_modify_base(self,NAME,INDEX,VALUE,fix=True, undo=False):
 
         try:
             if self.base: #if the base instance has been created
                 try: #make sure the component they are trying to access exists
                     _object = getattr(self.base, NAME) #get the attribute the user entered
+                    dict_key = str(_object[INDEX])
                     try:
-                        print(_object[INDEX], "was originally", _object[INDEX].value)
-                        _object[INDEX].value = VALUE #set the value to what the user entered
-                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                        
-                        self.base_calibrated = False
+                        if undo==False:
+                             
+                            self.dict_base[dict_key] = _object[INDEX].value                                            
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = VALUE #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_solved = False
+                            
+                        if undo==True:
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = self.dict_base[dict_key] #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_solved = False
                         
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
@@ -187,8 +211,9 @@ class PyCGE:
 
         except AttributeError: #if sim instance does not exist
             print("Must first create base instance. Call `model_instance`.")
-    
-
+        
+        print("\nRemember, you can pass in undo=True to restore to the following value:")
+        print (self.dict_base)
 
     def model_calibrate(self, mgr, solver):
         
