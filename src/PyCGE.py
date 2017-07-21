@@ -246,7 +246,21 @@ class PyCGE:
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
-    def model_compare(self):                       
+    def model_compare(self, verbose = ''):
+        output = print
+        
+        if not verbose=='':
+            
+            directory = (verbose) #not really useful other, but makes more sense later on
+            if not os.path.exists(directory): #if it doesnt exist
+                print(verbose, "directory did not exist so one was created")
+                os.makedirs(directory)
+            
+            check = os.path.abspath(os.path.join(directory, 'compared')) #makes sure directory ends in '/'
+                
+            output_file = open(check, 'w')
+            
+            output = output_file.write                 
     
         try:
             if self.base: #if base instance has been created
@@ -257,15 +271,18 @@ class PyCGE:
                             if self.base_results: #if base has been solved
                                 try:
                                     if self.sim_results: #if sim has been solved
-                                        print("#===========HERE ARE THE DIFFERENCES==========#\
-                                               #===========note: both models solved==========#")
+                                        
+                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                        output("#===========note: both models solved==========#\n")
+                                        
+                                            
                                 except:
-                                        print("#===========HERE ARE THE DIFFERENCES==========#\
-                                               #===========note: base model solved===========#\
-                                               #===========      sim model unsolved==========#")
+                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                        output("#===========note: base model solved===========#\n")
+                                        output("#===========      sim model unsolved==========#\n")
                         except:
-                            print("#===========HERE ARE THE DIFFERENCES==========#\
-                                   #===========note: both models unsolved==========#") 
+                            output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                            output("#===========note: both models unsolved==========#\n") 
                         
                      
                         for n in self.sim.component_objects(Var, active=True):  #go through sim components
@@ -273,7 +290,7 @@ class PyCGE:
                             for o in self.base.component_objects(Var, active=True): #go through base components
                                 oldobject = getattr(self.base, str(o)) #get base object
                                 if str(n)==str(o): #if they are the same object (for example X == X)
-                                    print(newobject) # print it
+                                    output(str(newobject)) # print it
                                     for newindex in newobject: #go through sim indexes
                                         for oldindex in oldobject: #go through base indexes
                                             if newindex == oldindex: #if they are the same index (for example 'BRD' == 'BRD')
@@ -281,26 +298,36 @@ class PyCGE:
                                                 if newobject[newindex].value != 0: #if the sim value does not equal 0 (to avoid division by 0)
                                                 
                                                     per = (oldobject[oldindex].value / newobject[newindex].value) * 100 #caluculate percentage
-                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per) 
+                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)) 
                                                 else: #if it DOES equal zero
-                                                    print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )
+                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" ))
                         
                         
-                        print("\nCalibrated Value of obj = ", value(self.base.obj))
-                        print("\nSimulated Value of obj = ", value(self.sim.obj))
-                        print("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj))   
+                        output('{},{}\n'.format("\nCalibrated Value of obj = ", value(self.base.obj)))
+                        output('{},{}\n'.format("\nSimulated Value of obj = ", value(self.sim.obj)))
+                        output('{},{}\n'.format("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj)))   
 
                 except AttributeError:
                     print("You have not created a SIM instance")
         except AttributeError:
             print("You have not created a BASE instance")
+        if not verbose=='':
+            output_file.close()
 
 
     def model_postprocess(self, object_name = "" , verbose="", base=True):
+        
+        #this doesnt matter if `base` is True or False
+        if (object_name=="compare"):
+            self.model_compare(verbose = verbose)
+        
         if base == True: # if you want to post process things from the base
             try:
                 if (object_name==""): #make sure user enters something
                     print("please specify what you would like to output")
+                    
+                elif object_name=='compare': #Still need to have this for the error handling (i.e. "please enter a valid object_name")
+                    pass #but we've already taken care of it above
                 
                 elif (object_name=="instance"):
                     print_function(verbose, output=self.base.display, typename="instance") #call print funtion passing it the neccesary arguments
@@ -365,7 +392,10 @@ class PyCGE:
             try:
                 if (object_name==""):
                     print("please specify what you would like to output")
-                
+                    
+                elif object_name=='compare': #Still need to have this for the error handling (i.e. "please enter a valid object_name")
+                    pass #but we've already taken care of it above   
+                    
                 elif (object_name=="instance"):
                     print_function(verbose, output=self.sim.display, typename="instance")
                 
@@ -416,7 +446,10 @@ class PyCGE:
                                     print("Sim instance saved to:  " + str(check + '_sim_' + moment))
                             except AttributeError:
                                 print('You must solve sim instance first')
-                            
+                                
+                else:
+                    print("Please enter a valid object_name" )     
+                       
             except AttributeError:
                 print('Please make sure what you are trying to output has been created (sim, sim_results,)')
                     
