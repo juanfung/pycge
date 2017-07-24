@@ -120,7 +120,7 @@ class PyCGE:
             if self.sim: #if the sim instance has been created
                 try: #make sure the component they are trying to access exists
                     _object = getattr(self.sim, NAME) #get the attribute the user entered
-                    dict_key = _object[INDEX].value
+                    dict_key = str(_object[INDEX])
                     try:
                         if undo==False:
                                                        
