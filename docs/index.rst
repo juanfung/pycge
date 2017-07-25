@@ -183,16 +183,16 @@ To export anything::
     - ``object_name="obj"``
         - ``verbose="directory/name/"`` to export obj in a file
 
-- To output pickled results object (can later be used to load back into an instance)
-    - ``object_name="pickle"``
-        - ``verbose="directory/name/"`` to export pickled results object in a file
+- To output dilled instance object (can later be loaded)
+    - ``object_name="dill_instance"``
+        - ``verbose="directory/name/"`` to export dilled instance object in a file
         
 Updating
 ---------------
 
-To load a results object back into an instance::
+To load an instance object(with results attached) back in as ``base`` instance (set base=False to load as ``sim`` instance)::
 
-    test_cge.model_load_results(pathname = pathname/of/file/to/load)
+    test_cge.model_load_instance(pathname = pathname/of/file/to/load, base=True)
 
 Two or More Simulations
 -------------------------
