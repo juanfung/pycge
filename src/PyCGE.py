@@ -23,7 +23,8 @@ class PyCGE:
 
 
         self.m = model_def.model()
-
+        self.dict_base = {}
+        self.dict_sim = {}
 
     # -----------------------------------------------------#
     #LOAD DATA
@@ -113,17 +114,28 @@ class PyCGE:
             print("You must create BASE instance first.")
         
     
-    def model_modify_sim(self,NAME,INDEX,VALUE,fix=True):
+    def model_modify_sim(self,NAME,INDEX,VALUE,fix=True, undo=False):
 
         try:
             if self.sim: #if the sim instance has been created
                 try: #make sure the component they are trying to access exists
                     _object = getattr(self.sim, NAME) #get the attribute the user entered
+                    dict_key = str(_object[INDEX])
                     try:
-                        print(_object[INDEX], "was originally", _object[INDEX].value)
-                        _object[INDEX].value = VALUE #set the value to what the user entered
-                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                        self.sim_solved = False
+                        if undo==False:
+                                                       
+                            self.dict_sim[dict_key] = _object[INDEX].value                                            
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = VALUE #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.sim_solved = False
+                            
+                        if undo==True:
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = self.dict_sim[dict_key] #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.sim_solved = False
+                            
                         
                         for v in self.sim.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
@@ -149,20 +161,32 @@ class PyCGE:
         except AttributeError: #if sim instance does not exist
             print("Must first create sim instance. Call `model_sim`.")
             
+        print("\nRemember, you can pass in undo=True to restore to the following value:")
+        print (self.dict_sim)
             
             
-    def model_modify_base(self,NAME,INDEX,VALUE,fix=True):
+            
+    def model_modify_base(self,NAME,INDEX,VALUE,fix=True, undo=False):
 
         try:
             if self.base: #if the base instance has been created
                 try: #make sure the component they are trying to access exists
                     _object = getattr(self.base, NAME) #get the attribute the user entered
+                    dict_key = str(_object[INDEX])
                     try:
-                        print(_object[INDEX], "was originally", _object[INDEX].value)
-                        _object[INDEX].value = VALUE #set the value to what the user entered
-                        print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                        
-                        self.base_calibrated = False
+                        if undo==False:
+                             
+                            self.dict_base[dict_key] = _object[INDEX].value                                            
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = VALUE #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_calibrated = False
+                            
+                        if undo==True:
+                            print(_object[INDEX], "was originally", _object[INDEX].value)
+                            _object[INDEX].value = self.dict_base[dict_key] #set the value to what the user entered
+                            print(_object[INDEX], " is now set to ", _object[INDEX].value)
+                            self.base_calibrated = False
                         
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
@@ -187,10 +211,11 @@ class PyCGE:
 
         except AttributeError: #if sim instance does not exist
             print("Must first create base instance. Call `model_instance`.")
-    
+        
+        print("\nRemember, you can pass in undo=True to restore to the following value:")
+        print (self.dict_base)
 
-
-    def model_calibrate(self, mgr, solver):
+    def model_calibrate(self, solver, mgr=''):
         
         
         try:
@@ -198,11 +223,18 @@ class PyCGE:
                 if self.base_calibrated == True: #if base has already been calibrated
                     print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
                 else:
-                    with SolverManagerFactory(mgr) as solver_mgr:
-                        self.base_results = solver_mgr.solve(self.base, opt=solver)
+                    if mgr=='':
+                        print('local solver', solver, 'used')
+                        local_solver = SolverFactory(solver)
+                        self.base_results = local_solver.solve(self.base)
                         self.base.solutions.store_to(self.base_results)
+                    else:
+                        print('solver', solver, 'used through', mgr)
+                        with SolverManagerFactory(mgr) as solver_mgr:
+                            self.base_results = solver_mgr.solve(self.base, opt=solver)
+                            self.base.solutions.store_to(self.base_results)
                     
-                    print("Model solved. Call `model_postprocess` to output.")
+                    print("Base model solved. Call `model_postprocess` to output.")
                     self.base_calibrated = True
                 
         
@@ -217,7 +249,7 @@ class PyCGE:
 
 
 
-    def model_solve(self, mgr, solver):
+    def model_solve(self, solver, mgr=''):
 
 
         if self.base_calibrated == True: #if the base has already been calibrated
@@ -226,11 +258,18 @@ class PyCGE:
                     if self.sim_solved == True:
                         print("this sim has already been solved")
                     else:
-                        with SolverManagerFactory(mgr) as solver_mgr:
-                            self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                        if mgr=='':
+                            print('local solver', solver, 'used')
+                            local_solver = SolverFactory(solver)
+                            self.sim_results = local_solver.solve(self.sim)
                             self.sim.solutions.store_to(self.sim_results)
+                        else:
+                            print('solver', solver, 'used through', mgr)
+                            with SolverManagerFactory(mgr) as solver_mgr:
+                                self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                                self.sim.solutions.store_to(self.sim_results)
                         
-                        print("Model solved. Call `model_postprocess` to output.")
+                        print("Sim model solved. Call `model_postprocess` to output.")
                         self.sim_solved = True
                 
         
@@ -246,7 +285,25 @@ class PyCGE:
             print("You must first calibrate the model. Call `model_calibrate`.")
 
 
-    def model_compare(self):                       
+    def model_compare(self, verbose = ''):
+        if verbose == '':
+            print('please specify how you would like to output')
+            
+        elif verbose == 'print':            
+            output = print
+        
+        else:
+            
+            directory = (verbose) #not really useful other, but makes more sense later on
+            if not os.path.exists(directory): #if it doesnt exist
+                print(verbose, "directory did not exist so one was created")
+                os.makedirs(directory)
+            
+            check = os.path.abspath(os.path.join(directory, 'compared')) #makes sure directory ends in '/'
+                
+            output_file = open(check, 'w')
+            
+            output = output_file.write                 
     
         try:
             if self.base: #if base instance has been created
@@ -257,15 +314,18 @@ class PyCGE:
                             if self.base_results: #if base has been solved
                                 try:
                                     if self.sim_results: #if sim has been solved
-                                        print("#===========HERE ARE THE DIFFERENCES==========#\
-                                               #===========note: both models solved==========#")
+                                        
+                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                        output("#===========note: both models solved==========#\n")
+                                        
+                                            
                                 except:
-                                        print("#===========HERE ARE THE DIFFERENCES==========#\
-                                               #===========note: base model solved===========#\
-                                               #===========      sim model unsolved==========#")
+                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                        output("#===========note: base model solved===========#\n")
+                                        output("#===========      sim model unsolved==========#\n")
                         except:
-                            print("#===========HERE ARE THE DIFFERENCES==========#\
-                                   #===========note: both models unsolved==========#") 
+                            output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                            output("#===========note: both models unsolved==========#\n") 
                         
                      
                         for n in self.sim.component_objects(Var, active=True):  #go through sim components
@@ -273,7 +333,7 @@ class PyCGE:
                             for o in self.base.component_objects(Var, active=True): #go through base components
                                 oldobject = getattr(self.base, str(o)) #get base object
                                 if str(n)==str(o): #if they are the same object (for example X == X)
-                                    print(newobject) # print it
+                                    output(str(newobject)) # print it
                                     for newindex in newobject: #go through sim indexes
                                         for oldindex in oldobject: #go through base indexes
                                             if newindex == oldindex: #if they are the same index (for example 'BRD' == 'BRD')
@@ -281,32 +341,50 @@ class PyCGE:
                                                 if newobject[newindex].value != 0: #if the sim value does not equal 0 (to avoid division by 0)
                                                 
                                                     per = (oldobject[oldindex].value / newobject[newindex].value) * 100 #caluculate percentage
-                                                    print(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per) 
+                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)) 
                                                 else: #if it DOES equal zero
-                                                    print(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" )
+                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" ))
                         
                         
-                        print("\nCalibrated Value of obj = ", value(self.base.obj))
-                        print("\nSimulated Value of obj = ", value(self.sim.obj))
-                        print("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj))   
+                        output('{},{}\n'.format("\nCalibrated Value of obj = ", value(self.base.obj)))
+                        output('{},{}\n'.format("\nSimulated Value of obj = ", value(self.sim.obj)))
+                        output('{},{}\n'.format("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj)))   
 
                 except AttributeError:
                     print("You have not created a SIM instance")
         except AttributeError:
             print("You have not created a BASE instance")
+        if output_file:
+            output_file.close()
 
 
     def model_postprocess(self, object_name = "" , verbose="", base=True):
+        
+        #this doesnt matter if `base` is True or False
+        if (object_name=="compare"):
+            self.model_compare(verbose = verbose)
+        
         if base == True: # if you want to post process things from the base
             try:
                 if (object_name==""): #make sure user enters something
                     print("please specify what you would like to output")
+                    
+                elif object_name=='compare': #Still need to have this for the error handling (i.e. "please enter a valid object_name")
+                    pass #but we've already taken care of it above
                 
                 elif (object_name=="instance"):
                     print_function(verbose, output=self.base.display, typename="instance") #call print funtion passing it the neccesary arguments
                 
                 elif (object_name=="results"):
                     print_function(verbose, output=self.base_results.write, typename = "results")#call print funtion passing it the neccesary arguments
+                
+                elif (object_name=="params"):
+                    for p in self.base.component_objects(Param, active=True):
+                        paramobject = getattr(self.base, str(p))
+                        print('\n', paramobject,'--->', paramobject.doc)
+                        for index in paramobject:
+                            print(index, value(paramobject[index]))
+
                 
                 elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
                     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime()) #create moment
@@ -357,12 +435,22 @@ class PyCGE:
             try:
                 if (object_name==""):
                     print("please specify what you would like to output")
-                
+                    
+                elif object_name=='compare': #Still need to have this for the error handling (i.e. "please enter a valid object_name")
+                    pass #but we've already taken care of it above   
+                    
                 elif (object_name=="instance"):
                     print_function(verbose, output=self.sim.display, typename="instance")
                 
                 elif (object_name=="results"):
                     print_function(verbose, output=self.sim_results.write, typename = "results")
+                    
+                elif (object_name=="params"):
+                    for p in self.sim.component_objects(Param, active=True):
+                        paramobject = getattr(self.sim, str(p))
+                        print('\n', paramobject,'--->', paramobject.doc)
+                        for index in paramobject:
+                            print(index, value(paramobject[index]))                    
                 
                 elif (object_name=="vars") or (object_name=="obj") or (object_name=="dill_instance"):
                     moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
@@ -401,7 +489,10 @@ class PyCGE:
                                     print("Sim instance saved to:  " + str(check + '_sim_' + moment))
                             except AttributeError:
                                 print('You must solve sim instance first')
-                            
+                                
+                else:
+                    print("Please enter a valid object_name" )     
+                       
             except AttributeError:
                 print('Please make sure what you are trying to output has been created (sim, sim_results,)')
                     
