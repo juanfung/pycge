@@ -215,7 +215,7 @@ class PyCGE:
         print("\nRemember, you can pass in undo=True to restore to the following value:")
         print (self.dict_base)
 
-    def model_calibrate(self, mgr, solver):
+    def model_calibrate(self, solver, mgr=''):
         
         
         try:
@@ -223,11 +223,18 @@ class PyCGE:
                 if self.base_calibrated == True: #if base has already been calibrated
                     print('Model already calibrated. If a SIM has been created, call `model_solve` to solve it.')
                 else:
-                    with SolverManagerFactory(mgr) as solver_mgr:
-                        self.base_results = solver_mgr.solve(self.base, opt=solver)
+                    if mgr=='':
+                        print('local solver', solver, 'used')
+                        local_solver = SolverFactory(solver)
+                        self.base_results = local_solver.solve(self.base)
                         self.base.solutions.store_to(self.base_results)
+                    else:
+                        print('solver', solver, 'used through', mgr)
+                        with SolverManagerFactory(mgr) as solver_mgr:
+                            self.base_results = solver_mgr.solve(self.base, opt=solver)
+                            self.base.solutions.store_to(self.base_results)
                     
-                    print("Model solved. Call `model_postprocess` to output.")
+                    print("Base model solved. Call `model_postprocess` to output.")
                     self.base_calibrated = True
                 
         
@@ -242,7 +249,7 @@ class PyCGE:
 
 
 
-    def model_solve(self, mgr, solver):
+    def model_solve(self, solver, mgr=''):
 
 
         if self.base_calibrated == True: #if the base has already been calibrated
@@ -251,12 +258,19 @@ class PyCGE:
                     if self.sim_solved == True:
                         print("this sim has already been solved")
                     else:
-                        with SolverManagerFactory(mgr) as solver_mgr:
-                            self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                        if mgr=='':
+                            print('local solver', solver, 'used')
+                            local_solver = SolverFactory(solver)
+                            self.sim_results = local_solver.solve(self.sim)
                             self.sim.solutions.store_to(self.sim_results)
+                        else:
+                            print('solver', solver, 'used through', mgr)
+                            with SolverManagerFactory(mgr) as solver_mgr:
+                                self.sim_results = solver_mgr.solve(self.sim, opt=solver)
+                                self.sim.solutions.store_to(self.sim_results)
                         
-                        print("Model solved. Call `model_postprocess` to output.")
-                        self.sim_solved = True
+                        print("Sim model solved. Call `model_postprocess` to output.")
+                        self.sim_calibrated = True
                 
         
                     if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
