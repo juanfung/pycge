@@ -60,16 +60,16 @@ A quick summary of a standard workflow::
      # create base instance
      testcge.model_instance()
      # calibrate base instance
-     testcge.model_calibrate(mgr, solver) 
+     testcge.model_calibrate(solver, mgr='') 
      # create sim instance to modify
      testcge.model_sim() 
      # modify sim instance
      testcge.model_modify_instance(...) # modify some value
      testcge.model_modify_instnace(...) # modify another value
      # solve sim instance
-     testcge.model_solve(mgr, solver) 
+     testcge.model_solve(solver, mgr=') 
      # compare base and sim equilibria
-     testcge.model_compare(base, sim)
+     testcge.model_compare()
 
 Read on for more details.
 
@@ -99,9 +99,12 @@ Calibrate the Base Model
 The initial call to ``model_instance()`` creates a ``base`` model.
 To calibrate the ``base`` model::
 
-     test_cge.model_calibrate()
+     test_cge.model_calibrate(solver, mgr='')
 
-This call solves the ``base`` model. A successful calibration should return
+This call solves the ``base`` model. Where ``solver`` is the solver the user would like to use (ex. "minos") 
+and ``mgr`` is the server the user would like to use (ex. "neos").
+
+A successful calibration should return
 equilibrium values equal to the initial values.
 
 If calibration fails, check your data and your model definition.
@@ -150,18 +153,20 @@ To "undo" a modification simply pass in ``undo=True``::
 
 	test_cge.model_modify_instance(NAME,INDEX,None, fix= True, undo=True)
 
-Note that this will simply return it to the previous value. Hence, it is reccomended that the user always undoes a modification before making another to keep the "original" value saved
+Note that this will simply return it to the previous value. Hence, it is reccomended that the user always 
+undoes a modification before making another to keep the "original" value saved
 
 To solve the ``sim`` instance, e.g., 
 using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
-    test_cge.model_solve("neos", "minos")
+    test_cge.model_solve("minos", "neos")
 
 **Remark**: Other nonlinear solvers available on NEOS include
 - ``"conopt" 
 - "ipopt" 
 - "knitro"``
 
+Note: the default for solving a ``base`` or ``sim`` instance is to use a local solver (i.e. mgr='').
 
 Viewing an Instance or Results
 ------------------------------
