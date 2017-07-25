@@ -152,40 +152,41 @@ using the Minos solver on `NEOS <neos-server.org/neos>`_::
 - "ipopt" 
 - "knitro"``
 
-To perform comparative statics::
-
-     test_cge.model_compare(base, sim)
-
-This returns the *difference* in equilibrium values between ``base`` and ``sim``.
 
 Viewing an Instance or Results
 ------------------------------
 
 To export anything::
     
-    test_cge.model_postprocess(object_name="", verbose="")
+    	test_cge.model_postprocess(object_name="", verbose="", base=True)
+	(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
 
 - To output display of instance
-    - ``object_name="instance"``
-        - ``verbose="print"`` to print instance display
-        - ``verbose="directory/name/"`` to export instance display in a file
+	- ``object_name="instance"``
+        	- ``verbose="print"`` to print instance display
+        	- ``verbose="directory/name/"`` to export instance display in a file
         
 - To output display of results
-    - ``object_name="results"``
-        - ``verbose="print"`` to print results display
-        - ``verbose="directory/name/"`` to export results display in a file
+	- ``object_name="results"``
+        	- ``verbose="print"`` to print results display
+        	- ``verbose="directory/name/"`` to export results display in a file
 
 - To output variables as a .csv file
-    - ``object_name="vars"``
-        - ``verbose="directory/name/"`` to export each variable in a file
+	- ``object_name="vars"``
+        	- ``verbose="directory/name/"`` to export each variable in a file
 
 - To output objective as a .csv file
-    - ``object_name="obj"``
-        - ``verbose="directory/name/"`` to export obj in a file
+	- ``object_name="obj"``
+        	- ``verbose="directory/name/"`` to export obj in a file
 
 - To output dilled instance object (can later be loaded)
-    - ``object_name="dill_instance"``
-        - ``verbose="directory/name/"`` to export dilled instance object in a file
+	- ``object_name="dill_instance"``
+        	- ``verbose="directory/name/"`` to export dilled instance object in a file
+
+- To output comparative statics (this shows *difference* and *percentage chnaged* in equilibrium values between ``base`` and ``sim``)::
+	- ``object_name="compare"
+		-``verbose="print"`` to print the comparision
+        	- ``verbose="directory/name/"`` to export the comparision in a file (The user should name this file specific to what the comparision is)
         
 Updating
 ---------------
