@@ -128,13 +128,13 @@ class PyCGE:
                             print(_object[INDEX], "was originally", _object[INDEX].value)
                             _object[INDEX].value = VALUE #set the value to what the user entered
                             print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                            self.base_solved = False
+                            self.sim_solved = False
                             
                         if undo==True:
                             print(_object[INDEX], "was originally", _object[INDEX].value)
                             _object[INDEX].value = self.dict_sim[dict_key] #set the value to what the user entered
                             print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                            self.base_solved = False
+                            self.sim_solved = False
                             
                         
                         for v in self.sim.component_objects(Var, active=True): #go through variables
@@ -270,7 +270,7 @@ class PyCGE:
                                 self.sim.solutions.store_to(self.sim_results)
                         
                         print("Sim model solved. Call `model_postprocess` to output.")
-                        self.sim_calibrated = True
+                        self.sim_solved = True
                 
         
                     if (self.sim_results.solver.status == SolverStatus.ok) and (self.sim_results.solver.termination_condition == TerminationCondition.optimal):
