@@ -354,7 +354,7 @@ class PyCGE:
                     print("You have not created a SIM instance")
         except AttributeError:
             print("You have not created a BASE instance")
-        if not verbose=='':
+        if output_file:
             output_file.close()
 
 
