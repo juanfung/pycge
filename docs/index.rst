@@ -124,7 +124,7 @@ instance (changing a parameter value or fixing a variable).
 
 To modify an instance::
 
-    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
+    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True, undo=False)
 
 where 
 - ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
@@ -145,6 +145,12 @@ For example::
 While modifying a scalar paramter, simply pass in ``None`` as the ``INDEX``
 For examples::
 	test_cge.model_modify_instance('F0',None,0)
+
+To "undo" a modification simply pass in ``undo=True``::
+
+	test_cge.model_modify_instance(NAME,INDEX,None,undo=True)
+
+Note that this will simply return it to the previous value. Hence, it is reccomended that the user always undoes a modification before making another to keep the "original" value saved
 
 To solve the ``sim`` instance, e.g., 
 using the Minos solver on `NEOS <neos-server.org/neos>`_::
