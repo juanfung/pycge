@@ -184,9 +184,13 @@ To export anything::
         	- ``verbose="directory/name/"`` to export dilled instance object in a file
 
 - To output comparative statics (this shows *difference* and *percentage chnaged* in equilibrium values between ``base`` and ``sim``)::
-	- ``object_name="compare"
+	- ``object_name="compare"``
 		-``verbose="print"`` to print the comparision
         	- ``verbose="directory/name/"`` to export the comparision in a file (The user should name this file specific to what the comparision is)
+
+- To output parameters (Note: this shows parameter name, value, and doc)
+	- ``object_name="params``
+		-``verbose=''``(This is the default)
         
 Updating
 ---------------
