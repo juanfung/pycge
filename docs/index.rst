@@ -60,16 +60,16 @@ A quick summary of a standard workflow::
      # create base instance
      testcge.model_instance()
      # calibrate base instance
-     testcge.model_calibrate(mgr, solver) 
+     testcge.model_calibrate(solver, mgr='') 
      # create sim instance to modify
      testcge.model_sim() 
      # modify sim instance
      testcge.model_modify_instance(...) # modify some value
      testcge.model_modify_instnace(...) # modify another value
      # solve sim instance
-     testcge.model_solve(mgr, solver) 
+     testcge.model_solve(solver, mgr=') 
      # compare base and sim equilibria
-     testcge.model_compare(base, sim)
+     testcge.model_compare()
 
 Read on for more details.
 
@@ -99,9 +99,12 @@ Calibrate the Base Model
 The initial call to ``model_instance()`` creates a ``base`` model.
 To calibrate the ``base`` model::
 
-     test_cge.model_calibrate()
+     test_cge.model_calibrate(solver, mgr='')
 
-This call solves the ``base`` model. A successful calibration should return
+This call solves the ``base`` model. Where ``solver`` is the solver the user would like to use (ex. "minos") 
+and ``mgr`` is the server the user would like to use (ex. "neos").
+
+A successful calibration should return
 equilibrium values equal to the initial values.
 
 If calibration fails, check your data and your model definition.
@@ -124,7 +127,7 @@ instance (changing a parameter value or fixing a variable).
 
 To modify an instance::
 
-    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True)
+    test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True, undo=False)
 
 where 
 - ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
@@ -142,57 +145,74 @@ Also note that in order to modify a two-dimensional parameter, it must be surrou
 For example::
     test_cge.model_modify_instance('F0',('CAP','BRD'),0)
 
+While modifying a scalar paramter, simply pass in ``None`` as the ``INDEX``
+For examples::
+	test_cge.model_modify_instance('F0',None,0)
+
+To "undo" a modification simply pass in ``undo=True``::
+
+	test_cge.model_modify_instance(NAME,INDEX,None, fix= True, undo=True)
+
+Note that this will simply return it to the previous value. Hence, it is reccomended that the user always 
+undoes a modification before making another to keep the "original" value saved
+
 To solve the ``sim`` instance, e.g., 
 using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
-    test_cge.model_solve("neos", "minos")
+    test_cge.model_solve("minos", "neos")
 
 **Remark**: Other nonlinear solvers available on NEOS include
 - ``"conopt" 
 - "ipopt" 
 - "knitro"``
 
-To perform comparative statics::
-
-     test_cge.model_compare(base, sim)
-
-This returns the *difference* in equilibrium values between ``base`` and ``sim``.
+Note: the default for solving a ``base`` or ``sim`` instance is to use a local solver (i.e. mgr='').
 
 Viewing an Instance or Results
 ------------------------------
 
 To export anything::
     
-    test_cge.model_postprocess(object_name="", verbose="")
+    	test_cge.model_postprocess(object_name="", verbose="", base=True)
+	(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
 
 - To output display of instance
-    - ``object_name="instance"``
-        - ``verbose="print"`` to print instance display
-        - ``verbose="directory/name/"`` to export instance display in a file
+	- ``object_name="instance"``
+        	- ``verbose="print"`` to print instance display
+        	- ``verbose="directory/name/"`` to export instance display in a file
         
 - To output display of results
-    - ``object_name="results"``
-        - ``verbose="print"`` to print results display
-        - ``verbose="directory/name/"`` to export results display in a file
+	- ``object_name="results"``
+        	- ``verbose="print"`` to print results display
+        	- ``verbose="directory/name/"`` to export results display in a file
 
 - To output variables as a .csv file
-    - ``object_name="vars"``
-        - ``verbose="directory/name/"`` to export each variable in a file
+	- ``object_name="vars"``
+        	- ``verbose="directory/name/"`` to export each variable in a file
 
 - To output objective as a .csv file
-    - ``object_name="obj"``
-        - ``verbose="directory/name/"`` to export obj in a file
+	- ``object_name="obj"``
+        	- ``verbose="directory/name/"`` to export obj in a file
 
-- To output pickled results object (can later be used to load back into an instance)
-    - ``object_name="pickle"``
-        - ``verbose="directory/name/"`` to export pickled results object in a file
+- To output dilled instance object (can later be loaded)
+	- ``object_name="dill_instance"``
+        	- ``verbose="directory/name/"`` to export dilled instance object in a file
+
+- To output comparative statics (this shows *difference* and *percentage chnaged* in equilibrium values between ``base`` and ``sim``)::
+	- ``object_name="compare"``
+		-``verbose="print"`` to print the comparision
+        	- ``verbose="directory/name/"`` to export the comparision in a file (The user should name this file specific to what the comparision is)
+
+- To output parameters (Note: this shows parameter name, value, and doc)
+	- ``object_name="params``
+		-``verbose=''``(This is the default)
         
 Updating
 ---------------
 
-To load a results object back into an instance::
+To load an instance object(with results attached) back in as ``base`` instance (set base=False to load as ``sim`` instance)::
 
-    test_cge.model_load_results(pathname = pathname/of/file/to/load)
+    test_cge.model_load_instance(pathname = pathname/of/file/to/load, base=True)
 
 Two or More Simulations
 -------------------------
