@@ -148,7 +148,7 @@ For examples::
 
 To "undo" a modification simply pass in ``undo=True``::
 
-	test_cge.model_modify_instance(NAME,INDEX,None,undo=True)
+	test_cge.model_modify_instance(NAME,INDEX,None, fix= True, undo=True)
 
 Note that this will simply return it to the previous value. Hence, it is reccomended that the user always undoes a modification before making another to keep the "original" value saved
 
