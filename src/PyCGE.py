@@ -286,9 +286,13 @@ class PyCGE:
 
 
     def model_compare(self, verbose = ''):
-        output = print
+        if verbose == '':
+            print('please specify how you would like to output')
+            
+        elif verbose == 'print':            
+            output = print
         
-        if not verbose=='':
+        else:
             
             directory = (verbose) #not really useful other, but makes more sense later on
             if not os.path.exists(directory): #if it doesnt exist
