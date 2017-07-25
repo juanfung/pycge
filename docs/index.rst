@@ -142,6 +142,10 @@ Also note that in order to modify a two-dimensional parameter, it must be surrou
 For example::
     test_cge.model_modify_instance('F0',('CAP','BRD'),0)
 
+While modifying a scalar paramter, simply pass in ``None`` as the ``INDEX``
+For examples::
+	test_cge.model_modify_instance('F0',None,0)
+
 To solve the ``sim`` instance, e.g., 
 using the Minos solver on `NEOS <neos-server.org/neos>`_::
 
