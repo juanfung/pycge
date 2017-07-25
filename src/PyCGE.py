@@ -180,13 +180,13 @@ class PyCGE:
                             print(_object[INDEX], "was originally", _object[INDEX].value)
                             _object[INDEX].value = VALUE #set the value to what the user entered
                             print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                            self.base_solved = False
+                            self.base_calibrated = False
                             
                         if undo==True:
                             print(_object[INDEX], "was originally", _object[INDEX].value)
                             _object[INDEX].value = self.dict_base[dict_key] #set the value to what the user entered
                             print(_object[INDEX], " is now set to ", _object[INDEX].value)
-                            self.base_solved = False
+                            self.base_calibrated = False
                         
                         for v in self.base.component_objects(Var, active=True): #go through variables
                             if str(v)==NAME: #if the component they entered was a variable
