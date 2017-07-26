@@ -134,7 +134,8 @@ To modify an instance::
 
     test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True, undo=False)
 
-where 
+where: 
+
 - ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
 - ``INDEX`` is a string (the index where the modification will be made) 
 - ``VALUE`` is numeric (the modification)
@@ -150,7 +151,7 @@ Also note that in order to modify a two-dimensional parameter, it must be surrou
 For example::
     test_cge.model_modify_instance('F0',('CAP','BRD'),0)
 
-While modifying a scalar paramter, simply pass in ``None`` as the ``INDEX``
+While modifying a scalar parameter, simply pass in ``None`` as the ``INDEX``
 For examples::
 	test_cge.model_modify_instance('F0',None,0)
 
@@ -179,7 +180,8 @@ Viewing an Instance or Results
 To export anything::
     
     	test_cge.model_postprocess(object_name="", verbose="", base=True)
-	(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
+    	
+(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
 
 - To output display of instance
 	- ``object_name="instance"``
@@ -210,7 +212,7 @@ To export anything::
 
 - To output parameters (Note: this shows parameter name, value, and doc)
 	- ``object_name="params``
-		-``verbose=''``(This is the default)
+		- ``verbose=""`` (This is the default)
         
 Updating
 ---------------
