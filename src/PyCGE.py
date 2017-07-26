@@ -550,12 +550,4 @@ def print_function (verbose="", output = "", typename=""): #this is called from 
             output(ostream=output_file) #write to file
         print("Output saved to: " + str(check + moment)) #let the user know where it is saved
 
-def model_welfare(PyCGE):
-    # Solve for Hicksian equivalent variations
-    print('\n----Welfare Measure----')
-    ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
-    ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
-    EV = ep1-ep0
-    
-    print('Hicksian equivalent variations: %.3f' % EV)
 
