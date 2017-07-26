@@ -90,8 +90,13 @@ Load the data::
 
 Instantiate the model::
 
-    test_cge.model_instance()
+    test_cge.model_instance(NAME, INDEX)
 
+Note: In this step it is neccesary to fix the numeraire. For example ``test_cge.model_instance('pf','CAP')`` would fix
+the index "CAP" of the variable "pf" at it's current value.
+
+Also note: Some solvers (IPOPT for example) delete fixed variables. Please make sure the solver chosen can handle a fixed
+variable in an appropriate way.
 
 Calibrate the Base Model
 ------------------------
