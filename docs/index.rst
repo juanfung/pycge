@@ -276,8 +276,125 @@ Note: Messages will be displayed if the user tries to go out of order and will h
 6. Solve ``sim`` instance (cannot solve again unless the ``sim`` instance is modified. see Step 5)
 
 
+Examples
+--------
+These are example scripts to show the basic setup, workflow, and some of the basic capabilities of PyCGE.
 
+This first example will compare two policy changes.
+Abolishing Tarrifs (to incentivize imports) Vs. Abolishing Production Taxes (to incentivize production)
+At the end of the script a welfare measure for each policy will be printed out to help decision makes evaluate the value of each.::
 
+    # Choose which model to look at, and create a ModelDef object
+    std_model = StdModelDef()
+    
+    # Create a PyCGE object and load the ModelDef object into it
+    testcge = PyCGE(std_model)
+    
+    # Load the data by passing the path to the directory that contains it
+    testcge.model_data('../data/stdcge_data_dir')
+    
+    # Create a `base` instance and pass in a variable and index to fix the numeraire
+    testcge.model_instance('pf', 'CAP')
+    
+    # Calibrate the `base` instance
+    testcge.model_calibrate('minos','neos')
+    
+    # Create a `sim` instance. This, right now, is exactly the same as the `base` instance
+    testcge.model_sim()
+    
+    
+    # Now a copy of the first PyCGE object can be made
+    # This will save the user having to perform all previous steps again
+    import copy
+    copycge = copy.deepcopy(testcge)
+    
+    
+    # This is the first policy change
+    # Modify the sim instance to set import tarrifs to 0 for each good
+    testcge.model_modify_sim('taum','BRD',0)
+    testcge.model_modify_sim('taum','MLK',0)
+    
+    # Solve the `sim` instance
+    testcge.model_solve('minos','neos')
+    
+    # Compare the equilibrium values between `base` and `sim`
+    testcge.model_postprocess('compare','print')
+    
+    
+    
+    
+    # This is the second policy change
+    # Modify the sim instance to set production taxes to 0 for each good
+    copycge.model_modify_sim('tauz','BRD',0)
+    copycge.model_modify_sim('tauz','MLK',0)
+    
+    # Solve the `sim` instance
+    copycge.model_solve('minos','neos')
+    
+    # Compare the equilibrium values between `base` and `sim`
+    copycge.model_postprocess('compare','print')
+    
+    
+    
+    
+    # This is an example of how one can use results to perform calculations such as computing EV
+    def model_welfare(PyCGE):
+        # Solve for Hicksian equivalent variations
+        print('\n----Welfare Measure----')
+        ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+        ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+        EV = ep1-ep0
+        
+        print('Hicksian equivalent variations: %.3f' % EV)
+    
+    
+    # Time to see the value of each policy change
+    print('----------------------------------------')
+    print("\nAbolish tarrifs")
+    model_welfare(testcge)
+    
+    print("\nAbolish taxes")
+    model_welfare(copycge)
+
+This second example shows how easy it is to view and modify parameters.::
+
+    # Choose which model to look at, and create a ModelDef object
+    spl_model = SplModelDef()
+    
+    
+    # Create a PyCGE object and load the ModelDef object into it
+    testcge = PyCGE(spl_model)
+    
+    
+    # Load the data by passing the path to the directory that contains it
+    testcge.model_data('../data/splcge_data_dir')
+    
+    
+    # Create a `base` instance and pass in a variable and index to fix the numeraire
+    testcge.model_instance('pf', 'CAP')
+    
+    
+    # Calibrate the `base` instance
+    testcge.model_calibrate('minos','neos')
+    
+    
+    # This allows the user to see all the params, their values, and what their docs
+    print('#===========original============#')
+    testcge.model_postprocess('params')
+    
+    # Modify a parameters
+    testcge.model_modify_base('X0','MLK',0)
+    
+    # View the params again, notice X0[MLK] is now set to 0
+    print('#===========X0[MLK] set to 0============#')
+    testcge.model_postprocess('params')
+    
+    # By passing in `undo=True` a user can undo their last change
+    testcge.model_modify_base('X0','MLK',None,undo=True)
+    
+    # View all params again. Notice that X0[MLK] was restored to its original value 
+    print('#===========after the "undo"============#')
+    testcge.model_postprocess('params')
 
 Indices and tables
 ==================
