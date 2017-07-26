@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 26 11:20:51 2017
+This is an example script to show some of the basic capabilities of PyCGE.
 
-@author: cmb11
+This example shows how easy it is to view and modify parameters. 
 """
 import sys
 sys.path.insert(0, '../src/')
