@@ -90,8 +90,13 @@ Load the data::
 
 Instantiate the model::
 
-    test_cge.model_instance()
+    test_cge.model_instance(NAME, INDEX)
 
+Note: In this step it is neccesary to fix the numeraire. For example ``test_cge.model_instance('pf','CAP')`` would fix
+the index "CAP" of the variable "pf" at it's current value.
+
+Also note: Some solvers (IPOPT for example) delete fixed variables. Please make sure the solver chosen can handle a fixed
+variable in an appropriate way.
 
 Calibrate the Base Model
 ------------------------
@@ -256,6 +261,20 @@ You may work with multiple ``ModelDef`` classes, e.g., ``ModelDef1``, ``ModelDef
 You may also edit an existing ``ModelDef`` and re-load it using ``importlib``::
 
     importlib.reload(ModelDef)
+
+Order of Operations
+-------------------
+None of these can be done before all previous steps are completed 
+
+Note: Messages will be displayed if the user tries to go out of order and will help guide them. 
+
+1. Create ``base`` instance
+2. OPTIONAL: Modify ``base`` instance (must return to this step each time the user modifies ``base`` instance)
+3. Solve ``base`` instance (cannot solve again unless the ``base`` instance is modified. see Step 2)
+4. Create ``sim`` instance
+5. OPTIONAL: Modify ``sim`` instance (must return to this step each time the user modifies ``sim`` instance)
+6. Solve ``sim`` instance (cannot solve again unless the ``sim`` instance is modified. see Step 5)
+
 
 
 
