@@ -268,12 +268,12 @@ None of these can be done before all previous steps are completed
 
 Note: Messages will be displayed if the user tries to go out of order and will help guide them. 
 
-1. Create `base` instance
-2. OPTIONAL: Modify `base` instance (must return to this step each time the user modifies `base` instance)
-3. Solve `base` instance (cannot solve again unless the `base` instance is modified. see Step 2)
-4. Create `sim` instance
-5. OPTIONAL: Modify `sim` instance (must return to this step each time the user modifies)
-6. Solve `sim` instance (cannot solve again unless the `sim` instance is modified. see Step 5)
+1. Create ``base`` instance
+2. OPTIONAL: Modify ``base`` instance (must return to this step each time the user modifies ``base`` instance)
+3. Solve ``base`` instance (cannot solve again unless the ``base`` instance is modified. see Step 2)
+4. Create ``sim`` instance
+5. OPTIONAL: Modify ``sim`` instance (must return to this step each time the user modifies ``sim`` instance)
+6. Solve ``sim`` instance (cannot solve again unless the ``sim`` instance is modified. see Step 5)
 
 
 
