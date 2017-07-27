@@ -90,8 +90,13 @@ Load the data::
 
 Instantiate the model::
 
-    test_cge.model_instance()
+    test_cge.model_instance(NAME, INDEX)
 
+Note: In this step it is neccesary to fix the numeraire. For example ``test_cge.model_instance('pf','CAP')`` would fix
+the index "CAP" of the variable "pf" at it's current value.
+
+Also note: Some solvers (IPOPT for example) delete fixed variables. Please make sure the solver chosen can handle a fixed
+variable in an appropriate way.
 
 Calibrate the Base Model
 ------------------------
@@ -129,7 +134,8 @@ To modify an instance::
 
     test_cge.model_modify_instance(NAME, INDEX, VALUE, fix=True, undo=False)
 
-where 
+where: 
+
 - ``NAME`` is a string (the name of the ``Var`` or ``Param`` to be modified) 
 - ``INDEX`` is a string (the index where the modification will be made) 
 - ``VALUE`` is numeric (the modification)
@@ -145,7 +151,7 @@ Also note that in order to modify a two-dimensional parameter, it must be surrou
 For example::
     test_cge.model_modify_instance('F0',('CAP','BRD'),0)
 
-While modifying a scalar paramter, simply pass in ``None`` as the ``INDEX``
+While modifying a scalar parameter, simply pass in ``None`` as the ``INDEX``
 For examples::
 	test_cge.model_modify_instance('F0',None,0)
 
@@ -174,7 +180,8 @@ Viewing an Instance or Results
 To export anything::
     
     	test_cge.model_postprocess(object_name="", verbose="", base=True)
-	(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
+    	
+(Note: by default this will deal with ``base`` instance, results, etc. Pass in ``base=False`` to deal with ``sim`` objects)
 
 - To output display of instance
 	- ``object_name="instance"``
@@ -205,7 +212,7 @@ To export anything::
 
 - To output parameters (Note: this shows parameter name, value, and doc)
 	- ``object_name="params``
-		-``verbose=''``(This is the default)
+		- ``verbose=""`` (This is the default)
         
 Updating
 ---------------
@@ -242,6 +249,7 @@ Local Solvers
 --------------
 
 TODO: Add info on installing Ipopt, etc.
+Remember to note that Spyder has trouble running local solver.
 
 Working With Model Definitions
 ------------------------------
@@ -257,8 +265,139 @@ You may also edit an existing ``ModelDef`` and re-load it using ``importlib``::
 
     importlib.reload(ModelDef)
 
+Order of Operations
+-------------------
+None of these can be done before all previous steps are completed 
+
+Note: Messages will be displayed if the user tries to go out of order and will help guide them. 
+
+1. Create ``base`` instance
+2. OPTIONAL: Modify ``base`` instance (must return to this step each time the user modifies ``base`` instance)
+3. Solve ``base`` instance (cannot solve again unless the ``base`` instance is modified. see Step 2)
+4. Create ``sim`` instance
+5. OPTIONAL: Modify ``sim`` instance (must return to this step each time the user modifies ``sim`` instance)
+6. Solve ``sim`` instance (cannot solve again unless the ``sim`` instance is modified. see Step 5)
 
 
+Examples
+--------
+These are example scripts to show the basic setup, workflow, and some of the basic capabilities of PyCGE.
+
+This first example will compare two policy changes.
+Abolishing Tarrifs (to incentivize imports) Vs. Abolishing Production Taxes (to incentivize production)
+At the end of the script a welfare measure for each policy will be printed out to help decision makes evaluate the value of each.::
+
+    # Choose which model to look at, and create a ModelDef object
+    std_model = StdModelDef()
+    
+    # Create a PyCGE object and load the ModelDef object into it
+    testcge = PyCGE(std_model)
+    
+    # Load the data by passing the path to the directory that contains it
+    testcge.model_data('../data/stdcge_data_dir')
+    
+    # Create a `base` instance and pass in a variable and index to fix the numeraire
+    testcge.model_instance('pf', 'CAP')
+    
+    # Calibrate the `base` instance
+    testcge.model_calibrate('minos','neos')
+    
+    # Create a `sim` instance. This, right now, is exactly the same as the `base` instance
+    testcge.model_sim()
+    
+    
+    # Now a copy of the first PyCGE object can be made
+    # This will save the user having to perform all previous steps again
+    import copy
+    copycge = copy.deepcopy(testcge)
+    
+    
+    # This is the first policy change
+    # Modify the sim instance to set import tarrifs to 0 for each good
+    testcge.model_modify_sim('taum','BRD',0)
+    testcge.model_modify_sim('taum','MLK',0)
+    
+    # Solve the `sim` instance
+    testcge.model_solve('minos','neos')
+    
+    # Compare the equilibrium values between `base` and `sim`
+    testcge.model_postprocess('compare','print')
+    
+    
+    
+    
+    # This is the second policy change
+    # Modify the sim instance to set production taxes to 0 for each good
+    copycge.model_modify_sim('tauz','BRD',0)
+    copycge.model_modify_sim('tauz','MLK',0)
+    
+    # Solve the `sim` instance
+    copycge.model_solve('minos','neos')
+    
+    # Compare the equilibrium values between `base` and `sim`
+    copycge.model_postprocess('compare','print')
+    
+    
+    
+    
+    # This is an example of how one can use results to perform calculations such as computing EV
+    def model_welfare(PyCGE):
+        # Solve for Hicksian equivalent variations
+        print('\n----Welfare Measure----')
+        ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+        ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
+        EV = ep1-ep0
+        
+        print('Hicksian equivalent variations: %.3f' % EV)
+    
+    
+    # Time to see the value of each policy change
+    print('----------------------------------------')
+    print("\nAbolish tarrifs")
+    model_welfare(testcge)
+    
+    print("\nAbolish taxes")
+    model_welfare(copycge)
+
+This second example shows how easy it is to view and modify parameters.::
+
+    # Choose which model to look at, and create a ModelDef object
+    spl_model = SplModelDef()
+    
+    
+    # Create a PyCGE object and load the ModelDef object into it
+    testcge = PyCGE(spl_model)
+    
+    
+    # Load the data by passing the path to the directory that contains it
+    testcge.model_data('../data/splcge_data_dir')
+    
+    
+    # Create a `base` instance and pass in a variable and index to fix the numeraire
+    testcge.model_instance('pf', 'CAP')
+    
+    
+    # Calibrate the `base` instance
+    testcge.model_calibrate('minos','neos')
+    
+    
+    # This allows the user to see all the params, their values, and what their docs
+    print('#===========original============#')
+    testcge.model_postprocess('params')
+    
+    # Modify a parameters
+    testcge.model_modify_base('X0','MLK',0)
+    
+    # View the params again, notice X0[MLK] is now set to 0
+    print('#===========X0[MLK] set to 0============#')
+    testcge.model_postprocess('params')
+    
+    # By passing in `undo=True` a user can undo their last change
+    testcge.model_modify_base('X0','MLK',None,undo=True)
+    
+    # View all params again. Notice that X0[MLK] was restored to its original value 
+    print('#===========after the "undo"============#')
+    testcge.model_postprocess('params')
 
 Indices and tables
 ==================

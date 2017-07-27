@@ -304,57 +304,60 @@ class PyCGE:
             output_file = open(check, 'w')
             
             output = output_file.write                 
-    
-        try:
-            if self.base: #if base instance has been created
-                try:
-                    if self.sim: #if sim instance has been created
-                                        
-                        try:
-                            if self.base_results: #if base has been solved
-                                try:
-                                    if self.sim_results: #if sim has been solved
-                                        
-                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
-                                        output("#===========note: both models solved==========#\n")
-                                        
+        
+        if verbose != '':
+            try:
+                if self.base: #if base instance has been created
+                    try:
+                        if self.sim: #if sim instance has been created
                                             
-                                except:
-                                        output("#===========HERE ARE THE DIFFERENCES==========#\n")
-                                        output("#===========note: base model solved===========#\n")
-                                        output("#===========      sim model unsolved==========#\n")
-                        except:
-                            output("#===========HERE ARE THE DIFFERENCES==========#\n")
-                            output("#===========note: both models unsolved==========#\n") 
-                        
-                     
-                        for n in self.sim.component_objects(Var, active=True):  #go through sim components
-                            newobject = getattr(self.sim, str(n)) #get sim object
-                            for o in self.base.component_objects(Var, active=True): #go through base components
-                                oldobject = getattr(self.base, str(o)) #get base object
-                                if str(n)==str(o): #if they are the same object (for example X == X)
-                                    output(str(newobject)) # print it
-                                    for newindex in newobject: #go through sim indexes
-                                        for oldindex in oldobject: #go through base indexes
-                                            if newindex == oldindex: #if they are the same index (for example 'BRD' == 'BRD')
-                                                diff = oldobject[oldindex].value - newobject[newindex].value #calculate the difference between the two
-                                                if newobject[newindex].value != 0: #if the sim value does not equal 0 (to avoid division by 0)
+                            try:
+                                if self.base_results: #if base has been solved
+                                    try:
+                                        if self.sim_results: #if sim has been solved
+                                            
+                                            output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                            output("#===========note: both models solved==========#\n")
+                                            
                                                 
-                                                    per = (oldobject[oldindex].value / newobject[newindex].value) * 100 #caluculate percentage
-                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)) 
-                                                else: #if it DOES equal zero
-                                                    output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" ))
-                        
-                        
-                        output('{},{}\n'.format("\nCalibrated Value of obj = ", value(self.base.obj)))
-                        output('{},{}\n'.format("\nSimulated Value of obj = ", value(self.sim.obj)))
-                        output('{},{}\n'.format("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj)))   
-
-                except AttributeError:
-                    print("You have not created a SIM instance")
-        except AttributeError:
-            print("You have not created a BASE instance")
-        if output_file:
+                                    except:
+                                            output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                            output("#===========note: base model solved===========#\n")
+                                            output("#===========      sim model unsolved==========#\n")
+                            except:
+                                output("#===========HERE ARE THE DIFFERENCES==========#\n")
+                                output("#===========note: both models unsolved==========#\n") 
+                            
+                         
+                            for n in self.sim.component_objects(Var, active=True):  #go through sim components
+                                newobject = getattr(self.sim, str(n)) #get sim object
+                                for o in self.base.component_objects(Var, active=True): #go through base components
+                                    oldobject = getattr(self.base, str(o)) #get base object
+                                    if str(n)==str(o): #if they are the same object (for example X == X)
+                                        output(str(newobject)) # print it
+                                        for newindex in newobject: #go through sim indexes
+                                            for oldindex in oldobject: #go through base indexes
+                                                if newindex == oldindex: #if they are the same index (for example 'BRD' == 'BRD')
+                                                    diff = oldobject[oldindex].value - newobject[newindex].value #calculate the difference between the two
+                                                    if newobject[newindex].value != 0: #if the sim value does not equal 0 (to avoid division by 0)
+                                                    
+                                                        per = (oldobject[oldindex].value / newobject[newindex].value) * 100 #caluculate percentage
+                                                        output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Percentage = %.4f" % per)) 
+                                                    else: #if it DOES equal zero
+                                                        output('{},{},{}\n'.format(newindex, "Difference = %.4f" % diff, "     Note: ", newindex, "now = 0" ))
+                            
+                            
+                            output('{},{}\n'.format("\nCalibrated Value of obj = ", value(self.base.obj)))
+                            output('{},{}\n'.format("\nSimulated Value of obj = ", value(self.sim.obj)))
+                            output('{},{}\n'.format("\nDifference of obj = ", value(self.base.obj) - value(self.sim.obj)))   
+    
+                    except AttributeError:
+                        print("You have not created a SIM instance")
+            except AttributeError:
+                print("You have not created a BASE instance")
+            
+            
+        if verbose != '' and verbose !='print':
             output_file.close()
 
 
@@ -484,7 +487,7 @@ class PyCGE:
                             try:
                                 if self.sim_results:
                                     
-                                    with open(check + 'sim_' + moment, 'wb') as dill_output:
+                                    with open(check + '_sim_' + moment, 'wb') as dill_output:
                                         dill.dump(self.sim, dill_output)
                                     print("Sim instance saved to:  " + str(check + '_sim_' + moment))
                             except AttributeError:
@@ -547,12 +550,4 @@ def print_function (verbose="", output = "", typename=""): #this is called from 
             output(ostream=output_file) #write to file
         print("Output saved to: " + str(check + moment)) #let the user know where it is saved
 
-def model_welfare(PyCGE):
-    # Solve for Hicksian equivalent variations
-    print('\n----Welfare Measure----')
-    ep0 = (value(PyCGE.base.obj)) /prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
-    ep1 = (value(PyCGE.sim.obj)) / prod((PyCGE.base.alpha[i]/1)**PyCGE.base.alpha[i] for i in PyCGE.base.alpha)
-    EV = ep1-ep0
-    
-    print('Hicksian equivalent variations: %.3f' % EV)
 
