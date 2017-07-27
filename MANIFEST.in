@@ -1,0 +1,3 @@
+include docs/*
+include pycge/data/splcge_data_dir/*
+include pycge/data/stdcge_data_dir/*
