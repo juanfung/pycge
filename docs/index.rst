@@ -249,6 +249,7 @@ Local Solvers
 --------------
 
 TODO: Add info on installing Ipopt, etc.
+Remember to note that Spyder has trouble running local solver.
 
 Working With Model Definitions
 ------------------------------
