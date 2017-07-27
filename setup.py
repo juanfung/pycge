@@ -10,5 +10,12 @@ from distutils.core import setup
 setup(
         name='PyCGE',
         version='0.1dev',
-        packages=['pycge']
+        packages=['pycge','tests','pycge/examples'],
+        url='',
+        license='',
+        description='',
+        long_description = open('README.txt').read(),
+        author = 'Juan Fung, Charley Burtwistle',
+        author_email = 'juan.fung@nist.gov',
+        include_package_data=True
         )
