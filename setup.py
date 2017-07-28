@@ -14,7 +14,7 @@ setup(
         url='',
         license='',
         description='',
-        long_description = open('README.txt').read(),
+        long_description = open('README.md').read(),
         author = 'Juan Fung, Charley Burtwistle',
         author_email = 'juan.fung@nist.gov',
         include_package_data=True
