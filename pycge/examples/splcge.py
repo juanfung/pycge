@@ -4,8 +4,7 @@ This is an example script to show some of the basic capabilities of PyCGE.
 
 This example shows how easy it is to view and modify parameters. 
 """
-import sys
-sys.path.insert(0, '../pycge/')
+
 from pycge.examples.splcge_model_def import SplModelDef
 from pycge.PyCGE import PyCGE
 

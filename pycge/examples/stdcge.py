@@ -8,8 +8,6 @@ At the end of the script a welfare measure for each policy will be printed out t
 
 """
 from pyomo.environ import *
-import sys
-sys.path.insert(0, '../pycge/')
 from pycge.examples.stdcge_model_def import StdModelDef
 from pycge.PyCGE import PyCGE
 
