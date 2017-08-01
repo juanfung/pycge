@@ -7,12 +7,9 @@ Abolishing Tarrifs (to incentivize imports) Vs. Abolishing Production Taxes (to 
 At the end of the script a welfare measure for each policy will be printed out to help decision makes evaluate the value of each.
 
 """
-
 from pyomo.environ import *
-import sys
-sys.path.insert(0, '../src/')
-from stdcge_model_def import StdModelDef
-from PyCGE import PyCGE
+from pycge.examples.stdcge_model_def import StdModelDef
+from pycge.PyCGE import PyCGE
 
 
 

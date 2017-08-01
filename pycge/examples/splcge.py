@@ -4,10 +4,9 @@ This is an example script to show some of the basic capabilities of PyCGE.
 
 This example shows how easy it is to view and modify parameters. 
 """
-import sys
-sys.path.insert(0, '../src/')
-from splcge_model_def import SplModelDef
-from PyCGE import PyCGE
+
+from pycge.examples.splcge_model_def import SplModelDef
+from pycge.PyCGE import PyCGE
 
 # Choose which model to look at, and create a ModelDef object
 spl_model = SplModelDef()
