@@ -40,7 +40,7 @@ A quick summary of a standard workflow::
 
 ## Credits  
 
-The package is maintained by Juan Fung (juan.fung@nist.gov)
+The package is maintained by Juan Fung [juan.fung@nist.gov](juan.fung@nist.gov)
 
 ### Developers 
 
