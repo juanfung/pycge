@@ -14,7 +14,7 @@ Contents:
 Getting Ready
 ---------------
 
-This program is written in ``python 3`` and depends on the ```pyomo`` <http://www.pyomo.org>`_ 
+This program is written in ``python-3.x`` and depends on the ```pyomo`` <http://www.pyomo.org>`_ 
 package::
 
     pip install pyomo
@@ -24,7 +24,7 @@ package::
 See `<http://www.pyomo.org/installation/>`_ for more details on installation, 
 and `the documentation <http://www.pyomo.org/documentation/>`_ for info on the package.
 
-Small to moderately sized problems may be handles through the use of remote solvers
+Small to moderately sized problems may be handled through the use of remote solvers
 on the `NEOS Server <https://neos-server.org/neos/>`_, which is accessible by ``pyomo``.
 
 To use a *local* solver, see below.
