@@ -4,15 +4,15 @@ This package provides an interface for solving a Computable
 General Equilibrium (CGE) model in Python, using the package
 [pyomo](www.pyomo.org) as the back end.
 
-## Requirements ## 
+## Requirements  
 
 `python-3.x` and `pyomo`
 
-## Setup and installation ## 
+## Setup and installation  
 
 See `./docs/index.rst`
 
-## Quick Start ##
+## Quick Start 
 
 A quick summary of a standard workflow::
 
@@ -38,10 +38,10 @@ A quick summary of a standard workflow::
 
 
 
-## Credits  ##
+## Credits  
 
 The package is maintained by Juan Fung (juan.fung@nist.gov)
 
-### Developers ###
+### Developers 
 
 - Charles Burtwistle
