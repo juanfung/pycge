@@ -6,7 +6,7 @@ General Equilibrium (CGE) model in Python, using the package
 
 ## Requirements  
 
-`python-3.x` and `pyomo`
+`python-3.x` and `pyomo 5.2`
 
 ## Setup and installation  
 
@@ -40,7 +40,7 @@ A quick summary of a standard workflow::
 
 ## Credits  
 
-The package is maintained by Juan Fung [juan.fung@nist.gov](juan.fung@nist.gov)
+The package is maintained by Juan Fung <[juan.fung@nist.gov](juan.fung@nist.gov)>
 
 ### Developers 
 
