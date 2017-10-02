@@ -44,4 +44,4 @@ The package is maintained by Juan Fung <[juan.fung@nist.gov](juan.fung@nist.gov)
 
 ### Developers 
 
-- Charles Burtwistle
+- [Charles Burtwistle](https://github.com/charleyburt)
