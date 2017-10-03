@@ -46,7 +46,3 @@ The package is maintained by Juan Fung <[juan.fung@nist.gov](juan.fung@nist.gov)
 
 - [Charles Burtwistle](https://github.com/charleyburt)
 
-## MIRROR ONLY
-
-This repository is a mirror of a private Gitlab repo. Please contact the maintainer if you 
-would like to contribute.
