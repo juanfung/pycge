@@ -5,15 +5,15 @@ Created on Thu Jul 27 14:13:56 2017
 @author: cmb11
 """
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
         name='PyCGE',
         version='0.1dev',
-        packages=['pycge','tests','pycge/examples'],
-        url='',
+        packages=find_packages(),
+        url='htpps://github.com/juanfung/pycge.git',
         license='',
-        description='',
+        description='A python interface for solving CGE models',
         long_description = open('README.md').read(),
         author = 'Juan Fung, Charley Burtwistle',
         author_email = 'juan.fung@nist.gov',
