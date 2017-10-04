@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-Getting Ready
+Requirements
 ---------------
 
 This program is written in ``python-3.x`` and depends on the ```pyomo`` <http://www.pyomo.org>`_ 
@@ -24,10 +24,16 @@ package::
 See `<http://www.pyomo.org/installation/>`_ for more details on installation, 
 and `the documentation <http://www.pyomo.org/documentation/>`_ for info on the package.
 
+Solvers
+~~~~~~~
+
 Small to moderately sized problems may be handled through the use of remote solvers
 on the `NEOS Server <https://neos-server.org/neos/>`_, which is accessible by ``pyomo``.
 
 To use a *local* solver, see below.
+
+Input data
+~~~~~~~~~~
 
 Before using this program, it is neccesary to prepare your data.
 All data should be stored in a single directory with no other
@@ -44,6 +50,12 @@ A file containing the set "h" should be named::
 While a file containing a parameter "sam" should be named::
 
         param-sam-.csv
+
+
+Installation
+------------
+
+TODO: installation instructions
 
 
 Quick Start
