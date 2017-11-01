@@ -92,6 +92,7 @@ As of October 4, 2017, package repository will be *hosted* on Github and *mirror
      - ~~model creation and model solution~~
      - Add installation instructions
      - Add instructions for importing examples *and example data*, eg, `from pycge.examples import *`
+     - Host documentation on readthedocs
 
 - ~~From module to package~~
      - reorganize project directory
