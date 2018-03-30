@@ -3,7 +3,7 @@ TODO list
 As of October 4, 2017, package repository will be *hosted* on Github and *mirrored* on the
 (private) Gitlab NIST server. Github issues will supercede this TODO list.
 
-- Create RELEASE_NOTES file to document v0.1+ releases and major changes
+- Create RELEASE_NOTES file to document v0.1+ releases and major changes?
 
 - Pre-development and development version milestones 
      - ~~v0.0.1: working module that replicates demo~~
@@ -92,6 +92,7 @@ As of October 4, 2017, package repository will be *hosted* on Github and *mirror
      - ~~model creation and model solution~~
      - Add installation instructions
      - Add instructions for importing examples *and example data*, eg, `from pycge.examples import *`
+     - Host documentation on readthedocs
 
 - ~~From module to package~~
      - reorganize project directory
