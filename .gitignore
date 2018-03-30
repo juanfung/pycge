@@ -2,6 +2,7 @@ results/
 docs/_build/
 data_directory/
 *__pycache__/
+.DS_Store
 *.pyc
 /dist/
 /*.egg-info
