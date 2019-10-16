@@ -11,6 +11,10 @@ setup(
         name='PyCGE',
         version='0.1dev',
         python_requires='~=3.6',
+        install_requires = [
+            'dill>=0.2.7', 
+            'pyomo>=5.4.3'
+            ],
         packages=find_packages(),
         url='htpps://github.com/juanfung/pycge.git',
         license='',
