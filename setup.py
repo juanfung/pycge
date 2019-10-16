@@ -8,7 +8,7 @@ Created on Thu Jul 27 14:13:56 2017
 from setuptools import setup, find_packages
 
 setup(
-        name='PyCGE',
+        name='pycge',
         version='0.1dev',
         python_requires='~=3.6',
         install_requires = [
